@@ -1,258 +1,249 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { ParsedPDF } from "./pdf";
+import { ParsedPDF, buildAnalysisText } from "./pdf";
 import { ReportAnalysis } from "./supabase";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
 
-const SYSTEM_PROMPT = `You are an elite buy-side equity analyst at a top-tier hedge fund with 20+ years of experience analysing annual reports. You have deep expertise in financial statement analysis, business quality assessment, management evaluation, and identifying investment catalysts and risks.
+const SYSTEM_PROMPT = `You are an elite buy-side equity analyst at a top-tier hedge fund. Analyse annual reports and return structured investment research JSON.
 
-Your analysis must:
-- Think and write like a seasoned buy-side analyst briefing a portfolio manager
-- Focus relentlessly on investment implications, not accounting summaries
-- Ground every conclusion in specific evidence from the annual report (cite actual numbers, quotes, or disclosures)
-- Distinguish between what management says and what the numbers show
-- Identify non-obvious insights that the market may be missing
-- Be direct about uncertainty — if evidence is weak, say so explicitly
-- Never pad with generic statements — every sentence must add analytical value
+Rules:
+- Every conclusion must cite specific evidence (numbers, quotes, disclosures) from the report
+- If evidence is weak or absent, state uncertainty explicitly
+- Focus on investment implications, not accounting summaries
+- Think like a PM briefing — what matters for the investment case
+- Output ONLY valid JSON. No preamble, no markdown, no text outside the JSON.`;
 
-Output ONLY valid JSON matching the exact schema provided. No preamble, no markdown, no explanation outside the JSON.`;
-
+// ── Build the analysis prompt ─────────────────────────────────────────────────
 function buildPrompt(
   stockName: string,
-  documents: { file_name: string; doc_type: string; year: string | null; text: string }[],
+  docs: { file_name: string; doc_type: string; year: string | null; text: string }[],
   multiYear: boolean
 ): string {
-  const docSummary = documents.map(d =>
-    `\n\n${"=".repeat(60)}\nDOCUMENT: ${d.file_name} (${d.doc_type}${d.year ? `, ${d.year}` : ""})\n${"=".repeat(60)}\n${d.text}`
+  const content = docs.map(d =>
+    `\n\n${"─".repeat(60)}\nFILING: ${d.file_name} | ${d.doc_type}${d.year ? ` | ${d.year}` : ""}\n${"─".repeat(60)}\n${d.text}`
   ).join("");
 
-  return `Analyse the following documents for ${stockName} and return a comprehensive investment research report as JSON.
-${docSummary}
+  return `Analyse the following filings for ${stockName} and return a comprehensive institutional investment research report as JSON.
+${content}
 
-Return a JSON object with EXACTLY this structure. Every field is required. Be specific, evidence-based, and analytically rigorous:
+Return ONLY this exact JSON structure — all fields required:
 
 {
   "investmentSnapshot": {
-    "companyDescription": "2-3 sentence description of the business",
+    "companyDescription": "2-3 sentence business description",
     "sector": "Primary sector",
-    "keyProducts": ["product/service 1", "product/service 2"],
-    "geographicExposure": ["geography 1 with % if available"],
-    "investmentRelevance": "Why this company matters to investors right now",
-    "attractivenessScore": <1-10 integer>,
-    "attractivenessRationale": "Detailed explanation of score"
+    "keyProducts": ["product/service 1"],
+    "geographicExposure": ["geography with % if available"],
+    "investmentRelevance": "Why this matters to investors now",
+    "attractivenessScore": <1-10>,
+    "attractivenessRationale": "Explanation with evidence"
   },
   "executiveSummary": {
-    "whatHappened": "Key operational and financial developments (150 words max)",
-    "whatMattersMost": "The 2-3 things that will determine the investment outcome (150 words max)",
+    "whatHappened": "Key developments this year (150 words max)",
+    "whatMattersMost": "2-3 things determining investment outcome (150 words max)",
     "whyInvestorsCare": "Investment thesis in plain language (150 words max)"
   },
   "keyDrivers": {
-    "drivers": [
-      {
-        "category": "Revenue|Margin|Cost|Capital Allocation|Industry",
-        "name": "Driver name",
-        "mechanism": "How this driver works",
-        "upside": "Best case scenario with magnitude",
-        "downside": "Downside risk with magnitude",
-        "rank": <1-10 integer, 1 = most important>
-      }
-    ]
+    "drivers": [{
+      "category": "Revenue|Margin|Cost|Capital Allocation|Industry",
+      "name": "Driver name",
+      "mechanism": "How it works",
+      "upside": "Best case with magnitude",
+      "downside": "Risk with magnitude",
+      "rank": <1-10, 1=most important>
+    }]
   },
   "bullCase": {
-    "points": [
-      {
-        "title": "Bull point title",
-        "evidence": "Specific evidence from the documents",
-        "catalyst": "What could unlock this value",
-        "timeline": "3-6 months / 6-12 months / 1-2 years / 2+ years",
-        "confidence": "High|Medium|Low"
-      }
-    ]
+    "points": [{
+      "title": "Bull point",
+      "evidence": "Specific evidence from filing",
+      "catalyst": "What unlocks value",
+      "timeline": "3-6 months|6-12 months|1-2 years|2+ years",
+      "confidence": "High|Medium|Low"
+    }]
   },
   "bearCase": {
-    "points": [
-      {
-        "title": "Bear point title",
-        "evidence": "Specific evidence from the documents",
-        "severity": "High|Medium|Low",
-        "likelihood": "High|Medium|Low",
-        "impact": "Quantified or described impact on investment value"
-      }
-    ]
+    "points": [{
+      "title": "Bear point",
+      "evidence": "Specific evidence from filing",
+      "severity": "High|Medium|Low",
+      "likelihood": "High|Medium|Low",
+      "impact": "Impact on investment value"
+    }]
   },
   "variantPerception": {
     "exists": <true|false>,
-    "category": "Underappreciated growth|Margin expansion|Competitive advantage|Regulatory benefit|Industry shift|Capital allocation|null",
-    "thesis": "What the market is missing and why",
-    "evidence": "Specific support from the documents",
+    "category": "Underappreciated growth|Margin expansion|Competitive advantage|Regulatory benefit|Industry shift|Capital allocation",
+    "thesis": "What market is missing",
+    "evidence": "Support from filing",
     "magnitude": "Potential impact if correct"
   },
   "managementQuality": {
-    "ceoCredibility": "Assessment with specific evidence",
-    "strategicConsistency": "Strategy consistency, pivots, delivery track record",
-    "capitalAllocationQuality": "How management has deployed capital",
-    "shareholderAlignment": "Insider ownership, incentive structure",
-    "communicationQuality": "Candour, specificity, transparency vs obfuscation",
-    "score": <1-10 integer>,
-    "evidence": "Key supporting evidence for the score"
+    "ceoCredibility": "Assessment with evidence",
+    "strategicConsistency": "Strategy delivery track record",
+    "capitalAllocationQuality": "How capital has been deployed",
+    "shareholderAlignment": "Insider ownership, incentives",
+    "communicationQuality": "Candour vs obfuscation",
+    "score": <1-10>,
+    "evidence": "Key evidence for score"
   },
   "capitalAllocation": {
-    "buybacks": "Buyback history and price discipline",
-    "dividends": "Dividend policy, coverage, growth",
-    "acquisitions": "M&A history, prices paid, integration",
-    "debtManagement": "Leverage trends, debt structure",
-    "reinvestment": "Capex, R&D, organic growth investment",
+    "buybacks": "Buyback history and discipline",
+    "dividends": "Dividend policy and coverage",
+    "acquisitions": "M&A history and integration",
+    "debtManagement": "Leverage trends",
+    "reinvestment": "Capex and R&D investment",
     "rating": "Excellent|Good|Average|Poor",
-    "rationale": "Detailed justification"
+    "rationale": "Justification"
   },
   "financialQuality": {
-    "revenueGrowth": "Growth rates, quality, sustainability",
+    "revenueGrowth": "Growth rates and sustainability",
     "margins": "Margin levels, trends, drivers",
     "cashConversion": "FCF quality vs reported earnings",
-    "roicIndicators": "Return metrics, trends",
-    "leverage": "Debt levels, coverage ratios",
-    "liquidity": "Liquidity position, refinancing needs",
-    "score": <1-10 integer>
+    "roicIndicators": "Return metrics and trends",
+    "leverage": "Debt levels and coverage",
+    "liquidity": "Liquidity and refinancing",
+    "score": <1-10>
   },
   "accountingFlags": {
-    "flags": [
-      {
-        "concern": "Name of concern",
-        "detail": "Specific detail from the accounts",
-        "severity": "High|Medium|Low"
-      }
-    ]
+    "flags": [{
+      "concern": "Concern name",
+      "detail": "Specific detail",
+      "severity": "High|Medium|Low"
+    }]
   },
   "governanceReview": {
-    "boardStructure": "Board composition, tenure, skills",
-    "independence": "Independent director quality",
-    "governanceQuality": "Overall governance assessment",
-    "executiveInfluence": "CEO/founder influence over board",
-    "potentialConflicts": "Related party transactions, conflicts",
-    "score": <1-10 integer>
+    "boardStructure": "Composition, tenure, skills",
+    "independence": "Director independence quality",
+    "governanceQuality": "Overall assessment",
+    "executiveInfluence": "CEO/founder influence",
+    "potentialConflicts": "Related party transactions",
+    "score": <1-10>
   },
   "remunerationAnalysis": {
-    "incentiveAlignment": "Are incentives aligned with shareholder value?",
-    "performanceMetrics": "What metrics drive pay?",
-    "potentialValueDestruction": "Any incentives that could destroy value?",
+    "incentiveAlignment": "Incentive alignment assessment",
+    "performanceMetrics": "What metrics drive pay",
+    "potentialValueDestruction": "Any destructive incentives",
     "orientation": "Long-term value creation|Short-term earnings management|Mixed",
     "assessment": "Overall pay assessment"
   },
   "riskMatrix": {
-    "risks": [
-      {
-        "category": "Operational|Financial|Regulatory|Competitive|Technological|Management",
-        "name": "Risk name",
-        "description": "Specific risk description",
-        "severity": "High|Medium|Low"
-      }
-    ]
+    "risks": [{
+      "category": "Operational|Financial|Regulatory|Competitive|Technological|Management",
+      "name": "Risk name",
+      "description": "Risk description with context",
+      "severity": "High|Medium|Low"
+    }]
   },
   "catalysts": {
-    "threeMonths": ["catalyst 1", "catalyst 2"],
-    "sixMonths": ["catalyst 1", "catalyst 2"],
-    "twelveMonths": ["catalyst 1", "catalyst 2"],
-    "twentyFourMonths": ["catalyst 1", "catalyst 2"]
+    "threeMonths": ["catalyst"],
+    "sixMonths": ["catalyst"],
+    "twelveMonths": ["catalyst"],
+    "twentyFourMonths": ["catalyst"]
   },
   "managementQuestions": {
-    "questions": ["Question 1", "...15 total questions"]
+    "questions": ["Question 1 (15 total, institutional quality)"]
   },
   "investmentMemo": {
-    "thesis": "Core investment thesis in 2-3 sentences",
-    "keyPositives": ["Positive 1", "Positive 2", "Positive 3"],
-    "keyRisks": ["Risk 1", "Risk 2", "Risk 3"],
-    "catalysts": ["Catalyst 1", "Catalyst 2"],
-    "furtherWork": ["What else needs investigating before conviction"]
+    "thesis": "Core thesis in 2-3 sentences",
+    "keyPositives": ["Positive 1"],
+    "keyRisks": ["Risk 1"],
+    "catalysts": ["Catalyst 1"],
+    "furtherWork": ["What needs investigating"]
   },
   "overallScore": {
-    "total": <0-100 integer>,
-    "businessQuality": <0-100 integer>,
-    "financialQuality": <0-100 integer>,
-    "managementQuality": <0-100 integer>,
-    "governanceQuality": <0-100 integer>,
-    "riskProfile": <0-100 integer>,
-    "capitalAllocationQuality": <0-100 integer>,
-    "explanation": "Comprehensive explanation of the total score"
+    "total": <0-100>,
+    "businessQuality": <0-100>,
+    "financialQuality": <0-100>,
+    "managementQuality": <0-100>,
+    "governanceQuality": <0-100>,
+    "riskProfile": <0-100>,
+    "capitalAllocationQuality": <0-100>,
+    "explanation": "Comprehensive score explanation"
   }${multiYear ? `,
   "yearOnYearTrends": {
-    "yearsAnalysed": ["2020", "2021", "2022", "2023", "2024"],
-    "financialTrends": [
-      {
-        "metric": "Revenue",
-        "values": [{ "year": "2020", "value": "£Xm" }, { "year": "2021", "value": "£Xm" }],
-        "trend": "improving|deteriorating|stable|mixed",
-        "commentary": "What drove the change and what it means for the investment case"
-      }
-    ],
-    "strategyEvolution": [
-      {
-        "year": "2021",
-        "keyTheme": "Theme name",
-        "change": "What changed vs prior year and why it matters"
-      }
-    ],
-    "managementToneShifts": "How has management language, confidence, and candour changed across the years? More cautious? More bullish? Less transparent?",
-    "capitalAllocationEvolution": "How has the approach to buybacks, dividends, acquisitions, and reinvestment changed over the years?",
-    "keyNarrativeChanges": "What are the biggest changes in what management emphasises — new risks, new opportunities, dropped topics?",
-    "improvingFactors": ["Factor getting better year on year"],
-    "deterioratingFactors": ["Factor getting worse year on year"],
-    "overallTrendAssessment": "Is the overall trajectory of the business improving, deteriorating, or mixed? What does the multi-year picture tell us that a single year cannot?"
+    "yearsAnalysed": ["2022","2023","2024"],
+    "financialTrends": [{
+      "metric": "Revenue",
+      "values": [{"year": "2022", "value": "$Xbn"}, {"year": "2023", "value": "$Xbn"}],
+      "trend": "improving|deteriorating|stable|mixed",
+      "commentary": "What drove the change"
+    }],
+    "strategyEvolution": [{"year": "2023", "keyTheme": "Theme", "change": "What changed vs prior year"}],
+    "managementToneShifts": "How tone changed across years",
+    "capitalAllocationEvolution": "How approach evolved",
+    "keyNarrativeChanges": "Biggest narrative changes",
+    "improvingFactors": ["Factor improving"],
+    "deterioratingFactors": ["Factor deteriorating"],
+    "overallTrendAssessment": "Overall multi-year trajectory assessment"
   }` : ""}
 }`;
 }
 
+// ── Main analysis function ────────────────────────────────────────────────────
 export async function analyseStock(
   stockName: string,
   documents: { file_name: string; doc_type: string; year: string | null; parsed: ParsedPDF }[],
   onProgress?: (msg: string) => void
 ): Promise<ReportAnalysis> {
-  onProgress?.("Building analysis from documents...");
+  const t0 = Date.now();
+  onProgress?.("Building optimised analysis context...");
 
-  // Build text for each document, section-aware, cap per doc
-  const docTexts = documents.map((doc) => {
-    let text = "";
-    if (doc.parsed.sections.length > 0) {
-      for (const s of doc.parsed.sections) {
-        const chunk = `\n[${s.title}]\n${s.content}`;
-        if (text.length + chunk.length < 60000) text += chunk;
-      }
+  // Per-document: extract prioritised text, cap at 70k chars each, 110k total
+  const PER_DOC_LIMIT = 70000;
+  const TOTAL_LIMIT   = 110000;
+
+  const docTexts: { file_name: string; doc_type: string; year: string | null; text: string }[] = [];
+  let totalChars = 0;
+
+  for (const doc of documents) {
+    if (totalChars >= TOTAL_LIMIT) {
+      console.log(`[analysis] skipping ${doc.file_name} — total char limit reached`);
+      break;
     }
-    if (text.length < 5000) text = doc.parsed.text.slice(0, 60000);
-    return { file_name: doc.file_name, doc_type: doc.doc_type, year: doc.year, text };
-  });
+    const remaining = Math.min(PER_DOC_LIMIT, TOTAL_LIMIT - totalChars);
+    const text = buildAnalysisText(doc.parsed, remaining);
+    docTexts.push({ file_name: doc.file_name, doc_type: doc.doc_type, year: doc.year, text });
+    totalChars += text.length;
+    console.log(`[analysis] ${doc.file_name}: ${text.length.toLocaleString()} chars`);
+  }
 
-  onProgress?.("Running AI analysis — this takes 2–3 minutes...");
+  console.log(`[analysis] total context: ${totalChars.toLocaleString()} chars across ${docTexts.length} doc(s)`);
 
   const multiYear = docTexts.filter(d => d.doc_type === "annual_report" && d.year).length > 1;
+  onProgress?.(`Sending ${Math.round(totalChars / 1000)}k chars to Claude Sonnet...`);
 
+  const t1 = Date.now();
   const message = await client.messages.create({
     model: "claude-sonnet-4-6",
     max_tokens: multiYear ? 10000 : 8000,
     system: SYSTEM_PROMPT,
     messages: [{ role: "user", content: buildPrompt(stockName, docTexts, multiYear) }],
   });
+  console.log(`[analysis] Claude responded in ${Date.now() - t1}ms`);
 
-  onProgress?.("Parsing results...");
+  onProgress?.("Parsing analysis results...");
 
   const raw = message.content
-    .filter((c) => c.type === "text")
-    .map((c) => (c as { type: "text"; text: string }).text)
+    .filter(c => c.type === "text")
+    .map(c => (c as { type: "text"; text: string }).text)
     .join("");
 
   const match = raw.match(/\{[\s\S]*\}/);
-  if (!match) throw new Error("Failed to extract JSON from analysis response");
+  if (!match) {
+    console.error("[analysis] raw response:", raw.slice(0, 500));
+    throw new Error("Claude did not return valid JSON — check API key and model availability");
+  }
 
-  return JSON.parse(match[0]) as ReportAnalysis;
+  const analysis = JSON.parse(match[0]) as ReportAnalysis;
+  console.log(`[analysis] total pipeline: ${Date.now() - t0}ms`);
+  return analysis;
 }
 
-// Keep backward compat for any remaining callers
+// ── Compat alias ──────────────────────────────────────────────────────────────
 export async function analyseReport(
   parsed: ParsedPDF,
   onProgress?: (msg: string) => void
 ): Promise<ReportAnalysis> {
-  return analyseStock(
-    "Company",
-    [{ file_name: "document.pdf", doc_type: "annual_report", year: null, parsed }],
-    onProgress
-  );
+  return analyseStock("Company", [{ file_name: "document.pdf", doc_type: "annual_report", year: null, parsed }], onProgress);
 }

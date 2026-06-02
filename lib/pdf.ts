@@ -10,123 +10,125 @@ export type ParsedPDF = {
 export type ExtractedSection = {
   title: string;
   content: string;
-  pageHint?: number;
+  priority: number; // 1 = highest
 };
 
-const SECTION_PATTERNS = [
-  { pattern: /chairman['']?s?\s+(statement|letter|review|report)/i, title: "Chairman Statement" },
-  { pattern: /chief\s+executive['']?s?\s+(officer['']?s?\s+)?(statement|review|letter|report)/i, title: "CEO Review" },
-  { pattern: /strategic\s+report/i, title: "Strategic Report" },
-  { pattern: /business\s+(review|model|overview)/i, title: "Business Review" },
-  { pattern: /financial\s+(review|highlights|summary|performance)/i, title: "Financial Review" },
-  { pattern: /operating\s+(review|performance)/i, title: "Operating Review" },
-  { pattern: /risk\s+(factors?|management|review|report)/i, title: "Risk Section" },
-  { pattern: /principal\s+risks/i, title: "Risk Section" },
-  { pattern: /corporate\s+governance/i, title: "Governance Section" },
-  { pattern: /remuneration\s+(report|policy|committee)/i, title: "Remuneration Section" },
-  { pattern: /directors['']?\s+remuneration/i, title: "Remuneration Section" },
-  { pattern: /notes\s+to\s+(the\s+)?(consolidated\s+)?financial\s+statements/i, title: "Notes to Accounts" },
-  { pattern: /notes\s+to\s+(the\s+)?accounts/i, title: "Notes to Accounts" },
-  { pattern: /consolidated\s+(income|profit\s+and\s+loss)\s+statement/i, title: "Income Statement" },
-  { pattern: /consolidated\s+balance\s+sheet/i, title: "Balance Sheet" },
-  { pattern: /consolidated\s+statement\s+of\s+financial\s+position/i, title: "Balance Sheet" },
-  { pattern: /cash\s+flow\s+statement/i, title: "Cash Flow Statement" },
-  { pattern: /audit\s+(report|committee)/i, title: "Audit Report" },
-  { pattern: /sustainability|esg|environmental/i, title: "ESG Section" },
+// ── Section patterns with priority ───────────────────────────────────────────
+const SECTION_PATTERNS: { pattern: RegExp; title: string; priority: number }[] = [
+  { pattern: /chairman['']?s?\s+(statement|letter|review|report)/i,              title: "Chairman Statement",     priority: 1 },
+  { pattern: /chief\s+executive['']?s?\s+(officer['']?s?\s+)?(statement|review|letter|report)/i, title: "CEO Review", priority: 1 },
+  { pattern: /strategic\s+report/i,                                               title: "Strategic Report",      priority: 1 },
+  { pattern: /business\s+(review|model|overview|description)/i,                   title: "Business Review",       priority: 1 },
+  { pattern: /financial\s+(review|highlights|summary|performance|discussion)/i,   title: "Financial Review",      priority: 1 },
+  { pattern: /risk\s+(factors?|management|review|report)/i,                       title: "Risk Section",          priority: 1 },
+  { pattern: /principal\s+risks/i,                                                title: "Risk Section",          priority: 1 },
+  { pattern: /operating\s+(review|performance|results)/i,                         title: "Operating Review",      priority: 2 },
+  { pattern: /corporate\s+governance/i,                                           title: "Governance Section",    priority: 2 },
+  { pattern: /remuneration\s+(report|policy|committee)/i,                         title: "Remuneration Section",  priority: 3 },
+  { pattern: /directors['']?\s+remuneration/i,                                    title: "Remuneration Section",  priority: 3 },
+  { pattern: /audit\s+(report|committee)/i,                                       title: "Audit Report",          priority: 3 },
+  { pattern: /sustainability|esg|environmental/i,                                  title: "ESG Section",           priority: 3 },
+  { pattern: /notes\s+to\s+(the\s+)?(consolidated\s+)?financial\s+statements/i,   title: "Notes to Accounts",     priority: 4 },
+  { pattern: /notes\s+to\s+(the\s+)?accounts/i,                                   title: "Notes to Accounts",     priority: 4 },
+  { pattern: /consolidated\s+(income|profit\s+and\s+loss)\s+statement/i,          title: "Income Statement",      priority: 2 },
+  { pattern: /consolidated\s+(balance\s+sheet|statement\s+of\s+financial\s+position)/i, title: "Balance Sheet",   priority: 2 },
+  { pattern: /cash\s+flow\s+statement/i,                                           title: "Cash Flow Statement",   priority: 2 },
 ];
 
+// ── Parse PDF buffer ──────────────────────────────────────────────────────────
 export async function parsePDF(buffer: Buffer): Promise<ParsedPDF> {
-  const data = await pdfParse(buffer, {
-    max: 0,
-  });
+  const t0 = Date.now();
+  const data = await pdfParse(buffer, { max: 0 });
+  console.log(`[pdf] parse completed in ${Date.now() - t0}ms — ${data.numpages} pages`);
 
-  const text = data.text;
+  const text      = data.text;
   const pageCount = data.numpages;
   const wordCount = text.split(/\s+/).filter(Boolean).length;
-  const sections = extractSections(text);
+  const sections  = extractSections(text);
 
+  console.log(`[pdf] extracted ${sections.length} sections, ${wordCount.toLocaleString()} words`);
   return { text, pageCount, wordCount, sections };
 }
 
+// ── Extract named sections ────────────────────────────────────────────────────
 function extractSections(text: string): ExtractedSection[] {
-  const lines = text.split("\n");
+  const lines   = text.split("\n");
   const sections: ExtractedSection[] = [];
-  const foundTitles = new Set<string>();
+  const seen    = new Set<string>();
 
-  let currentSection: ExtractedSection | null = null;
-  let contentBuffer: string[] = [];
+  let currentSection: { title: string; priority: number } | null = null;
+  let buf: string[] = [];
 
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i].trim();
-    if (!line) continue;
+  const flush = () => {
+    if (!currentSection || buf.length === 0) return;
+    const content = buf.join("\n").trim();
+    if (content.length > 200) {
+      sections.push({ title: currentSection.title, content, priority: currentSection.priority });
+    }
+  };
 
-    // Check if this line matches a section header
-    const matchedSection = SECTION_PATTERNS.find(({ pattern }) =>
-      pattern.test(line) && line.length < 120
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+
+    const match = SECTION_PATTERNS.find(
+      ({ pattern }) => pattern.test(trimmed) && trimmed.length < 120
     );
 
-    if (matchedSection && !foundTitles.has(matchedSection.title)) {
-      // Save previous section
-      if (currentSection && contentBuffer.length > 0) {
-        currentSection.content = contentBuffer.join("\n").trim();
-        if (currentSection.content.length > 200) {
-          sections.push(currentSection);
-        }
-      }
-
-      foundTitles.add(matchedSection.title);
-      currentSection = { title: matchedSection.title, content: "" };
-      contentBuffer = [];
+    if (match && !seen.has(match.title)) {
+      flush();
+      seen.add(match.title);
+      currentSection = { title: match.title, priority: match.priority };
+      buf = [];
     } else if (currentSection) {
-      contentBuffer.push(line);
-      // Cap individual sections at ~50k chars to prevent huge chunks
-      if (contentBuffer.join("\n").length > 50000) {
-        currentSection.content = contentBuffer.join("\n").trim();
-        sections.push(currentSection);
-        // Continue with same section but reset buffer (part 2)
-        currentSection = {
-          title: currentSection.title + " (continued)",
-          content: "",
-        };
-        contentBuffer = [];
+      buf.push(trimmed);
+      // Hard cap per section at 40k chars
+      if (buf.join("\n").length > 40000) {
+        flush();
+        currentSection = { title: currentSection.title + " (cont.)", priority: currentSection.priority };
+        buf = [];
       }
     }
   }
+  flush();
 
-  // Push last section
-  if (currentSection && contentBuffer.length > 0) {
-    currentSection.content = contentBuffer.join("\n").trim();
-    if (currentSection.content.length > 200) {
-      sections.push(currentSection);
-    }
-  }
-
-  // If no sections found, create a single full-text section
   if (sections.length === 0) {
-    return [{ title: "Full Document", content: text.slice(0, 150000) }];
+    return [{ title: "Full Document", content: text.slice(0, 80000), priority: 1 }];
   }
 
-  return sections;
+  return sections.sort((a, b) => a.priority - b.priority);
 }
 
-export function chunkText(text: string, maxChunkSize = 80000): string[] {
-  if (text.length <= maxChunkSize) return [text];
+// ── Build optimised analysis text (capped at maxChars) ───────────────────────
+// Prioritises high-priority sections; skips notes/remuneration if tight on space
+export function buildAnalysisText(
+  parsed: ParsedPDF,
+  maxChars = 90000
+): string {
+  let out = "";
 
-  const chunks: string[] = [];
-  let start = 0;
+  // Priority 1 first, then 2, then 3, skip 4 (notes to accounts) unless space allows
+  const byPriority = [...parsed.sections].sort((a, b) => a.priority - b.priority);
 
-  while (start < text.length) {
-    let end = start + maxChunkSize;
-    if (end < text.length) {
-      // Try to break at a paragraph boundary
-      const lastNewline = text.lastIndexOf("\n\n", end);
-      if (lastNewline > start + maxChunkSize * 0.7) {
-        end = lastNewline;
+  for (const s of byPriority) {
+    if (s.priority >= 4 && out.length > maxChars * 0.6) continue; // skip notes if already full
+    const block = `\n\n=== ${s.title.toUpperCase()} ===\n${s.content}`;
+    if (out.length + block.length > maxChars) {
+      // Truncate to fill remaining space
+      const remaining = maxChars - out.length - 60;
+      if (remaining > 500) {
+        out += `\n\n=== ${s.title.toUpperCase()} ===\n${s.content.slice(0, remaining)}`;
       }
+      break;
     }
-    chunks.push(text.slice(start, end));
-    start = end;
+    out += block;
   }
 
-  return chunks;
+  // Fallback: if sections gave us very little, supplement with raw text
+  if (out.length < 10000) {
+    out = parsed.text.slice(0, maxChars);
+  }
+
+  console.log(`[pdf] analysis text: ${out.length.toLocaleString()} chars`);
+  return out;
 }
