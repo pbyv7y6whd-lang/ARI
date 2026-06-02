@@ -1,10 +1,1 @@
-{
-  "functions": {
-    "app/api/stocks/[id]/documents/route.ts": {
-      "maxDuration": 300
-    },
-    "app/api/stocks/[id]/analyse/route.ts": {
-      "maxDuration": 300
-    }
-  }
-}
+{}
