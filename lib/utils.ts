@@ -13,48 +13,61 @@ export function formatDate(date: string | Date): string {
   });
 }
 
+export function formatDateShort(date: string | Date): string {
+  return new Date(date).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+  });
+}
+
 export function formatFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+export function scoreColour(score: number, max = 100): string {
+  const pct = score / max;
+  if (pct >= 0.70) return "#22c55e";
+  if (pct >= 0.50) return "#f59e0b";
+  return "#ef4444";
+}
+
+export function scoreClass(score: number, max = 100): string {
+  const pct = score / max;
+  if (pct >= 0.70) return "score-high";
+  if (pct >= 0.50) return "score-mid";
+  return "score-low";
+}
+
+export function verdictFromScore(score: number): { label: string; className: string } {
+  if (score >= 75) return { label: "High Quality",        className: "verdict-high-quality" };
+  if (score >= 62) return { label: "Interesting",         className: "verdict-interesting" };
+  if (score >= 48) return { label: "Mixed",               className: "verdict-mixed" };
+  if (score >= 35) return { label: "Weak",                className: "verdict-weak" };
+  return            { label: "Avoid Further Work",        className: "verdict-avoid" };
+}
+
+export function severityClass(s: "High" | "Medium" | "Low"): string {
+  if (s === "High")   return "tag tag-red";
+  if (s === "Medium") return "tag tag-amber";
+  return "tag tag-grey";
+}
+
+export function ratingClass(r: string): string {
+  if (r === "Excellent") return "tag tag-green";
+  if (r === "Good")      return "tag tag-blue";
+  if (r === "Average")   return "tag tag-amber";
+  return "tag tag-red";
+}
+
+// Old compat aliases
 export function scoreToColour(score: number, max = 10): string {
-  const pct = score / max;
-  if (pct >= 0.75) return "text-emerald-400";
-  if (pct >= 0.5) return "text-amber-400";
-  return "text-red-400";
+  return scoreClass(score, max);
 }
-
-export function scoreToRingColour(score: number, max = 10): string {
-  const pct = score / max;
-  if (pct >= 0.75) return "ring-emerald-500";
-  if (pct >= 0.5) return "ring-amber-500";
-  return "ring-red-500";
+export function severityBadge(s: "High" | "Medium" | "Low"): string {
+  return severityClass(s);
 }
-
-export function severityBadge(severity: "High" | "Medium" | "Low"): string {
-  switch (severity) {
-    case "High":
-      return "bg-red-500/15 text-red-400 border border-red-500/30";
-    case "Medium":
-      return "bg-amber-500/15 text-amber-400 border border-amber-500/30";
-    case "Low":
-      return "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30";
-  }
-}
-
-export function ratingBadge(rating: string): string {
-  switch (rating) {
-    case "Excellent":
-      return "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30";
-    case "Good":
-      return "bg-sky-500/15 text-sky-400 border border-sky-500/30";
-    case "Average":
-      return "bg-amber-500/15 text-amber-400 border border-amber-500/30";
-    case "Poor":
-      return "bg-red-500/15 text-red-400 border border-red-500/30";
-    default:
-      return "bg-zinc-500/15 text-zinc-400 border border-zinc-500/30";
-  }
+export function ratingBadge(r: string): string {
+  return ratingClass(r);
 }
