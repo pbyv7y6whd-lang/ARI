@@ -89,10 +89,14 @@ export default function InitiateCoverageModal({ open, onClose, onSuccess }: Prop
       return;
     }
 
+    // Navigate immediately — analysis runs server-side, polled by the stock page
+    router.push(`/dashboard/stocks/${data.stockId}`);
+
+    // Trigger analysis in a separate long-running call (non-blocking for the modal)
+    fetch(`/api/stocks/${data.stockId}/analyse`, { method: "POST" }).catch(console.error);
+
     setState("success");
     onSuccess();
-    // Navigate straight to the stock page
-    router.push(`/dashboard/stocks/${data.stockId}`);
   };
 
   if (!open) return null;
