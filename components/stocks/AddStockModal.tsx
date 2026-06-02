@@ -2,12 +2,13 @@
 
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
-import { X, Upload, FileText, Loader2, AlertCircle, ChevronRight } from "lucide-react";
+import { X, Upload, FileText, Loader2, AlertCircle, ChevronRight, Link as LinkIcon } from "lucide-react";
 import { formatFileSize } from "@/lib/utils";
 
 type Props = { open: boolean; onClose: () => void; onSuccess: () => void };
 
 type Step = "details" | "upload" | "submitting";
+type InputMode = "url" | "upload";
 
 const DOC_TYPES = [
   { value: "annual_report", label: "Annual Report" },
@@ -24,6 +25,8 @@ export default function AddStockModal({ open, onClose, onSuccess }: Props) {
   const [ticker, setTicker] = useState("");
   const [sector, setSector] = useState("");
   const [file, setFile] = useState<File | null>(null);
+  const [pdfUrl, setPdfUrl] = useState("");
+  const [inputMode, setInputMode] = useState<InputMode>("url");
   const [docType, setDocType] = useState("annual_report");
   const [year, setYear] = useState(String(new Date().getFullYear()));
   const [error, setError] = useState("");
@@ -42,12 +45,15 @@ export default function AddStockModal({ open, onClose, onSuccess }: Props) {
   const handleClose = () => {
     if (step === "submitting") return;
     setStep("details"); setName(""); setTicker(""); setSector("");
-    setFile(null); setDocType("annual_report"); setYear(String(new Date().getFullYear()));
+    setFile(null); setPdfUrl(""); setDocType("annual_report"); setYear(String(new Date().getFullYear()));
     setError(""); onClose();
   };
 
+  const canProceedToSubmit = inputMode === "url" ? !!pdfUrl.trim() : !!file;
+
   const handleSubmit = async () => {
-    if (!name.trim() || !file) return;
+    if (!name.trim()) return;
+    if (!canProceedToSubmit) return;
     setStep("submitting");
     setError("");
 
@@ -63,9 +69,13 @@ export default function AddStockModal({ open, onClose, onSuccess }: Props) {
 
       // 2. Upload document
       const fd = new FormData();
-      fd.append("file", file);
       fd.append("doc_type", docType);
       fd.append("year", year);
+      if (inputMode === "url") {
+        fd.append("pdf_url", pdfUrl.trim());
+      } else if (file) {
+        fd.append("file", file);
+      }
 
       const docRes = await fetch(`/api/stocks/${stockId}/documents`, { method: "POST", body: fd });
       if (!docRes.ok) throw new Error("Failed to upload document");
@@ -131,55 +141,69 @@ export default function AddStockModal({ open, onClose, onSuccess }: Props) {
             </>
           ) : step === "upload" || step === "submitting" ? (
             <>
+              {/* Mode toggle */}
+              <div className="flex rounded-lg bg-white/5 p-0.5">
+                <button onClick={() => setInputMode("url")} className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-sm font-medium transition-all ${inputMode === "url" ? "bg-white text-black" : "text-white/40 hover:text-white"}`}>
+                  <LinkIcon className="w-3.5 h-3.5" /> Paste URL
+                </button>
+                <button onClick={() => setInputMode("upload")} className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-sm font-medium transition-all ${inputMode === "upload" ? "bg-white text-black" : "text-white/40 hover:text-white"}`}>
+                  <Upload className="w-3.5 h-3.5" /> Upload file
+                </button>
+              </div>
+
               {/* Doc type + year */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-white/40 uppercase tracking-widest block mb-1.5">Document type</label>
-                  <select
-                    value={docType}
-                    onChange={e => setDocType(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-white/30 transition-colors"
-                  >
+                  <select value={docType} onChange={e => setDocType(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-white/30">
                     {DOC_TYPES.map(t => <option key={t.value} value={t.value} className="bg-[#111]">{t.label}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className="text-xs text-white/40 uppercase tracking-widest block mb-1.5">Year</label>
-                  <input
-                    value={year}
-                    onChange={e => setYear(e.target.value)}
-                    placeholder="2024"
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-white/20 text-sm focus:outline-none focus:border-white/30 transition-colors"
-                  />
+                  <input value={year} onChange={e => setYear(e.target.value)} placeholder="2024" className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-white/20 text-sm focus:outline-none focus:border-white/30" />
                 </div>
               </div>
 
-              {/* Dropzone */}
-              {!file ? (
-                <div
-                  {...getRootProps()}
-                  className={`border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-all ${
-                    isDragActive ? "border-white/30 bg-white/5" : "border-white/10 hover:border-white/20 hover:bg-white/[0.02]"
-                  }`}
-                >
-                  <input {...getInputProps()} />
-                  <Upload className="w-6 h-6 text-white/25 mx-auto mb-3" />
-                  <p className="text-white/60 text-sm font-medium mb-1">Drop PDF here</p>
-                  <p className="text-white/25 text-xs">or click to browse · max 50MB</p>
+              {/* URL input */}
+              {inputMode === "url" && (
+                <div>
+                  <label className="text-xs text-white/40 uppercase tracking-widest block mb-1.5">PDF URL</label>
+                  <input
+                    autoFocus
+                    value={pdfUrl}
+                    onChange={e => { setPdfUrl(e.target.value); setError(""); }}
+                    placeholder="https://company.com/annual-report-2024.pdf"
+                    disabled={step === "submitting"}
+                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-white/20 text-sm focus:outline-none focus:border-white/30 disabled:opacity-50"
+                  />
+                  <p className="text-xs text-white/25 mt-1.5">Paste the direct link to the PDF from the company's investor relations page.</p>
                 </div>
-              ) : (
-                <div className="border border-white/10 rounded-xl p-4 flex items-center gap-3">
-                  <div className="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center shrink-0">
-                    <FileText className="w-5 h-5 text-white/40" />
+              )}
+
+              {/* File dropzone */}
+              {inputMode === "upload" && (
+                !file ? (
+                  <div {...getRootProps()} className={`border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-all ${isDragActive ? "border-white/30 bg-white/5" : "border-white/10 hover:border-white/20"}`}>
+                    <input {...getInputProps()} />
+                    <Upload className="w-6 h-6 text-white/25 mx-auto mb-3" />
+                    <p className="text-white/60 text-sm font-medium mb-1">Drop PDF here</p>
+                    <p className="text-white/25 text-xs">or click to browse · max 50MB</p>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-white truncate">{file.name}</p>
-                    <p className="text-xs text-white/30">{formatFileSize(file.size)}</p>
+                ) : (
+                  <div className="border border-white/10 rounded-xl p-4 flex items-center gap-3">
+                    <div className="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center shrink-0">
+                      <FileText className="w-5 h-5 text-white/40" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-white truncate">{file.name}</p>
+                      <p className="text-xs text-white/30">{formatFileSize(file.size)}</p>
+                    </div>
+                    <button onClick={() => setFile(null)} disabled={step === "submitting"} className="text-white/25 hover:text-white transition-colors disabled:opacity-40">
+                      <X className="w-4 h-4" />
+                    </button>
                   </div>
-                  <button onClick={() => setFile(null)} disabled={step === "submitting"} className="text-white/25 hover:text-white transition-colors disabled:opacity-40">
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
+                )
               )}
 
               {step === "submitting" && (
@@ -228,7 +252,7 @@ export default function AddStockModal({ open, onClose, onSuccess }: Props) {
           ) : (
             <button
               onClick={handleSubmit}
-              disabled={!file || step === "submitting"}
+              disabled={!canProceedToSubmit || step === "submitting"}
               className="flex-1 py-2.5 rounded-lg text-sm font-semibold bg-white text-black hover:bg-white/90 transition-colors disabled:opacity-40 flex items-center justify-center gap-2"
             >
               {step === "submitting" ? <><Loader2 className="w-4 h-4 animate-spin" />Uploading...</> : "Add stock & analyse"}

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { put } from "@vercel/blob";
-import { addDocument, getStock, updateStock, setupDb } from "@/lib/db";
+import { addDocument, getStock, setupDb } from "@/lib/db";
 import { requireAuth } from "@/lib/session";
 import { parsePDF } from "@/lib/pdf";
 import { v4 as uuidv4 } from "uuid";
@@ -16,18 +16,55 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   if (!stock) return NextResponse.json({ error: "Stock not found" }, { status: 404 });
 
   const formData = await request.formData();
-  const file = formData.get("file") as File | null;
   const docType = (formData.get("doc_type") as string) || "annual_report";
   const year = (formData.get("year") as string) || null;
+  const pdfUrl = formData.get("pdf_url") as string | null;
+  const file = formData.get("file") as File | null;
 
-  if (!file) return NextResponse.json({ error: "No file" }, { status: 400 });
-  if (file.type !== "application/pdf") return NextResponse.json({ error: "Must be PDF" }, { status: 400 });
-  if (file.size > 50 * 1024 * 1024) return NextResponse.json({ error: "Max 50MB" }, { status: 400 });
+  if (!file && !pdfUrl) return NextResponse.json({ error: "No file or URL provided" }, { status: 400 });
 
-  const buffer = Buffer.from(await file.arrayBuffer());
+  let buffer: Buffer;
+  let fileName: string;
+
+  if (pdfUrl) {
+    // Fetch PDF from URL
+    let fetchRes: Response;
+    try {
+      fetchRes = await fetch(pdfUrl, {
+        headers: { "User-Agent": "Mozilla/5.0 (compatible; ARI-Research/1.0)" },
+      });
+      if (!fetchRes.ok) throw new Error(`URL returned ${fetchRes.status}`);
+    } catch (err) {
+      return NextResponse.json(
+        { error: `Could not fetch PDF from that URL: ${err instanceof Error ? err.message : "unknown error"}` },
+        { status: 400 }
+      );
+    }
+
+    const contentType = fetchRes.headers.get("content-type") || "";
+    if (!contentType.includes("pdf") && !pdfUrl.toLowerCase().includes(".pdf")) {
+      return NextResponse.json({ error: "URL does not appear to be a PDF" }, { status: 400 });
+    }
+
+    buffer = Buffer.from(await fetchRes.arrayBuffer());
+    if (buffer.length > 50 * 1024 * 1024) {
+      return NextResponse.json({ error: "PDF too large (max 50MB)" }, { status: 400 });
+    }
+
+    // Extract a clean filename from the URL
+    const urlPath = new URL(pdfUrl).pathname;
+    fileName = urlPath.split("/").pop() || "document.pdf";
+    if (!fileName.toLowerCase().endsWith(".pdf")) fileName += ".pdf";
+  } else {
+    if (file!.type !== "application/pdf") return NextResponse.json({ error: "Must be PDF" }, { status: 400 });
+    if (file!.size > 50 * 1024 * 1024) return NextResponse.json({ error: "Max 50MB" }, { status: 400 });
+    buffer = Buffer.from(await file!.arrayBuffer());
+    fileName = file!.name;
+  }
+
   const docId = uuidv4();
 
-  const blob = await put(`stocks/${stockId}/${docId}/${file.name}`, buffer, {
+  const blob = await put(`stocks/${stockId}/${docId}/${fileName}`, buffer, {
     access: "public",
     contentType: "application/pdf",
   });
@@ -43,7 +80,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   await addDocument({
     id: docId,
     stock_id: stockId,
-    file_name: file.name,
+    file_name: fileName,
     doc_type: docType,
     year,
     blob_url: blob.url,
@@ -67,21 +104,14 @@ async function runAnalysis(stockId: string) {
 
     const stock = await getStock(stockId);
     const docs = await getDocumentsForStock(stockId);
-
     if (!docs.length) return;
 
-    // Fetch and parse each document
     const parsedDocs = [];
     for (const doc of docs) {
       const res = await fetch(doc.blob_url);
       const buf = Buffer.from(await res.arrayBuffer());
       const parsed = await parsePDF(buf);
-      parsedDocs.push({
-        file_name: doc.file_name,
-        doc_type: doc.doc_type,
-        year: doc.year,
-        parsed,
-      });
+      parsedDocs.push({ file_name: doc.file_name, doc_type: doc.doc_type, year: doc.year, parsed });
     }
 
     await updateStock(stockId, {
@@ -89,13 +119,9 @@ async function runAnalysis(stockId: string) {
       progress_message: `Analysing ${parsedDocs.length} document${parsedDocs.length !== 1 ? "s" : ""}...`,
     });
 
-    const analysis = await analyseStock(
-      stock.name,
-      parsedDocs,
-      async (msg) => {
-        await updateStock(stockId, { progress: 60, progress_message: msg });
-      }
-    );
+    const analysis = await analyseStock(stock.name, parsedDocs, async (msg) => {
+      await updateStock(stockId, { progress: 60, progress_message: msg });
+    });
 
     await updateStock(stockId, {
       status: "complete",
