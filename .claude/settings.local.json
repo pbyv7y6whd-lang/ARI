@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Read(//usr/local/bin/**)",
+      "Read(//Users/suleimanashraf/.nvm/versions/**)",
+      "Bash(ls /usr/local/bin/ 2>/dev/null | head -20; ls /opt/homebrew/bin/ 2>/dev/null | grep -E \"node|npm|bun|pnpm\" | head -10; ls ~/.local/bin/ 2>/dev/null | head -10)",
+      "Bash(find /Users/suleimanashraf -name \"node\" -type f 2>/dev/null | head -5; ls /Applications/ | grep -i node 2>/dev/null)",
+      "Bash(env)",
+      "Bash(command -v node)",
+      "Bash(command -v npm)",
+      "Bash(/bin/bash -l -c \"which node\")",
+      "Bash(/bin/zsh -i -l -c \"which node && node --version\")",
+      "Bash(curl -fsSL https://fnm.vercel.app/install)",
+      "Bash(bash -s -- --install-dir ~/.fnm --skip-shell)",
+      "Bash(curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh)",
+      "Bash(bash)",
+      "Skill(update-config)",
+      "Skill(update-config:*)",
+      "Bash(mkdir -p \"/Users/suleimanashraf/Library/Mobile Documents/com~apple~CloudDocs/ARI/app/api/stocks/[id]/documents\" \"/Users/suleimanashraf/Library/Mobile Documents/com~apple~CloudDocs/ARI/app/api/stocks/[id]/analyse\" \"/Users/suleimanashraf/Library/Mobile Documents/com~apple~CloudDocs/ARI/app/dashboard/stocks/[id]\" \"/Users/suleimanashraf/Library/Mobile Documents/com~apple~CloudDocs/ARI/components/stocks\")"
+    ]
+  }
+}
