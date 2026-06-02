@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { put } from "@vercel/blob";
 import { addDocument, getStock, getDocumentsForStock, updateStock, setupDb } from "@/lib/db";
 import { requireAuth } from "@/lib/session";
 import { parsePDF } from "@/lib/pdf";
@@ -26,6 +25,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
   let buffer: Buffer;
   let fileName: string;
+  let storedUrl: string;
 
   if (pdfUrl) {
     const controller = new AbortController();
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         signal: controller.signal,
         headers: {
           "User-Agent": "Mozilla/5.0 Chrome/120.0.0.0 Safari/537.36",
-          "Accept":     "application/pdf,*/*",
+          "Accept": "application/pdf,*/*",
         },
       });
       clearTimeout(timeout);
@@ -44,21 +44,18 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       return NextResponse.json({ error: `Download failed: ${err instanceof Error ? err.message : "unknown"}` }, { status: 400 });
     }
     if (!res.ok) return NextResponse.json({ error: `URL returned HTTP ${res.status}` }, { status: 400 });
-    buffer = Buffer.from(await res.arrayBuffer());
-    const path = new URL(pdfUrl).pathname;
-    fileName = path.split("/").pop() || "filing.pdf";
+    buffer   = Buffer.from(await res.arrayBuffer());
+    const p  = new URL(pdfUrl).pathname;
+    fileName = p.split("/").pop() || "filing.pdf";
     if (!fileName.endsWith(".pdf")) fileName += ".pdf";
+    storedUrl = pdfUrl.trim(); // store original URL
   } else {
     if (file!.type !== "application/pdf") return NextResponse.json({ error: "Must be PDF" }, { status: 400 });
     if (file!.size > 50 * 1024 * 1024)   return NextResponse.json({ error: "Max 50MB" }, { status: 400 });
-    buffer   = Buffer.from(await file!.arrayBuffer());
-    fileName = file!.name;
+    buffer    = Buffer.from(await file!.arrayBuffer());
+    fileName  = file!.name;
+    storedUrl = `uploaded:${file!.name}`; // mark as uploaded (won't be re-fetched by URL)
   }
-
-  const docId = uuidv4();
-  const blob  = await put(`stocks/${stockId}/${docId}/${fileName}`, buffer, {
-    access: "public", contentType: "application/pdf",
-  });
 
   let pageCount: number | null = null;
   let wordCount: number | null = null;
@@ -69,7 +66,12 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     wordCount = parsed.wordCount;
   } catch { /* non-fatal */ }
 
-  await addDocument({ id: docId, stock_id: stockId, file_name: fileName, doc_type: docType, year, blob_url: blob.url, page_count: pageCount, word_count: wordCount });
+  const docId = uuidv4();
+  await addDocument({
+    id: docId, stock_id: stockId, file_name: fileName,
+    doc_type: docType, year, blob_url: storedUrl,
+    page_count: pageCount, word_count: wordCount,
+  });
 
   // ── Re-analyse synchronously ──────────────────────────────────────────────
   try {
@@ -77,16 +79,31 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     const allDocs = await getDocumentsForStock(stockId);
     const parsedDocs = [];
+
     for (const doc of allDocs) {
-      const r = await fetch(doc.blob_url);
-      const b = Buffer.from(await r.arrayBuffer());
-      const p = await parsePDF(b);
+      let docBuffer: Buffer;
+      if (doc.blob_url.startsWith("uploaded:")) {
+        // Can't re-fetch uploaded files — skip if it's not the current one
+        if (doc.id === docId && parsed) {
+          parsedDocs.push({ file_name: doc.file_name, doc_type: doc.doc_type, year: doc.year, parsed });
+        }
+        continue;
+      }
+      const r = await fetch(doc.blob_url, {
+        headers: { "User-Agent": "Mozilla/5.0 Chrome/120.0.0.0 Safari/537.36" },
+      });
+      docBuffer = Buffer.from(await r.arrayBuffer());
+      const p = await parsePDF(docBuffer);
       parsedDocs.push({ file_name: doc.file_name, doc_type: doc.doc_type, year: doc.year, parsed: p });
     }
 
-    await updateStock(stockId, { progress: 35, progress_message: `Analysing ${parsedDocs.length} filing(s)...` });
+    if (!parsedDocs.length && parsed) {
+      parsedDocs.push({ file_name: fileName, doc_type: docType, year, parsed });
+    }
 
-    let pct = 35;
+    await updateStock(stockId, { progress: 38, progress_message: `Analysing ${parsedDocs.length} filing(s)...` });
+
+    let pct = 38;
     const analysis = await analyseStock(stock.name, parsedDocs, async (msg) => {
       pct = Math.min(pct + 8, 92);
       await updateStock(stockId, { progress: pct, progress_message: msg });
@@ -94,8 +111,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     await updateStock(stockId, {
       status: "complete", progress: 100, progress_message: "Research complete",
-      analysis,
-      sector: analysis.investmentSnapshot?.sector || stock.sector,
+      analysis, sector: analysis.investmentSnapshot?.sector || stock.sector,
     });
   } catch (err) {
     await updateStock(stockId, {
