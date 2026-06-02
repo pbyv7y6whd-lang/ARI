@@ -20,9 +20,11 @@ import {
   Zap,
   ChevronDown,
   ChevronRight,
+  CalendarDays,
 } from "lucide-react";
+import type { YearOnYearTrends } from "@/lib/supabase";
 
-const SECTIONS = [
+const BASE_SECTIONS = [
   { id: "snapshot", label: "Snapshot", icon: Target },
   { id: "summary", label: "Summary", icon: FileText },
   { id: "drivers", label: "Drivers", icon: TrendingUp },
@@ -43,6 +45,10 @@ const SECTIONS = [
 
 export default function ReportView({ analysis }: { analysis: ReportAnalysis }) {
   const [activeSection, setActiveSection] = useState("snapshot");
+  const hasYoY = !!analysis.yearOnYearTrends?.yearsAnalysed?.length;
+  const SECTIONS = hasYoY
+    ? [...BASE_SECTIONS, { id: "trends", label: "YoY Trends", icon: CalendarDays }]
+    : BASE_SECTIONS;
 
   return (
     <div className="flex gap-8">
@@ -678,7 +684,162 @@ export default function ReportView({ analysis }: { analysis: ReportAnalysis }) {
             </div>
           )}
         </Section>
+
+        {/* Year-on-Year Trends — only shown when multiple years of data exist */}
+        {hasYoY && analysis.yearOnYearTrends && (
+          <Section id="trends">
+            <SectionHeader
+              number="17"
+              title="Year-on-Year Trends"
+              subtitle={`Multi-year analysis across ${analysis.yearOnYearTrends.yearsAnalysed.join(", ")}`}
+            />
+            <YearOnYearSection data={analysis.yearOnYearTrends} />
+          </Section>
+        )}
+
       </div>
+    </div>
+  );
+}
+
+function YearOnYearSection({ data }: { data: YearOnYearTrends }) {
+  return (
+    <div className="mt-6 space-y-6">
+      {/* Years badge */}
+      <div className="flex items-center gap-2 flex-wrap">
+        {data.yearsAnalysed.map((y) => (
+          <span key={y} className="text-xs font-mono bg-white/8 text-white/60 px-3 py-1 rounded-full border border-white/10">
+            {y}
+          </span>
+        ))}
+      </div>
+
+      {/* Financial trends table */}
+      {data.financialTrends?.length > 0 && (
+        <div>
+          <p className="text-xs text-white/30 uppercase tracking-widest mb-3">Financial Metrics Over Time</p>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-white/5">
+                  <th className="text-left text-xs text-white/30 font-medium py-2 pr-4">Metric</th>
+                  {data.yearsAnalysed.map((y) => (
+                    <th key={y} className="text-right text-xs text-white/30 font-mono font-medium py-2 px-3">{y}</th>
+                  ))}
+                  <th className="text-left text-xs text-white/30 font-medium py-2 pl-4">Trend</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.financialTrends.map((row, i) => (
+                  <tr key={i} className="border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors">
+                    <td className="py-2.5 pr-4 text-white/70 font-medium">{row.metric}</td>
+                    {data.yearsAnalysed.map((y) => {
+                      const val = row.values?.find((v) => v.year === y);
+                      return (
+                        <td key={y} className="py-2.5 px-3 text-right font-mono text-white/60">
+                          {val?.value || "—"}
+                        </td>
+                      );
+                    })}
+                    <td className="py-2.5 pl-4">
+                      <span className={cn(
+                        "text-xs px-2 py-0.5 rounded-full",
+                        row.trend === "improving" ? "bg-emerald-500/15 text-emerald-400" :
+                        row.trend === "deteriorating" ? "bg-red-500/15 text-red-400" :
+                        row.trend === "mixed" ? "bg-amber-500/15 text-amber-400" :
+                        "bg-white/8 text-white/40"
+                      )}>
+                        {row.trend}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {/* Commentaries */}
+          <div className="mt-3 space-y-2">
+            {data.financialTrends.filter(r => r.commentary).map((row, i) => (
+              <p key={i} className="text-xs text-white/40 leading-relaxed">
+                <span className="text-white/60 font-medium">{row.metric}:</span> {row.commentary}
+              </p>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Strategy evolution */}
+      {data.strategyEvolution?.length > 0 && (
+        <div>
+          <p className="text-xs text-white/30 uppercase tracking-widest mb-3">Strategic Evolution</p>
+          <div className="space-y-2">
+            {data.strategyEvolution.map((s, i) => (
+              <div key={i} className="flex items-start gap-3 bg-white/[0.02] border border-white/8 rounded-xl p-4">
+                <span className="text-xs font-mono text-white/40 bg-white/8 px-2 py-0.5 rounded shrink-0 mt-0.5">{s.year}</span>
+                <div>
+                  <p className="text-sm font-medium text-white mb-0.5">{s.keyTheme}</p>
+                  <p className="text-xs text-white/50 leading-relaxed">{s.change}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Improving / deteriorating */}
+      <div className="grid md:grid-cols-2 gap-4">
+        {data.improvingFactors?.length > 0 && (
+          <div className="bg-emerald-950/20 border border-emerald-500/15 rounded-xl p-4">
+            <p className="text-xs text-emerald-400/70 uppercase tracking-widest mb-3">Getting better</p>
+            <ul className="space-y-1.5">
+              {data.improvingFactors.map((f, i) => (
+                <li key={i} className="flex items-start gap-2 text-sm text-white/60">
+                  <span className="text-emerald-400 mt-0.5">↑</span>{f}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {data.deterioratingFactors?.length > 0 && (
+          <div className="bg-red-950/20 border border-red-500/15 rounded-xl p-4">
+            <p className="text-xs text-red-400/70 uppercase tracking-widest mb-3">Getting worse</p>
+            <ul className="space-y-1.5">
+              {data.deterioratingFactors.map((f, i) => (
+                <li key={i} className="flex items-start gap-2 text-sm text-white/60">
+                  <span className="text-red-400 mt-0.5">↓</span>{f}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+
+      {/* Narrative cards */}
+      <div className="grid md:grid-cols-2 gap-4">
+        {data.managementToneShifts && (
+          <Card label="Management tone shifts">
+            <p className="text-sm text-white/60 leading-relaxed">{data.managementToneShifts}</p>
+          </Card>
+        )}
+        {data.capitalAllocationEvolution && (
+          <Card label="Capital allocation evolution">
+            <p className="text-sm text-white/60 leading-relaxed">{data.capitalAllocationEvolution}</p>
+          </Card>
+        )}
+        {data.keyNarrativeChanges && (
+          <Card label="Key narrative changes">
+            <p className="text-sm text-white/60 leading-relaxed">{data.keyNarrativeChanges}</p>
+          </Card>
+        )}
+      </div>
+
+      {/* Overall trend */}
+      {data.overallTrendAssessment && (
+        <div className="bg-white/[0.02] border border-white/10 rounded-xl p-5">
+          <p className="text-xs text-white/30 uppercase tracking-widest mb-2">Overall trajectory</p>
+          <p className="text-sm text-white/70 leading-relaxed">{data.overallTrendAssessment}</p>
+        </div>
+      )}
     </div>
   );
 }

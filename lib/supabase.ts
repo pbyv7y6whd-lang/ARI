@@ -18,6 +18,32 @@ export type ReportAnalysis = {
   managementQuestions: ManagementQuestions;
   investmentMemo: InvestmentMemo;
   overallScore: OverallScore;
+  yearOnYearTrends?: YearOnYearTrends;
+};
+
+export type YearOnYearTrends = {
+  yearsAnalysed: string[];
+  financialTrends: FinancialTrendRow[];
+  strategyEvolution: StrategyChange[];
+  managementToneShifts: string;
+  capitalAllocationEvolution: string;
+  keyNarrativeChanges: string;
+  improvingFactors: string[];
+  deterioratingFactors: string[];
+  overallTrendAssessment: string;
+};
+
+export type FinancialTrendRow = {
+  metric: string;
+  values: { year: string; value: string }[];
+  trend: "improving" | "deteriorating" | "stable" | "mixed";
+  commentary: string;
+};
+
+export type StrategyChange = {
+  year: string;
+  keyTheme: string;
+  change: string;
 };
 
 export type InvestmentSnapshot = {

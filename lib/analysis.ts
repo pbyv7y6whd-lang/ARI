@@ -19,7 +19,8 @@ Output ONLY valid JSON matching the exact schema provided. No preamble, no markd
 
 function buildPrompt(
   stockName: string,
-  documents: { file_name: string; doc_type: string; year: string | null; text: string }[]
+  documents: { file_name: string; doc_type: string; year: string | null; text: string }[],
+  multiYear: boolean
 ): string {
   const docSummary = documents.map(d =>
     `\n\n${"=".repeat(60)}\nDOCUMENT: ${d.file_name} (${d.doc_type}${d.year ? `, ${d.year}` : ""})\n${"=".repeat(60)}\n${d.text}`
@@ -172,7 +173,31 @@ Return a JSON object with EXACTLY this structure. Every field is required. Be sp
     "riskProfile": <0-100 integer>,
     "capitalAllocationQuality": <0-100 integer>,
     "explanation": "Comprehensive explanation of the total score"
-  }
+  }${multiYear ? `,
+  "yearOnYearTrends": {
+    "yearsAnalysed": ["2020", "2021", "2022", "2023", "2024"],
+    "financialTrends": [
+      {
+        "metric": "Revenue",
+        "values": [{ "year": "2020", "value": "£Xm" }, { "year": "2021", "value": "£Xm" }],
+        "trend": "improving|deteriorating|stable|mixed",
+        "commentary": "What drove the change and what it means for the investment case"
+      }
+    ],
+    "strategyEvolution": [
+      {
+        "year": "2021",
+        "keyTheme": "Theme name",
+        "change": "What changed vs prior year and why it matters"
+      }
+    ],
+    "managementToneShifts": "How has management language, confidence, and candour changed across the years? More cautious? More bullish? Less transparent?",
+    "capitalAllocationEvolution": "How has the approach to buybacks, dividends, acquisitions, and reinvestment changed over the years?",
+    "keyNarrativeChanges": "What are the biggest changes in what management emphasises — new risks, new opportunities, dropped topics?",
+    "improvingFactors": ["Factor getting better year on year"],
+    "deterioratingFactors": ["Factor getting worse year on year"],
+    "overallTrendAssessment": "Is the overall trajectory of the business improving, deteriorating, or mixed? What does the multi-year picture tell us that a single year cannot?"
+  }` : ""}
 }`;
 }
 
@@ -198,11 +223,13 @@ export async function analyseStock(
 
   onProgress?.("Running AI analysis — this takes 2–3 minutes...");
 
+  const multiYear = docTexts.filter(d => d.doc_type === "annual_report" && d.year).length > 1;
+
   const message = await client.messages.create({
     model: "claude-sonnet-4-6",
-    max_tokens: 8000,
+    max_tokens: multiYear ? 10000 : 8000,
     system: SYSTEM_PROMPT,
-    messages: [{ role: "user", content: buildPrompt(stockName, docTexts) }],
+    messages: [{ role: "user", content: buildPrompt(stockName, docTexts, multiYear) }],
   });
 
   onProgress?.("Parsing results...");
