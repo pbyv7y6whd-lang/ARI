@@ -4,14 +4,14 @@ import { ReportAnalysis } from "./supabase";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
 
-const SYSTEM_PROMPT = `You are an elite buy-side equity analyst at a top-tier hedge fund. Analyse annual reports and return structured investment research JSON.
+const SYSTEM_PROMPT = `You are an elite buy-side equity analyst. Analyse annual reports and return structured investment research JSON.
 
 Rules:
-- Every conclusion must cite specific evidence (numbers, quotes, disclosures) from the report
-- If evidence is weak or absent, state uncertainty explicitly
-- Focus on investment implications, not accounting summaries
-- Think like a PM briefing — what matters for the investment case
-- Output ONLY valid JSON. No preamble, no markdown, no text outside the JSON.`;
+- Cite specific evidence (numbers, quotes) from the report
+- Be concise — each text field max 2-3 sentences unless instructed otherwise
+- Focus on investment implications only
+- Output ONLY valid JSON. No preamble, no markdown, no text outside the JSON.
+- Ensure the JSON is complete and properly closed — never truncate mid-response.`;
 
 // ── Build the analysis prompt ─────────────────────────────────────────────────
 function buildPrompt(
@@ -190,8 +190,8 @@ export async function analyseStock(
   onProgress?.("Building optimised analysis context...");
 
   // Per-document: extract prioritised text, cap at 70k chars each, 110k total
-  const PER_DOC_LIMIT = 50000;
-  const TOTAL_LIMIT   = 80000;
+  const PER_DOC_LIMIT = 40000;
+  const TOTAL_LIMIT   = 60000;
 
   const docTexts: { file_name: string; doc_type: string; year: string | null; text: string }[] = [];
   let totalChars = 0;
@@ -217,7 +217,7 @@ export async function analyseStock(
   const message = await Promise.race([
     client.messages.create({
       model: "claude-sonnet-4-6",
-      max_tokens: multiYear ? 8000 : 6000,
+      max_tokens: multiYear ? 10000 : 9000,
       system: SYSTEM_PROMPT,
       messages: [{ role: "user", content: buildPrompt(stockName, docTexts, multiYear) }],
     }),
