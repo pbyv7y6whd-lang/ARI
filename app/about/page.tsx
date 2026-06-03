@@ -116,7 +116,7 @@ export default function AboutPage() {
           {/* Links */}
           <div className="flex flex-wrap gap-4">
             <a
-              href="https://linkedin.com/in/suleimanashraf"
+              href="https://www.linkedin.com/in/suleiman-ashraf/"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 text-[12px] text-white/30 hover:text-white/60 transition-colors border border-white/10 px-3 py-2 hover:border-white/20"
@@ -134,7 +134,7 @@ export default function AboutPage() {
               <ArrowUpRight className="h-3 w-3" />
             </a>
             <a
-              href="mailto:contact@ariresearch.io"
+              href="mailto:suleimanashraf@outlook.com"
               className="flex items-center gap-1.5 text-[12px] text-white/30 hover:text-white/60 transition-colors border border-white/10 px-3 py-2 hover:border-white/20"
             >
               Contact
