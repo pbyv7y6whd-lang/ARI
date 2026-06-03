@@ -9,8 +9,14 @@
   "/api/stocks/[id]/documents/route": "/api/stocks/[id]/documents",
   "/api/stocks/[id]/route": "/api/stocks/[id]",
   "/api/stocks/route": "/api/stocks",
+  "/dashboard/governance/page": "/dashboard/governance",
   "/dashboard/page": "/dashboard",
+  "/dashboard/recent/page": "/dashboard/recent",
+  "/dashboard/risk/page": "/dashboard/risk",
+  "/dashboard/settings/page": "/dashboard/settings",
   "/dashboard/stocks/[id]/page": "/dashboard/stocks/[id]",
+  "/dashboard/themes/page": "/dashboard/themes",
+  "/dashboard/watchlists/page": "/dashboard/watchlists",
   "/login/page": "/login",
   "/page": "/"
 }

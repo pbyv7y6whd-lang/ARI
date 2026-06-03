@@ -111,6 +111,42 @@
       "namedRegex": "^/dashboard(?:/)?$"
     },
     {
+      "page": "/dashboard/governance",
+      "regex": "^/dashboard/governance(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/governance(?:/)?$"
+    },
+    {
+      "page": "/dashboard/recent",
+      "regex": "^/dashboard/recent(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/recent(?:/)?$"
+    },
+    {
+      "page": "/dashboard/risk",
+      "regex": "^/dashboard/risk(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/risk(?:/)?$"
+    },
+    {
+      "page": "/dashboard/settings",
+      "regex": "^/dashboard/settings(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/settings(?:/)?$"
+    },
+    {
+      "page": "/dashboard/themes",
+      "regex": "^/dashboard/themes(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/themes(?:/)?$"
+    },
+    {
+      "page": "/dashboard/watchlists",
+      "regex": "^/dashboard/watchlists(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/watchlists(?:/)?$"
+    },
+    {
       "page": "/login",
       "regex": "^/login(?:/)?$",
       "routeKeys": {},
