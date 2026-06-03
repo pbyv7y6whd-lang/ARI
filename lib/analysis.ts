@@ -190,8 +190,8 @@ export async function analyseStock(
   onProgress?.("Building optimised analysis context...");
 
   // Per-document: extract prioritised text, cap at 70k chars each, 110k total
-  const PER_DOC_LIMIT = 70000;
-  const TOTAL_LIMIT   = 110000;
+  const PER_DOC_LIMIT = 50000;
+  const TOTAL_LIMIT   = 80000;
 
   const docTexts: { file_name: string; doc_type: string; year: string | null; text: string }[] = [];
   let totalChars = 0;
@@ -214,12 +214,17 @@ export async function analyseStock(
   onProgress?.(`Sending ${Math.round(totalChars / 1000)}k chars to Claude Sonnet...`);
 
   const t1 = Date.now();
-  const message = await client.messages.create({
-    model: "claude-sonnet-4-6",
-    max_tokens: multiYear ? 10000 : 8000,
-    system: SYSTEM_PROMPT,
-    messages: [{ role: "user", content: buildPrompt(stockName, docTexts, multiYear) }],
-  });
+  const message = await Promise.race([
+    client.messages.create({
+      model: "claude-sonnet-4-6",
+      max_tokens: multiYear ? 8000 : 6000,
+      system: SYSTEM_PROMPT,
+      messages: [{ role: "user", content: buildPrompt(stockName, docTexts, multiYear) }],
+    }),
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error("Claude API timed out after 240 seconds")), 240_000)
+    ),
+  ]);
   console.log(`[analysis] Claude responded in ${Date.now() - t1}ms`);
 
   onProgress?.("Parsing analysis results...");
