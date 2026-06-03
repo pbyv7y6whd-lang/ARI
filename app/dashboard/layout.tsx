@@ -50,7 +50,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
           <div>
             <p className="text-[11px] font-bold text-white/80 leading-none">ARI Research</p>
-            <p className="text-[9px] text-white/25 mt-0.5 font-mono uppercase tracking-wider">Private Beta</p>
+            <p className="text-[9px] text-white/25 mt-0.5 font-mono uppercase tracking-wider">Research Platform</p>
           </div>
         </div>
 

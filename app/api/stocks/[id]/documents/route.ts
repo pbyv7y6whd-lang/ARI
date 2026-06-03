@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { addDocument, getStock, getDocumentsForStock, updateStock, setupDb } from "@/lib/db";
-import { requireAuth } from "@/lib/session";
 import { parsePDF } from "@/lib/pdf";
 import { analyseStock } from "@/lib/analysis";
 import { v4 as uuidv4 } from "uuid";
@@ -8,7 +7,6 @@ import { v4 as uuidv4 } from "uuid";
 export const maxDuration = 300;
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  if (!(await requireAuth())) return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
   await setupDb();
 
   const { id: stockId } = await params;

@@ -1,16 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAllStocks, createStock, setupDb } from "@/lib/db";
-import { requireAuth } from "@/lib/session";
 import { v4 as uuidv4 } from "uuid";
 
 export async function GET() {
-  if (!(await requireAuth())) return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
   await setupDb();
   return NextResponse.json(await getAllStocks());
 }
 
 export async function POST(request: NextRequest) {
-  if (!(await requireAuth())) return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
   await setupDb();
 
   const { name, ticker, sector } = await request.json();

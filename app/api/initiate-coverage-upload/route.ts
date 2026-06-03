@@ -1,16 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createStock, addDocument, updateStock, setupDb } from "@/lib/db";
-import { requireAuth } from "@/lib/session";
 import { parsePDF } from "@/lib/pdf";
 import { v4 as uuidv4 } from "uuid";
 
 export const maxDuration = 60;
 
 export async function POST(request: NextRequest) {
-  if (!(await requireAuth())) {
-    return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
-  }
-
   await setupDb();
 
   const formData = await request.formData();
