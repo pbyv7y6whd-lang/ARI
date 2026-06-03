@@ -5,7 +5,7 @@
       "maxDuration": 60
     },
     "/api/initiate-coverage-upload": {
-      "maxDuration": 300
+      "maxDuration": 60
     },
     "/api/stocks/[id]/analyse": {
       "maxDuration": 300

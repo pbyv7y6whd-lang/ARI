@@ -26,7 +26,11 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
     for (let i = 0; i < docs.length; i++) {
       const doc = docs[i];
       if (doc.blob_url.startsWith("uploaded:")) {
-        console.log(`[re-analyse] skipping uploaded file ${doc.file_name} — no URL to re-fetch`);
+        if (doc.parsed_content) {
+          parsedDocs.push({ file_name: doc.file_name, doc_type: doc.doc_type, year: doc.year, parsed: doc.parsed_content });
+        } else {
+          console.log(`[re-analyse] skipping uploaded file ${doc.file_name} — no stored parsed content`);
+        }
         continue;
       }
       await updateStock(stockId, {

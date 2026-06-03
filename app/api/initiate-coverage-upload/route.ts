@@ -2,10 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { createStock, addDocument, updateStock, setupDb } from "@/lib/db";
 import { requireAuth } from "@/lib/session";
 import { parsePDF } from "@/lib/pdf";
-import { analyseStock } from "@/lib/analysis";
 import { v4 as uuidv4 } from "uuid";
 
-export const maxDuration = 300;
+export const maxDuration = 60;
 
 export async function POST(request: NextRequest) {
   if (!(await requireAuth())) {
@@ -51,6 +50,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 
+  // Store parsed content in DB so the analyse route can use it without re-fetching
   await addDocument({
     id: docId,
     stock_id: stockId,
@@ -60,30 +60,14 @@ export async function POST(request: NextRequest) {
     blob_url: `uploaded:${file.name}`,
     page_count: parsed.pageCount,
     word_count: parsed.wordCount,
+    parsed_content: parsed,
   });
 
   await updateStock(stockId, {
     progress: 28,
-    progress_message: `${parsed.pageCount} pages · ${parsed.wordCount.toLocaleString()} words — analysing...`,
+    progress_message: `${parsed.pageCount} pages · ${parsed.wordCount.toLocaleString()} words — queuing analysis...`,
   });
 
-  // Run analysis inline (we have the buffer in memory — no need to re-fetch)
-  try {
-    let pct = 30;
-    const analysis = await analyseStock(name, [{ file_name: file.name, doc_type: docType, year, parsed }], async (msg) => {
-      pct = Math.min(pct + 8, 92);
-      await updateStock(stockId, { progress: pct, progress_message: msg });
-    });
-
-    await updateStock(stockId, {
-      status: "complete", progress: 100, progress_message: "Research complete",
-      analysis, sector: analysis.investmentSnapshot?.sector || sector || undefined,
-    });
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : "Analysis failed";
-    await updateStock(stockId, { status: "error", progress: 0, progress_message: msg });
-    return NextResponse.json({ error: msg }, { status: 500 });
-  }
-
+  // Return immediately — client triggers analysis separately (same as URL flow)
   return NextResponse.json({ stockId, docId });
 }

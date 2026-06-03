@@ -124,6 +124,7 @@ export default function InitiateCoverageModal({ open, onClose, onSuccess }: Prop
       if (!res.ok) { setError(data.error || "Failed to initiate coverage"); setState("error"); return; }
 
       router.push(`/dashboard/stocks/${data.stockId}`);
+      fetch(`/api/stocks/${data.stockId}/analyse`, { method: "POST" }).catch(console.error);
     }
 
     setState("idle");
