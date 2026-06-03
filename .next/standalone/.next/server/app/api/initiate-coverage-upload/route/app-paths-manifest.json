@@ -1,0 +1,3 @@
+{
+  "/api/initiate-coverage-upload/route": "app/api/initiate-coverage-upload/route.js"
+}

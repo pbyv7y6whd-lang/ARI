@@ -1,0 +1,16 @@
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/api/auth/login/route": "/api/auth/login",
+  "/api/auth/logout/route": "/api/auth/logout",
+  "/api/initiate-coverage-upload/route": "/api/initiate-coverage-upload",
+  "/api/initiate-coverage/route": "/api/initiate-coverage",
+  "/api/stocks/[id]/analyse/route": "/api/stocks/[id]/analyse",
+  "/api/stocks/[id]/documents/route": "/api/stocks/[id]/documents",
+  "/api/stocks/[id]/route": "/api/stocks/[id]",
+  "/api/stocks/route": "/api/stocks",
+  "/dashboard/page": "/dashboard",
+  "/dashboard/stocks/[id]/page": "/dashboard/stocks/[id]",
+  "/login/page": "/login",
+  "/page": "/"
+}

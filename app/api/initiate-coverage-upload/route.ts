@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
 
     await updateStock(stockId, {
       status: "complete", progress: 100, progress_message: "Research complete",
-      analysis, sector: analysis.investmentSnapshot?.sector || sector,
+      analysis, sector: analysis.investmentSnapshot?.sector || sector || undefined,
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Analysis failed";

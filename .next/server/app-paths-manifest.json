@@ -1,0 +1,16 @@
+{
+  "/_global-error/page": "app/_global-error/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/auth/login/route": "app/api/auth/login/route.js",
+  "/api/auth/logout/route": "app/api/auth/logout/route.js",
+  "/api/initiate-coverage-upload/route": "app/api/initiate-coverage-upload/route.js",
+  "/api/initiate-coverage/route": "app/api/initiate-coverage/route.js",
+  "/api/stocks/[id]/analyse/route": "app/api/stocks/[id]/analyse/route.js",
+  "/api/stocks/[id]/documents/route": "app/api/stocks/[id]/documents/route.js",
+  "/api/stocks/[id]/route": "app/api/stocks/[id]/route.js",
+  "/api/stocks/route": "app/api/stocks/route.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/dashboard/stocks/[id]/page": "app/dashboard/stocks/[id]/page.js",
+  "/login/page": "app/login/page.js",
+  "/page": "app/page.js"
+}
