@@ -59,18 +59,37 @@ const DOC_TYPE_LABELS: Record<string, string> = {
 export default function StockPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
-  const [stock,       setStock]       = useState<StockData | null>(null);
-  const [loading,     setLoading]     = useState(true);
-  const [uploadOpen,  setUploadOpen]  = useState(false);
-  const [reanalysing, setReanalysing] = useState(false);
-  const [activeTab,   setActiveTab]   = useState<"research" | "documents">("research");
+  const [stock,          setStock]          = useState<StockData | null>(null);
+  const [loading,        setLoading]        = useState(true);
+  const [uploadOpen,     setUploadOpen]     = useState(false);
+  const [reanalysing,    setReanalysing]    = useState(false);
+  const [activeTab,      setActiveTab]      = useState<"research" | "documents">("research");
+  const [displayProgress, setDisplayProgress] = useState(0);
 
   const fetchStock = async () => {
     const res = await fetch(`/api/stocks/${id}`);
     if (!res.ok) { router.push("/dashboard"); return; }
-    setStock(await res.json());
+    const data: StockData = await res.json();
+    setStock(data);
+    setDisplayProgress(prev => Math.max(prev, data.progress));
     setLoading(false);
   };
+
+  // Smoothly advance displayProgress toward 95% while processing
+  useEffect(() => {
+    if (!stock || stock.status !== "processing") return;
+    const tick = setInterval(() => {
+      setDisplayProgress(prev => {
+        const real = stock.progress;
+        const ceiling = Math.min(95, real + 60); // don't run more than 60pts ahead
+        if (prev >= ceiling) return prev;
+        // slow exponential easing: moves fast early, crawls near ceiling
+        const step = Math.max(0.1, (ceiling - prev) * 0.012);
+        return Math.min(ceiling, prev + step);
+      });
+    }, 500);
+    return () => clearInterval(tick);
+  }, [stock?.status, stock?.progress]);
 
   useEffect(() => {
     fetchStock();
@@ -181,7 +200,7 @@ export default function StockPage({ params }: { params: Promise<{ id: string }> 
         {activeTab === "documents" ? (
           <DocumentsTab stock={stock} onUpload={() => setUploadOpen(true)} />
         ) : stock.status === "processing" ? (
-          <ProcessingView stock={stock} />
+          <ProcessingView stock={stock} displayProgress={displayProgress} />
         ) : stock.status === "pending" || stock.documents.length === 0 ? (
           <PendingView onUpload={() => setUploadOpen(true)} />
         ) : stock.status === "error" ? (
@@ -200,8 +219,8 @@ export default function StockPage({ params }: { params: Promise<{ id: string }> 
 
 // ── Processing view ────────────────────────────────────────────────────────────
 
-function ProcessingView({ stock }: { stock: StockData }) {
-  const activeStep = getActiveStep(stock.progress);
+function ProcessingView({ stock, displayProgress }: { stock: StockData; displayProgress: number }) {
+  const activeStep = getActiveStep(displayProgress);
 
   return (
     <div className="max-w-lg mx-auto py-16">
@@ -212,7 +231,7 @@ function ProcessingView({ stock }: { stock: StockData }) {
             <h3 className="mt-1 text-[14px] font-semibold text-[#e0e0e0]">{stock.name}</h3>
           </div>
           <div className="text-right">
-            <div className="text-mono text-[20px] font-bold text-[#f59e0b] leading-none">{stock.progress}%</div>
+            <div className="text-mono text-[20px] font-bold text-[#f59e0b] leading-none">{Math.round(displayProgress)}%</div>
             <div className="text-[10px] text-[#444] mt-0.5">complete</div>
           </div>
         </div>
@@ -220,7 +239,7 @@ function ProcessingView({ stock }: { stock: StockData }) {
         {/* Progress bar */}
         <div className="h-px w-full bg-[#1a1a1a] mb-5">
           <div className="h-px bg-[#f59e0b] transition-all duration-1000"
-            style={{ width: `${stock.progress || 3}%` }} />
+            style={{ width: `${displayProgress || 3}%` }} />
         </div>
 
         {/* Steps */}

@@ -217,7 +217,7 @@ export async function analyseStock(
   const message = await Promise.race([
     client.messages.create({
       model: "claude-sonnet-4-6",
-      max_tokens: multiYear ? 10000 : 9000,
+      max_tokens: 16000,
       system: SYSTEM_PROMPT,
       messages: [{ role: "user", content: buildPrompt(stockName, docTexts, multiYear) }],
     }),
@@ -236,11 +236,25 @@ export async function analyseStock(
 
   const match = raw.match(/\{[\s\S]*\}/);
   if (!match) {
-    console.error("[analysis] raw response:", raw.slice(0, 500));
-    throw new Error("Claude did not return valid JSON — check API key and model availability");
+    console.error("[analysis] no JSON found in response:", raw.slice(0, 1000));
+    throw new Error("Claude did not return valid JSON");
   }
 
-  const analysis = JSON.parse(match[0]) as ReportAnalysis;
+  let analysis: ReportAnalysis;
+  try {
+    analysis = JSON.parse(match[0]) as ReportAnalysis;
+  } catch (parseErr) {
+    // Log where the JSON breaks
+    const jsonStr = match[0];
+    const errMsg = parseErr instanceof Error ? parseErr.message : String(parseErr);
+    const posMatch = errMsg.match(/position (\d+)/);
+    const pos = posMatch ? parseInt(posMatch[1]) : 500;
+    console.error("[analysis] JSON parse error:", errMsg);
+    console.error("[analysis] JSON around error:", jsonStr.slice(Math.max(0, pos - 100), pos + 100));
+    console.error("[analysis] JSON length:", jsonStr.length);
+    console.error("[analysis] JSON tail:", jsonStr.slice(-300));
+    throw new Error(`JSON parse failed at position ${pos}: ${errMsg}`);
+  }
   console.log(`[analysis] total pipeline: ${Date.now() - t0}ms`);
   return analysis;
 }
