@@ -76,7 +76,14 @@ Analyst standards:
 - Be direct — no filler phrases ("it is worth noting", "importantly"). Every sentence adds information.
 - Distinguish trajectory from snapshot: a deteriorating 60% debt/GDP is more dangerous than a stable 80%.
 - Relative value matters as much as direction: where does this bond trade vs peers, vs the issuer's own curve, vs the quasi-sovereign complex?
-- Flag data gaps as "N/A — not in documents" rather than guessing.
+- DERIVE BEFORE YOU WRITE N/A: Before writing "N/A — not in documents" for any metric, check whether it can be calculated arithmetically from numbers already stated in the documents or in your own response. Show your working in parentheses. Examples:
+  · Import cover months = gross FX reserves ($bn) ÷ (annual goods imports ($bn) ÷ 12). If you have reserves and import data anywhere in the documents, calculate it.
+  · Gross financing need = overall fiscal deficit + maturing external debt in the period. If both are stated, sum them and show the components.
+  · Interest/revenue ratio = interest payments as % of GDP ÷ revenue as % of GDP. If you have both GDP ratios, calculate.
+  · Current account % GDP = CA balance ($bn) ÷ nominal GDP ($bn) × 100. If both are in the documents, calculate.
+  · External debt service ratio = total external debt service ÷ goods & services export earnings × 100.
+  · FX reserve change = end-period reserves minus start-period reserves, show both dates and the delta.
+  Only write "N/A — not in documents" if the component inputs are genuinely absent from all source documents.
 - Trade ideas must include BOTH directional (long/short outright) AND relative value (long X vs short Y) where appropriate.
 - Portfolio sizing must be explicit: how much of the fund, and why (conviction, liquidity, volatility).
 - Output ONLY valid JSON. No preamble, no markdown, no text outside the JSON.
@@ -89,7 +96,7 @@ function buildSovereignPrompt(countryName: string, docs: { file_name: string; do
 Cover: fundamental credit analysis, financing sources and uses, debt repayment schedule, relative value vs peers, directional and RV trade ideas, and a portfolio sizing recommendation.
 ${content}
 
-Return ONLY this JSON — all fields required. Use "N/A — not in documents" if data is absent:
+Return ONLY this JSON — all fields required. For every field: first try to calculate the metric from numbers in the documents (show working in parentheses). Only use "N/A — not in documents" if the input data is genuinely absent:
 
 {
   "snapshot": {
@@ -228,6 +235,15 @@ Analyst standards:
 - Distinguish accounting from cash credit quality: watch working capital, capex intensity, related-party flows, and dividend upstreaming.
 - Trade ideas must include both directional and RV (vs sector peers, vs senior/sub stack) where relevant.
 - New issue analysis: assess fair value vs secondary, NIP, and portfolio sizing relative to existing exposure.
+- DERIVE BEFORE YOU WRITE N/A: Before writing "N/A — not in documents" for any metric, check whether it can be calculated from numbers already in the documents or your response. Show your working in parentheses. Examples:
+  · EBITDA margin = EBITDA ÷ revenue × 100. If both are stated, calculate.
+  · Net debt = gross debt − cash. If both are stated, calculate.
+  · Net debt / EBITDA = net debt ÷ EBITDA. If both are stated, calculate.
+  · Interest coverage = EBITDA ÷ interest expense. If both are stated, calculate.
+  · FCF = EBITDA − interest − tax − capex ± working capital change. Derive from components if available.
+  · FCF / debt service = FCF ÷ (interest + scheduled amortisation). If both are stated, calculate.
+  · FX stress: if revenue currency split and debt currency split are known, model a 20-30% depreciation scenario explicitly.
+  Only write "N/A — not in documents" if the component inputs are genuinely absent.
 - Flag data gaps as "N/A — not in documents" rather than guessing.
 - Output ONLY valid JSON. No preamble, no markdown, no text outside the JSON.
 - Ensure the JSON is complete and properly closed — never truncate mid-response.`;
@@ -237,7 +253,7 @@ function buildCorporatePrompt(issuerName: string, docs: { file_name: string; doc
   return `Produce a senior-analyst-ready EM corporate credit note for ${issuerName}. This is for Mesarete Capital, an EM credit HF. Cover: three-statement fundamentals, financing sources and uses, debt repayment schedule, quasi-sovereign support (if applicable), FX stress test, relative value vs peers, and portfolio sizing.
 ${content}
 
-Return ONLY this JSON — all fields required. Use "N/A — not in documents" if data is absent:
+Return ONLY this JSON — all fields required. For every field: first try to calculate the metric from numbers in the documents (show working in parentheses). Only use "N/A — not in documents" if the input data is genuinely absent:
 
 {
   "snapshot": {
