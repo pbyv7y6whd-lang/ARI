@@ -123,6 +123,17 @@ export default function ResearchPage() {
               trade journals, sovereign research notes, and frameworks I'm building out.
               Not professional analysis. Just genuine curiosity, written down.
             </p>
+            <div className={s.heroStats}>
+              <div className={s.heroStat}>
+                <span className={s.heroStatNum}>3</span>
+                <span className={s.heroStatLabel}>Sovereigns tracked</span>
+              </div>
+              <div className={s.heroStatDivider} />
+              <div className={s.heroStat}>
+                <span className={s.heroStatNum}>20+</span>
+                <span className={s.heroStatLabel}>Months investing</span>
+              </div>
+            </div>
             <div className={s.heroBadges}>
               {["EM Sovereign Credit","Oil & Commodities","Macro","Pakistan","Egypt","UAE"].map(b => (
                 <span key={b} className={s.badge}>{b}</span>

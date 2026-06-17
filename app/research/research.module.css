@@ -189,6 +189,40 @@
   padding-left: 20px;
 }
 
+.heroStats {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin: 28px 0 0;
+}
+
+.heroStat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.heroStatNum {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--gold);
+  line-height: 1;
+}
+
+.heroStatLabel {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+
+.heroStatDivider {
+  width: 1px;
+  height: 36px;
+  background: var(--border);
+  margin: 0 24px;
+}
+
 .heroBadges {
   display: flex;
   flex-wrap: wrap;
