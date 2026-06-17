@@ -35,7 +35,7 @@ export default function LoginPage() {
         <div className="h-12 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-1.5 text-[12px] text-white/30 hover:text-white/60 transition-colors">
             <ArrowLeft className="h-3 w-3" />
-            ARI Research
+            EMI Research
           </Link>
           <Link href="/dashboard" className="text-[12px] text-white/25 hover:text-white/50 transition-colors">
             Continue without signing in →
@@ -49,9 +49,9 @@ export default function LoginPage() {
           <div className="mb-10">
             <div className="flex items-center gap-2 mb-6">
               <div className="w-5 h-5 bg-white flex items-center justify-center">
-                <span className="text-black font-bold text-[9px]">ARI</span>
+                <span className="text-black font-bold text-[9px]">EMI</span>
               </div>
-              <span className="text-[12px] font-semibold text-white/50">Annual Report Intelligence</span>
+              <span className="text-[12px] font-semibold text-white/50">Emerging Market Intelligence</span>
             </div>
             <h1 className="text-[22px] font-bold text-white mb-2">Sign in</h1>
             <p className="text-[13px] text-white/30">

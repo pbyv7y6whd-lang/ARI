@@ -6,8 +6,8 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
 
 export const metadata: Metadata = {
-  title: "ARI — Annual Report Intelligence",
-  description: "Institutional-grade equity research from annual reports.",
+  title: "EMI — Emerging Market Intelligence",
+  description: "EM sovereign credit and macro research by Suleiman Ashraf.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

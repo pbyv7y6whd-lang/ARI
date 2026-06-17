@@ -103,7 +103,7 @@ export default function ResearchPage() {
         </nav>
 
         <div className={s.sidebarBottom}>
-          <Link href="/" className={s.sidebarBackLink}>← ARI Research</Link>
+          <Link href="/" className={s.sidebarBackLink}>← EMI</Link>
         </div>
       </aside>
 

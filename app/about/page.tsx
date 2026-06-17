@@ -14,7 +14,7 @@ export default function AboutPage() {
             fontSize: 11, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase",
             color: "#c8873a", border: "1px solid #c8873a", padding: "5px 14px", textDecoration: "none",
           }}>
-            ARI Platform ↗
+            EMI Platform ↗
           </Link>
         </div>
       </nav>
@@ -81,17 +81,17 @@ export default function AboutPage() {
         {/* ARI section */}
         <div style={{ borderTop: "1px solid #d8d4cc", paddingTop: 40, marginBottom: 48 }}>
           <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "#6b6b6b", marginBottom: 16 }}>
-            ARI Research Platform
+            EMI Research Platform
           </div>
           <p style={{ fontSize: 14, color: "#1a1a1a", lineHeight: 1.85, marginBottom: 16 }}>
-            ARI (Annual Report Intelligence) is an AI-powered equity research platform I built, focused on institutional-grade annual report analysis — business quality, governance, management, and capital allocation.
+            EMI (Emerging Market Intelligence) is a research platform built to document EM sovereign credit and macro analysis — trade journals, sovereign deep dives, and frameworks across Pakistan, Egypt, and the UAE.
           </p>
           <Link href="/dashboard" style={{
             display: "inline-flex", alignItems: "center", gap: 6,
             fontSize: 12, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase",
             border: "1px solid #c8873a", padding: "9px 18px", color: "#c8873a", textDecoration: "none",
           }}>
-            Open ARI Platform ↗
+            Open EMI →
           </Link>
         </div>
 

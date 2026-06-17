@@ -46,10 +46,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Logo */}
         <div className="border-b border-[#161616] px-4 py-0 h-12 flex items-center gap-2">
           <div className="w-5 h-5 bg-white flex items-center justify-center shrink-0">
-            <span className="text-black font-bold text-[9px] tracking-tight">ARI</span>
+            <span className="text-black font-bold text-[9px] tracking-tight">EMI</span>
           </div>
           <div>
-            <p className="text-[11px] font-bold text-white/80 leading-none">ARI Research</p>
+            <p className="text-[11px] font-bold text-white/80 leading-none">EMI Research</p>
             <p className="text-[9px] text-white/25 mt-0.5 font-mono uppercase tracking-wider">Research Platform</p>
           </div>
         </div>
