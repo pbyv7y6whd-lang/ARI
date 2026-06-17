@@ -83,6 +83,106 @@ function scoreColour(score: number) {
   return "#ef4444";
 }
 
+// ── Score Gauge (semi-circle arc) ─────────────────────────────────────────────
+
+function ScoreGauge({ score }: { score: number }) {
+  const cx = 50, cy = 44, r = 34;
+  const arcLen = Math.PI * r;
+  const filled = (score / 100) * arcLen;
+  const color = scoreColour(score);
+  const path = `M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`;
+  return (
+    <svg viewBox="0 0 100 68" width="90" height="60" aria-label={`${score}/100`}>
+      <path d={path} fill="none" stroke="#e8e2f0" strokeWidth="7" strokeLinecap="round" />
+      <path d={path} fill="none" stroke={color} strokeWidth="7" strokeLinecap="round"
+        strokeDasharray={arcLen} strokeDashoffset={arcLen - filled} />
+      <text x={cx} y={cy + 10} textAnchor="middle" fill={color}
+        fontFamily="ui-monospace,monospace" fontWeight="800" fontSize="22">{score}</text>
+      <text x={cx} y={cy + 24} textAnchor="middle" fill="#b09dcc"
+        fontFamily="ui-monospace,monospace" fontSize="9">/100</text>
+    </svg>
+  );
+}
+
+// ── Pillar Radar (spider chart) ───────────────────────────────────────────────
+
+const PILLAR_LABELS: Record<string, string[]> = {
+  fiscal:             ["Fiscal"],
+  external:           ["External"],
+  debtSustainability: ["Debt", "Sust."],
+  politicalEconomy:   ["Political", "Economy"],
+  leverage:           ["Leverage"],
+  liquidity:          ["Liquidity"],
+  businessQuality:    ["Business", "Quality"],
+  fxAndCountryRisk:   ["FX &", "Country"],
+};
+
+function PillarRadar({ breakdown }: { breakdown: Record<string, string | undefined> }) {
+  const cx = 100, cy = 100, r = 58;
+  const entries = Object.entries(breakdown);
+  const n = entries.length;
+
+  function parsePillarVal(s?: string): number {
+    if (!s) return 0;
+    const m = s.match(/^(\d+)/);
+    return m ? Math.min(parseInt(m[1]), 25) : 0;
+  }
+
+  const axes = entries.map(([key, val], i) => {
+    const angle = (i / n) * 2 * Math.PI - Math.PI / 2;
+    const score = parsePillarVal(val);
+    const pct = score / 25;
+    const lx = cx + (r + 26) * Math.cos(angle);
+    const ly = cy + (r + 26) * Math.sin(angle);
+    const anchor = lx > cx + 6 ? "start" : lx < cx - 6 ? "end" : "middle";
+    const lines = PILLAR_LABELS[key] ?? [key.charAt(0).toUpperCase() + key.slice(1)];
+    return { key, score, pct, angle, lines, anchor,
+      px: cx + r * pct * Math.cos(angle),
+      py: cy + r * pct * Math.sin(angle),
+      ax: cx + r * Math.cos(angle),
+      ay: cy + r * Math.sin(angle),
+      lx, ly };
+  });
+
+  const filledPoly = axes.map(a => `${a.px},${a.py}`).join(" ");
+
+  return (
+    <svg viewBox="0 0 200 200" className="w-36 h-36 shrink-0">
+      {/* Grid rings */}
+      {[0.25, 0.5, 0.75, 1].map((pct, gi) => (
+        <polygon key={gi}
+          points={entries.map((_, i) => {
+            const ang = (i / n) * 2 * Math.PI - Math.PI / 2;
+            return `${cx + r * pct * Math.cos(ang)},${cy + r * pct * Math.sin(ang)}`;
+          }).join(" ")}
+          fill="none" stroke={gi === 3 ? "#d8cfe8" : "#ede8f5"} strokeWidth={gi === 3 ? "0.75" : "0.5"} />
+      ))}
+      {/* Spokes */}
+      {axes.map((a, i) => (
+        <line key={i} x1={cx} y1={cy} x2={a.ax} y2={a.ay} stroke="#e0d8ee" strokeWidth="0.5" />
+      ))}
+      {/* Data polygon */}
+      <polygon points={filledPoly} fill="#5b21b6" fillOpacity="0.13"
+        stroke="#5b21b6" strokeWidth="1.5" strokeLinejoin="round" />
+      {/* Dots */}
+      {axes.map((a, i) => (
+        <circle key={i} cx={a.px} cy={a.py} r="2.5" fill="#5b21b6" />
+      ))}
+      {/* Axis labels */}
+      {axes.map((a, i) => (
+        <text key={i} textAnchor={a.anchor as "start" | "middle" | "end"}
+          fill="#9a7cc0" fontSize="7.5" fontFamily="system-ui,sans-serif">
+          {a.lines.map((line, li) => (
+            <tspan key={li} x={a.lx}
+              y={a.ly - ((a.lines.length - 1) * 5) + li * 10}
+              dominantBaseline="middle">{line}</tspan>
+          ))}
+        </text>
+      ))}
+    </svg>
+  );
+}
+
 function creditViewClass(view?: string) {
   if (view === "Positive") return "text-emerald-500 bg-emerald-500/10 border border-emerald-500/20";
   if (view === "Negative") return "text-red-400 bg-red-400/10 border border-red-400/20";
@@ -442,15 +542,28 @@ function ScoreBreakdown({ breakdown, rationale }: {
   return (
     <div className="mt-3 pt-3 border-t border-[#ddd6ec] space-y-3">
       {breakdown && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-          {Object.entries(breakdown).map(([k, v]) => (
-            <div key={k} className="text-center border border-[#e0d8ee] rounded-sm py-2 px-1">
-              <p className="text-[18px] font-mono font-bold text-[#5b21b6]">{v ?? "—"}</p>
-              <p className="text-[9px] uppercase tracking-wider text-[#9a7cc0] mt-0.5">
-                {k.replace(/([A-Z])/g, " $1").trim()}
-              </p>
-            </div>
-          ))}
+        <div className="flex items-center gap-4">
+          <PillarRadar breakdown={breakdown} />
+          <div className="flex-1 space-y-2">
+            {Object.entries(breakdown).map(([k, v]) => {
+              const num = v ? parseInt(v.match(/^(\d+)/)?.[1] ?? "0") : 0;
+              const pct = (num / 25) * 100;
+              return (
+                <div key={k}>
+                  <div className="flex items-center justify-between mb-0.5">
+                    <p className="text-[9px] uppercase tracking-widest text-[#9a7cc0]">
+                      {k.replace(/([A-Z])/g, " $1").trim()}
+                    </p>
+                    <p className="text-[11px] font-mono font-bold text-[#5b21b6]">{v ?? "—"}</p>
+                  </div>
+                  <div className="h-1 rounded-full bg-[#ede8f5] overflow-hidden">
+                    <div className="h-full rounded-full bg-[#5b21b6]/40 transition-all"
+                      style={{ width: `${pct}%` }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
       {rationale && <p className="text-[11px] text-[#7a5aaa] leading-relaxed">{rationale}</p>}
@@ -480,12 +593,7 @@ function SovereignView({ a }: { a: SovereignAnalysis }) {
             <p className="text-[13px] text-[#2d1654] leading-relaxed">{a.snapshot.creditRationale}</p>
           )}
         </div>
-        {score !== undefined && (
-          <div className="shrink-0 text-right border border-[#d8cfe8] rounded-sm px-3 py-2">
-            <div className="font-mono text-[28px] font-bold leading-none" style={{ color: scoreColour(score) }}>{score}</div>
-            <div className="text-[9px] text-[#9a7cc0] font-mono mt-0.5">/100</div>
-          </div>
-        )}
+        {score !== undefined && <ScoreGauge score={score} />}
       </div>
 
       {/* Fiscal Profile */}
@@ -710,12 +818,7 @@ function CorporateView({ a }: { a: CorporateAnalysis }) {
             <p className="text-[13px] text-[#2d1654] leading-relaxed">{a.snapshot.creditRationale}</p>
           )}
         </div>
-        {score !== undefined && (
-          <div className="shrink-0 text-right border border-[#d8cfe8] rounded-sm px-3 py-2">
-            <div className="font-mono text-[28px] font-bold leading-none" style={{ color: scoreColour(score) }}>{score}</div>
-            <div className="text-[9px] text-[#9a7cc0] font-mono mt-0.5">/100</div>
-          </div>
-        )}
+        {score !== undefined && <ScoreGauge score={score} />}
       </div>
 
       {/* Three-Statement Summary */}
