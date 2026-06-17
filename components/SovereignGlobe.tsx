@@ -123,13 +123,13 @@ export default function SovereignGlobe({ countries }: { countries: GlobeCountry[
       phi:    phiRef.current,
       theta:  0.2,
       dark:   1,
-      diffuse:       1.1,
+      diffuse:       1.4,
       scale:         1,
       mapSamples:    20000,
-      mapBrightness: 4.5,
-      baseColor:   [0.08, 0.04, 0.16],
-      markerColor: [0.36, 0.13, 0.71],
-      glowColor:   [0.22, 0.08, 0.42],
+      mapBrightness: 8,
+      baseColor:   [0.05, 0.02, 0.12],   // near-black ocean
+      markerColor: [1,    1,    1   ],    // white base so per-marker hues show true
+      glowColor:   [0.36, 0.13, 0.71],   // purple glow around edge
       markers: markers.map(m => ({
         location: m.coords,
         size:  0.06,
