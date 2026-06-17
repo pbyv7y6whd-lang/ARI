@@ -34,7 +34,7 @@ async function callClaude(system: string, user: string): Promise<string> {
   const message = await Promise.race([
     client.messages.create({
       model: "claude-sonnet-4-6",
-      max_tokens: 4096,
+      max_tokens: 8192,
       system,
       messages: [{ role: "user", content: user }],
     }),
@@ -50,12 +50,18 @@ async function callClaude(system: string, user: string): Promise<string> {
 
 function parseJSON<T>(raw: string): T {
   const match = raw.match(/\{[\s\S]*\}/);
-  if (!match) throw new Error("Claude did not return valid JSON");
+  if (!match) {
+    const preview = raw.slice(0, 200).replace(/\n/g, " ");
+    throw new Error(`Claude did not return valid JSON. Response preview: "${preview}"`);
+  }
   try {
     return JSON.parse(match[0]) as T;
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    throw new Error(`JSON parse failed: ${msg}`);
+    // Log the raw content around the failure point for debugging
+    const failPos = parseInt(msg.match(/position (\d+)/)?.[1] ?? "0");
+    const snippet = match[0].slice(Math.max(0, failPos - 100), failPos + 100);
+    throw new Error(`JSON parse failed at pos ${failPos}: ${msg} — snippet: ...${snippet}...`);
   }
 }
 

@@ -87,7 +87,9 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
     }
 
     if (!parsedDocs.length) {
-      return NextResponse.json({ error: "No fetchable documents found" }, { status: 400 });
+      const noDocsMsg = "No documents could be read — PDF parsing may still be in progress. Wait 30 seconds and try Re-analyse again.";
+      await updateStock(stockId, { status: "error", progress: 0, progress_message: noDocsMsg });
+      return NextResponse.json({ error: noDocsMsg }, { status: 400 });
     }
 
     await updateStock(stockId, { progress: 30, progress_message: `Analysing ${parsedDocs.length} document(s)...` });
@@ -134,7 +136,12 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
     console.log(`[analyse] completed in ${Date.now() - tTotal}ms`);
     return NextResponse.json({ ok: true });
   } catch (err) {
-    const msg = err instanceof Error ? err.message : "Analysis failed";
+    console.error("[analyse] caught error:", err);
+    const msg = err instanceof Error
+      ? err.message
+      : typeof err === "string"
+        ? err
+        : `Analysis error: ${JSON.stringify(err)}`;
     await updateStock(stockId, { status: "error", progress: 0, progress_message: msg });
     return NextResponse.json({ error: msg }, { status: 500 });
   }
