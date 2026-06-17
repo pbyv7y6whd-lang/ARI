@@ -1,264 +1,579 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight } from "lucide-react";
 
-const THEMES = [
-  { name: "AI Infrastructure",       count: 12 },
-  { name: "Semiconductor Equipment", count: 8  },
-  { name: "Networking",              count: 6  },
-  { name: "Data Centres",            count: 9  },
-  { name: "Power & Cooling",         count: 5  },
-  { name: "UK Small Caps",           count: 14 },
-  { name: "Governance",              count: 7  },
-  { name: "Capital Allocation",      count: 10 },
+/* ── EM country dots for the globe [lat, lng] ── */
+const EM_COUNTRIES = [
+  { name: "Egypt",    lat: 26.8, lng: 30.8,  spread: 480, rating: "B−",   stance: "bull" },
+  { name: "UAE",      lat: 23.4, lng: 53.8,  spread: 65,  rating: "AA−",  stance: "neut" },
+  { name: "Nigeria",  lat: 9.1,  lng: 8.7,   spread: 700, rating: "B−",   stance: "neut" },
+  { name: "Pakistan", lat: 30.4, lng: 69.3,  spread: 1100,rating: "CCC+", stance: "neut" },
+  { name: "Kenya",    lat: -0.0, lng: 37.9,  spread: 560, rating: "B",    stance: "neut" },
+  { name: "Iraq",     lat: 33.2, lng: 43.7,  spread: 750, rating: "B−",   stance: "bear" },
+  { name: "Ghana",    lat: 7.9,  lng: -1.0,  spread: 900, rating: "SD",   stance: "bear" },
+  { name: "Angola",   lat: -11.2,lng: 17.9,  spread: 580, rating: "B−",   stance: "neut" },
 ];
 
-const RESEARCH = [
+const ARTICLES = [
   {
-    ticker: "NVDA",
-    company: "Nvidia",
-    sector: "Semiconductors",
-    title: "What Changed In Nvidia's Annual Report",
-    debate: "The market is pricing in sustained hyperscaler capex growth. The filing reveals growing customer concentration risk and a dependency on TSMC that isn't fully reflected in consensus models.",
-    tags: ["What Changed", "AI Infrastructure"],
-    date: "Jun 2025",
+    id: "oil-trade",
+    tag: "Trade Journal",
+    title: "My First Macro Trade: Shorting Oil Through a War",
+    deck: "Right on direction. Survived a $117 spike. Barely made money. Here is everything I learned.",
+    date: "Jun 2026",
+    readTime: "18 min",
+    href: "/research#oil-trade",
+    highlight: true,
   },
   {
-    ticker: "ANET",
-    company: "Arista Networks",
-    sector: "Networking",
-    title: "Why Networking May Be The Most Underappreciated AI Trade",
-    debate: "Arista's positioning in AI back-end networking is structurally undervalued. The debate centres on whether Ethernet displaces InfiniBand — the annual report language shifted materially this year.",
-    tags: ["Variant Perception", "Networking"],
-    date: "May 2025",
+    id: "egypt-imf",
+    tag: "Sovereign Credit",
+    title: "Egypt's IMF Tightrope",
+    deck: "FX liberalisation, external debt dynamics, and what the spread compression tells us about reform credibility.",
+    date: "Coming soon",
+    readTime: "—",
+    href: "/research#sovereign",
+    highlight: false,
   },
   {
-    ticker: "ASML",
-    company: "ASML",
-    sector: "Semiconductor Equipment",
-    title: "ASML And The Limits Of Semiconductor Scaling",
-    debate: "High-NA EUV creates a compelling long-term moat but introduces new execution risk. Management's tone on China restrictions shifted notably — more defensive, less dismissive than prior year.",
-    tags: ["Semiconductor Equipment", "Governance"],
-    date: "Apr 2025",
+    id: "em-fx",
+    tag: "EM Macro",
+    title: "Dollar Dominance and EM Debt Dynamics",
+    deck: "How USD strength transmits into sovereign credit quality and why carry trades create fragility.",
+    date: "Coming soon",
+    readTime: "—",
+    href: "/research",
+    highlight: false,
   },
 ];
 
-export default function HomePage() {
+/* ── GLOBE CANVAS ────────────────────────────────────────────── */
+function Globe() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const rafRef    = useRef<number>(0);
+  const mouseRef  = useRef({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d")!;
+    let W = 0, H = 0, R = 0;
+
+    const resize = () => {
+      W = canvas.offsetWidth;
+      H = canvas.offsetHeight;
+      canvas.width  = W * devicePixelRatio;
+      canvas.height = H * devicePixelRatio;
+      ctx.scale(devicePixelRatio, devicePixelRatio);
+      R = Math.min(W, H) * 0.38;
+    };
+    resize();
+    window.addEventListener("resize", resize);
+
+    canvas.addEventListener("mousemove", e => {
+      const rect = canvas.getBoundingClientRect();
+      mouseRef.current = {
+        x: (e.clientX - rect.left - W / 2) / R,
+        y: (e.clientY - rect.top  - H / 2) / R,
+      };
+    });
+
+    let rotY = 0.3;
+    let rotX = 0.15;
+
+    /* lat/lng → 3D xyz on unit sphere */
+    const toXYZ = (lat: number, lng: number) => {
+      const phi   = (90 - lat) * Math.PI / 180;
+      const theta = (lng + 180)  * Math.PI / 180;
+      return {
+        x: -Math.sin(phi) * Math.cos(theta),
+        y:  Math.cos(phi),
+        z:  Math.sin(phi) * Math.sin(theta),
+      };
+    };
+
+    /* rotate point around Y then X */
+    const rotate = (p: {x:number,y:number,z:number}, ry: number, rx: number) => {
+      let {x,y,z} = p;
+      // Y rotation
+      const cosY = Math.cos(ry), sinY = Math.sin(ry);
+      const x1 = x * cosY + z * sinY;
+      const z1 = -x * sinY + z * cosY;
+      x = x1; z = z1;
+      // X rotation
+      const cosX = Math.cos(rx), sinX = Math.sin(rx);
+      const y1 = y * cosX - z * sinX;
+      const z2 = y * sinX + z * cosX;
+      return { x, y: y1, z: z2 };
+    };
+
+    /* generate grid dots */
+    const gridDots: {lat:number,lng:number}[] = [];
+    for (let lat = -80; lat <= 80; lat += 12) {
+      for (let lng = -180; lng < 180; lng += 12) {
+        gridDots.push({ lat, lng });
+      }
+    }
+
+    const draw = () => {
+      ctx.clearRect(0, 0, W, H);
+
+      /* subtle mouse influence */
+      const targetY = rotY + mouseRef.current.x * 0.03;
+      const targetX = rotX - mouseRef.current.y * 0.02;
+      rotY += (targetY - rotY) * 0.02 + 0.003;
+      rotX += (targetX - rotX) * 0.02;
+
+      const cx = W / 2, cy = H / 2;
+
+      /* outer glow */
+      const grd = ctx.createRadialGradient(cx, cy, R * 0.6, cx, cy, R * 1.15);
+      grd.addColorStop(0, "rgba(200,135,58,0.04)");
+      grd.addColorStop(1, "rgba(200,135,58,0)");
+      ctx.fillStyle = grd;
+      ctx.beginPath();
+      ctx.arc(cx, cy, R * 1.15, 0, Math.PI * 2);
+      ctx.fill();
+
+      /* rim */
+      ctx.strokeStyle = "rgba(200,135,58,0.12)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(cx, cy, R, 0, Math.PI * 2);
+      ctx.stroke();
+
+      /* grid dots */
+      gridDots.forEach(({ lat, lng }) => {
+        const p3 = toXYZ(lat, lng);
+        const r  = rotate(p3, rotY, rotX);
+        if (r.z < 0) return; // back face
+        const x  = cx + r.x * R;
+        const y  = cy - r.y * R;
+        const alpha = 0.08 + r.z * 0.15;
+        ctx.fillStyle = `rgba(200,135,58,${alpha})`;
+        ctx.beginPath();
+        ctx.arc(x, y, 1, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      /* EM country dots */
+      EM_COUNTRIES.forEach(country => {
+        const p3 = toXYZ(country.lat, country.lng);
+        const r  = rotate(p3, rotY, rotX);
+        if (r.z < -0.1) return;
+        const x  = cx + r.x * R;
+        const y  = cy - r.y * R;
+        const visible = r.z > 0;
+        const size = visible ? 4 : 2;
+        const alpha = visible ? 1 : 0.3;
+
+        if (visible) {
+          const glow = ctx.createRadialGradient(x, y, 0, x, y, 12);
+          glow.addColorStop(0, "rgba(200,135,58,0.3)");
+          glow.addColorStop(1, "rgba(200,135,58,0)");
+          ctx.fillStyle = glow;
+          ctx.beginPath();
+          ctx.arc(x, y, 12, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        const colour = country.stance === "bull" ? `rgba(45,106,79,${alpha})`
+                     : country.stance === "bear" ? `rgba(139,46,46,${alpha})`
+                     : `rgba(200,135,58,${alpha})`;
+        ctx.fillStyle = colour;
+        ctx.beginPath();
+        ctx.arc(x, y, size, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      rafRef.current = requestAnimationFrame(draw);
+    };
+    draw();
+
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+      window.removeEventListener("resize", resize);
+    };
+  }, []);
+
   return (
-    <div className="min-h-screen bg-[#080808] text-white">
+    <canvas
+      ref={canvasRef}
+      style={{ width: "100%", height: "100%", display: "block", cursor: "crosshair" }}
+    />
+  );
+}
 
-      {/* ── Nav ────────────────────────────────────────────────────────── */}
-      <nav className="border-b border-white/[0.06] px-6">
-        <div className="max-w-7xl mx-auto flex h-12 items-center justify-between">
-          <div className="flex items-center gap-8">
-            <div className="flex items-center gap-2">
-              <div className="w-5 h-5 bg-white flex items-center justify-center shrink-0">
-                <span className="text-black font-bold text-[9px]">ARI</span>
-              </div>
-              <span className="text-[12px] font-semibold text-white/70">Annual Report Intelligence</span>
-            </div>
-            <div className="hidden md:flex items-center gap-5">
-              <a href="#research"     className="text-[12px] text-white/35 hover:text-white/70 transition-colors">Research</a>
-              <a href="#themes"      className="text-[12px] text-white/35 hover:text-white/70 transition-colors">Themes</a>
-              <Link href="/research" className="text-[12px] text-white/35 hover:text-white/70 transition-colors">Portfolio</Link>
-              <Link href="/about"    className="text-[12px] text-white/35 hover:text-white/70 transition-colors">About</Link>
-            </div>
+/* ── TILT CARD ───────────────────────────────────────────────── */
+function TiltCard({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  const handleMove = (e: React.MouseEvent) => {
+    const el = ref.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width  - 0.5;
+    const y = (e.clientY - rect.top)  / rect.height - 0.5;
+    el.style.transform = `perspective(600px) rotateY(${x * 12}deg) rotateX(${-y * 8}deg) translateZ(8px)`;
+  };
+
+  const handleLeave = () => {
+    if (ref.current) ref.current.style.transform = "perspective(600px) rotateY(0deg) rotateX(0deg) translateZ(0px)";
+  };
+
+  return (
+    <div
+      ref={ref}
+      className={className}
+      onMouseMove={handleMove}
+      onMouseLeave={handleLeave}
+      style={{ transition: "transform 0.15s ease", transformStyle: "preserve-3d", willChange: "transform" }}
+    >
+      {children}
+    </div>
+  );
+}
+
+/* ── COUNTER ─────────────────────────────────────────────────── */
+function Counter({ to, suffix = "" }: { to: number; suffix?: string }) {
+  const [val, setVal] = useState(0);
+  const ref = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    const obs = new IntersectionObserver(([e]) => {
+      if (!e.isIntersecting) return;
+      obs.disconnect();
+      let start = 0;
+      const step = () => {
+        start += Math.ceil((to - start) / 10) || 1;
+        setVal(Math.min(start, to));
+        if (start < to) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    });
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, [to]);
+
+  return <span ref={ref}>{val}{suffix}</span>;
+}
+
+/* ── PAGE ────────────────────────────────────────────────────── */
+export default function HomePage() {
+  const [hoveredCountry, setHoveredCountry] = useState<typeof EM_COUNTRIES[0] | null>(null);
+
+  return (
+    <div style={{ background: "#080808", color: "#e8e8e8", fontFamily: "'Inter', sans-serif", minHeight: "100vh", fontWeight: 300 }}>
+
+      {/* ── NAV ────────────────────────────────────────────────── */}
+      <nav style={{
+        position: "fixed", top: 0, left: 0, right: 0, zIndex: 50,
+        borderBottom: "1px solid rgba(255,255,255,0.06)",
+        background: "rgba(8,8,8,0.85)", backdropFilter: "blur(12px)",
+        padding: "0 32px",
+      }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", height: 52, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: "-0.01em" }}>Suleiman Ashraf</span>
+            <span style={{ color: "rgba(255,255,255,0.2)", fontSize: 12, marginLeft: 4 }}>EM Credit & Macro</span>
           </div>
-          <Link href="/dashboard"
-            className="flex items-center gap-1.5 border border-white/15 px-3 py-1.5 text-[11px] font-medium text-white/50 hover:border-white/30 hover:text-white/80 transition-colors">
-            Research Platform
-            <ArrowUpRight className="h-3 w-3" />
-          </Link>
+          <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
+            <a href="#research" style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>Research</a>
+            <a href="#coverage" style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>Coverage</a>
+            <Link href="/research" style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>Portfolio</Link>
+            <Link href="/about" style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>About</Link>
+            <Link href="/dashboard" style={{
+              fontSize: 11, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase",
+              color: "#c8873a", border: "1px solid rgba(200,135,58,0.3)", padding: "6px 14px", textDecoration: "none",
+            }}>ARI Platform ↗</Link>
+          </div>
         </div>
       </nav>
 
-      {/* ── Hero ───────────────────────────────────────────────────────── */}
-      <section className="border-b border-white/[0.06] px-6 py-20 md:py-28">
-        <div className="max-w-4xl mx-auto">
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-white/25 mb-6 font-mono">
-            Open Research Platform
-          </p>
-          <h1 className="text-[40px] md:text-[62px] font-bold leading-[1.03] tracking-tight text-white mb-6">
-            AI-powered institutional<br />equity research.
+      {/* ── HERO ───────────────────────────────────────────────── */}
+      <section style={{ minHeight: "100vh", display: "grid", gridTemplateColumns: "1fr 1fr", alignItems: "center", paddingTop: 52, gap: 0 }}>
+
+        {/* Left: text */}
+        <div style={{ padding: "80px 64px 80px 48px" }}>
+          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.25)", marginBottom: 28 }}>
+            EM Credit & Macro Research · LSE MSc Finance
+          </div>
+
+          <h1 style={{ fontSize: "clamp(36px,4vw,58px)", fontWeight: 700, lineHeight: 1.06, letterSpacing: "-0.025em", marginBottom: 28 }}>
+            Emerging Markets<br />
+            <span style={{ color: "#c8873a" }}>Credit Research.</span>
           </h1>
-          <p className="text-[15px] text-white/40 max-w-lg leading-relaxed mb-3">
-            Annual report intelligence focused on AI infrastructure, semiconductors,
-            and public markets analysis.
+
+          <p style={{
+            fontSize: 16, lineHeight: 1.75, color: "rgba(255,255,255,0.45)",
+            maxWidth: 440, marginBottom: 40,
+            borderLeft: "2px solid rgba(200,135,58,0.4)", paddingLeft: 18,
+          }}>
+            Tracking sovereign risk, external financing conditions, and commodity
+            price transmission into EM fiscal dynamics — with first-hand market experience.
           </p>
-          <p className="text-[13px] text-white/25 max-w-lg leading-relaxed mb-10">
-            Combining AI-driven analysis with institutional investment frameworks —
-            business quality, governance, management, capital allocation.
-          </p>
-          <div className="flex flex-wrap items-center gap-3">
-            <Link href="/dashboard"
-              className="flex items-center gap-2 bg-white text-black px-5 py-2.5 text-[13px] font-semibold hover:bg-white/90 transition-colors">
-              Explore Research
-              <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
-            <Link href="/dashboard"
-              className="flex items-center gap-2 border border-white/15 px-5 py-2.5 text-[13px] text-white/50 hover:border-white/30 hover:text-white/80 transition-colors">
-              Generate Analysis
-            </Link>
-          </div>
-        </div>
-      </section>
 
-      {/* ── Stats ──────────────────────────────────────────────────────── */}
-      <div className="border-b border-white/[0.06] grid grid-cols-2 md:grid-cols-4 divide-x divide-white/[0.06]">
-        {[
-          { label: "Annual Reports Analysed", value: "60+"  },
-          { label: "Research Sections",       value: "16"   },
-          { label: "Research Focus",          value: "AI · Semis"   },
-          { label: "Framework",               value: "Buy-side" },
-        ].map(({ label, value }) => (
-          <div key={label} className="px-6 py-5">
-            <p className="font-mono text-[20px] font-bold text-white/80">{value}</p>
-            <p className="text-[10px] text-white/25 mt-1 uppercase tracking-wider">{label}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* ── Research ───────────────────────────────────────────────────── */}
-      <section id="research" className="border-b border-white/[0.06] px-6 py-14">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-end justify-between mb-8">
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-white/25 mb-2">Latest</p>
-              <h2 className="text-[20px] font-bold text-white">Featured Research</h2>
-            </div>
-            <Link href="/dashboard" className="text-[12px] text-white/30 hover:text-white/60 transition-colors flex items-center gap-1">
-              Research library <ArrowUpRight className="h-3 w-3" />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-white/[0.06]">
-            {RESEARCH.map((r, i) => (
-              <article key={i} className="group bg-[#080808] p-6 hover:bg-[#0d0d0d] transition-colors cursor-pointer">
-                <div className="flex items-center justify-between mb-5">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-[11px] font-bold text-white/35">{r.ticker}</span>
-                    <span className="text-white/15">·</span>
-                    <span className="text-[10px] text-white/20">{r.sector}</span>
-                  </div>
-                  <span className="text-[10px] text-white/20 font-mono">{r.date}</span>
-                </div>
-                <h3 className="text-[14px] font-semibold text-white/75 group-hover:text-white leading-snug mb-3 transition-colors">
-                  {r.title}
-                </h3>
-                <p className="text-[12px] text-white/30 leading-relaxed mb-5 line-clamp-3">
-                  {r.debate}
-                </p>
-                <div className="flex flex-wrap gap-1.5 border-t border-white/[0.05] pt-4">
-                  {r.tags.map(tag => (
-                    <span key={tag} className="border border-white/10 px-2 py-0.5 text-[10px] text-white/25 font-mono">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Themes ─────────────────────────────────────────────────────── */}
-      <section id="themes" className="border-b border-white/[0.06] px-6 py-14">
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-8">
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-white/25 mb-2">Coverage</p>
-            <h2 className="text-[20px] font-bold text-white">Research Themes</h2>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-white/[0.06]">
-            {THEMES.map((theme) => (
-              <Link key={theme.name} href="/dashboard">
-                <div className="group bg-[#080808] px-5 py-5 hover:bg-[#0d0d0d] transition-colors cursor-pointer h-full">
-                  <div className="flex items-start justify-between mb-5">
-                    <div className="w-1 h-1 bg-white/20 rounded-full mt-2 group-hover:bg-white/50 transition-colors" />
-                    <ArrowUpRight className="h-3 w-3 text-white/10 group-hover:text-white/30 transition-colors" />
-                  </div>
-                  <h3 className="text-[13px] font-semibold text-white/60 group-hover:text-white/90 transition-colors mb-1.5">
-                    {theme.name}
-                  </h3>
-                  <p className="text-[10px] text-white/20 font-mono">{theme.count} companies</p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Framework ──────────────────────────────────────────────────── */}
-      <section className="border-b border-white/[0.06] px-6 py-14">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16">
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-white/25 mb-4">Research Philosophy</p>
-            <h2 className="text-[20px] font-bold text-white mb-5">
-              Sceptical.<br />Evidence-based.<br />Buy-side.
-            </h2>
-            <p className="text-[13px] text-white/35 leading-relaxed mb-4">
-              ARI reads annual reports the way an experienced analyst does — looking for what
-              changed, what management is obscuring, and where the market may be wrong.
-            </p>
-            <p className="text-[13px] text-white/25 leading-relaxed mb-6">
-              Every conclusion is evidence-linked. The goal is one question: is this stock
-              worth deeper work?
-            </p>
-            <Link href="/about" className="text-[12px] text-white/40 hover:text-white/70 transition-colors flex items-center gap-1">
-              About ARI <ArrowUpRight className="h-3 w-3" />
-            </Link>
-          </div>
-          <div className="border border-white/[0.06] divide-y divide-white/[0.06]">
+          {/* Stats */}
+          <div style={{ display: "flex", gap: 40, marginBottom: 48 }}>
             {[
-              ["Business Quality",       "Pricing power, switching costs, competitive position"],
-              ["Financial Quality",      "Cash conversion, margins, leverage, FCF quality"],
-              ["Management Quality",     "Execution record, capital allocation, candour"],
-              ["Governance",             "Board structure, remuneration alignment, disclosure"],
-              ["What Changed",           "Year-on-year strategy, tone, risk and narrative delta"],
-              ["Variant Perception",     "What the market may be missing or mispricing"],
-            ].map(([label, desc]) => (
-              <div key={label} className="flex gap-4 px-5 py-3.5">
-                <div className="w-px bg-white/10 shrink-0" />
-                <div>
-                  <p className="text-[12px] font-semibold text-white/60">{label}</p>
-                  <p className="text-[11px] text-white/25 mt-0.5">{desc}</p>
+              { value: 8,   suffix: "",   label: "Sovereigns Tracked" },
+              { value: 480, suffix: "bps", label: "Egypt EMBI Spread" },
+              { value: 20,  suffix: "+",  label: "Months Live Trading" },
+            ].map(s => (
+              <div key={s.label}>
+                <div style={{ fontSize: 28, fontWeight: 700, color: "#c8873a", letterSpacing: "-0.02em", lineHeight: 1 }}>
+                  <Counter to={s.value} suffix={s.suffix} />
                 </div>
+                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", letterSpacing: "0.1em", textTransform: "uppercase", marginTop: 5 }}>
+                  {s.label}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ display: "flex", gap: 12 }}>
+            <Link href="/research" style={{
+              display: "inline-flex", alignItems: "center", gap: 8,
+              background: "#c8873a", color: "#080808", padding: "12px 24px",
+              fontSize: 12, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase",
+              textDecoration: "none",
+            }}>
+              View Research →
+            </Link>
+            <a href="#coverage" style={{
+              display: "inline-flex", alignItems: "center", gap: 8,
+              border: "1px solid rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.5)",
+              padding: "12px 24px", fontSize: 12, fontWeight: 600, letterSpacing: "0.06em",
+              textTransform: "uppercase", textDecoration: "none",
+            }}>
+              Country Coverage
+            </a>
+          </div>
+        </div>
+
+        {/* Right: globe */}
+        <div style={{ position: "relative", height: "100vh" }}>
+          <Globe />
+          {/* Legend */}
+          <div style={{
+            position: "absolute", bottom: 40, right: 32, display: "flex", gap: 16,
+            fontSize: 10, color: "rgba(255,255,255,0.35)", letterSpacing: "0.08em",
+          }}>
+            {[["#2d6a4f","Bullish"],["#c8873a","Neutral"],["#8b2e2e","Cautious"]].map(([c,l]) => (
+              <div key={l} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <div style={{ width: 6, height: 6, borderRadius: "50%", background: c as string }} />
+                {l}
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── CTA ────────────────────────────────────────────────────────── */}
-      <section className="px-6 py-20 border-b border-white/[0.06]">
-        <div className="max-w-xl mx-auto text-center">
-          <h2 className="text-[26px] font-bold text-white mb-4">Start generating research.</h2>
-          <p className="text-[13px] text-white/35 leading-relaxed mb-8">
-            Paste an annual report URL or upload a PDF. ARI generates a full institutional
-            research report — business quality, governance, management, bull case, bear case,
-            red flags — in minutes.
-          </p>
-          <Link href="/dashboard"
-            className="inline-flex items-center gap-2 bg-white text-black px-6 py-3 text-[13px] font-semibold hover:bg-white/90 transition-colors">
-            Open Research Platform
-            <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
+      {/* ── RESEARCH ───────────────────────────────────────────── */}
+      <section id="research" style={{ padding: "100px 48px", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 56 }}>
+            <div>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: "#c8873a", marginBottom: 12 }}>
+                Writing & Analysis
+              </div>
+              <h2 style={{ fontSize: 32, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.1 }}>
+                Research & Trade Journals
+              </h2>
+            </div>
+            <Link href="/research" style={{ fontSize: 12, color: "rgba(255,255,255,0.3)", textDecoration: "none" }}>
+              View all →
+            </Link>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gap: 1, background: "rgba(255,255,255,0.06)" }}>
+            {ARTICLES.map((art, i) => (
+              <TiltCard key={art.id}>
+                <Link href={art.href} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
+                  <div style={{
+                    background: "#080808", padding: i === 0 ? "40px 36px" : "28px 24px",
+                    height: "100%", cursor: "pointer",
+                    borderBottom: i > 0 ? "1px solid rgba(255,255,255,0.06)" : "none",
+                    ...(i === 0 ? { minHeight: 340 } : {}),
+                  }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "#c8873a", marginBottom: 16 }}>
+                      {art.tag}
+                    </div>
+                    <h3 style={{
+                      fontSize: i === 0 ? 22 : 15, fontWeight: 700, lineHeight: 1.25,
+                      letterSpacing: "-0.01em", marginBottom: 14, color: "#e8e8e8",
+                    }}>
+                      {art.title}
+                    </h3>
+                    <p style={{ fontSize: 13, color: "rgba(255,255,255,0.35)", lineHeight: 1.65, marginBottom: 24 }}>
+                      {art.deck}
+                    </p>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 16 }}>
+                      <span style={{ fontSize: 11, color: "rgba(255,255,255,0.2)" }}>{art.date}</span>
+                      <span style={{ fontSize: 11, color: "#c8873a" }}>{art.readTime !== "—" ? `${art.readTime} read` : "Coming soon"}</span>
+                    </div>
+                  </div>
+                </Link>
+              </TiltCard>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* ── Footer ─────────────────────────────────────────────────────── */}
-      <footer className="px-6 py-8">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-5 h-5 bg-white flex items-center justify-center">
-                <span className="text-black font-bold text-[9px]">ARI</span>
-              </div>
-              <span className="text-[11px] text-white/25">Annual Report Intelligence</span>
+      {/* ── SOVEREIGN COVERAGE ─────────────────────────────────── */}
+      <section id="coverage" style={{ padding: "100px 48px", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <div style={{ marginBottom: 56 }}>
+            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: "#c8873a", marginBottom: 12 }}>
+              Sovereign Coverage
             </div>
-            <Link href="/about" className="text-[11px] text-white/20 hover:text-white/40 transition-colors">About</Link>
+            <h2 style={{ fontSize: 32, fontWeight: 700, letterSpacing: "-0.02em" }}>EM Country Monitor</h2>
           </div>
-          <p className="text-[11px] text-white/15">
-            Not investment advice. For research and informational purposes only.
-          </p>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 1, background: "rgba(255,255,255,0.06)" }}>
+            {EM_COUNTRIES.map(country => (
+              <TiltCard key={country.name}>
+                <div
+                  style={{
+                    background: hoveredCountry?.name === country.name ? "#0f0f0f" : "#080808",
+                    padding: "24px 22px", cursor: "default",
+                    transition: "background 0.2s",
+                  }}
+                  onMouseEnter={() => setHoveredCountry(country)}
+                  onMouseLeave={() => setHoveredCountry(null)}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
+                    <div>
+                      <div style={{ fontSize: 15, fontWeight: 700, letterSpacing: "-0.01em", marginBottom: 3 }}>{country.name}</div>
+                      <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", letterSpacing: "0.08em" }}>{country.rating}</div>
+                    </div>
+                    <div style={{
+                      fontSize: 9, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase",
+                      padding: "3px 7px", border: "1px solid",
+                      color: country.stance === "bull" ? "#2d6a4f" : country.stance === "bear" ? "#8b2e2e" : "#c8873a",
+                      borderColor: country.stance === "bull" ? "#2d6a4f" : country.stance === "bear" ? "#8b2e2e" : "rgba(200,135,58,0.4)",
+                    }}>
+                      {country.stance === "bull" ? "Bullish" : country.stance === "bear" ? "Cautious" : "Neutral"}
+                    </div>
+                  </div>
+
+                  <div>
+                    <div style={{ fontSize: 10, color: "rgba(255,255,255,0.2)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 4 }}>
+                      EMBI Spread
+                    </div>
+                    <div style={{ fontSize: 26, fontWeight: 700, color: "#c8873a", letterSpacing: "-0.02em", lineHeight: 1 }}>
+                      {country.spread}
+                      <span style={{ fontSize: 13, fontWeight: 400, color: "rgba(255,255,255,0.3)", marginLeft: 4 }}>bps</span>
+                    </div>
+                  </div>
+
+                  {/* Spread bar */}
+                  <div style={{ marginTop: 16, height: 2, background: "rgba(255,255,255,0.06)", borderRadius: 1 }}>
+                    <div style={{
+                      height: "100%", borderRadius: 1,
+                      background: country.stance === "bull" ? "#2d6a4f" : country.stance === "bear" ? "#8b2e2e" : "#c8873a",
+                      width: `${Math.min((country.spread / 1200) * 100, 100)}%`,
+                      transition: "width 0.6s ease",
+                    }} />
+                  </div>
+                </div>
+              </TiltCard>
+            ))}
+          </div>
+
+          <div style={{ marginTop: 24, textAlign: "right", fontSize: 11, color: "rgba(255,255,255,0.2)" }}>
+            Spreads indicative · For research purposes only
+          </div>
+        </div>
+      </section>
+
+      {/* ── TRADE LOG ──────────────────────────────────────────── */}
+      <section style={{ padding: "100px 48px", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 48 }}>
+            <div>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: "#c8873a", marginBottom: 12 }}>Trade Log</div>
+              <h2 style={{ fontSize: 32, fontWeight: 700, letterSpacing: "-0.02em" }}>Live Position Journal</h2>
+            </div>
+          </div>
+
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+            <thead>
+              <tr>
+                {["Instrument","Direction","Entry","Current","P&L","Status","Thesis"].map(h => (
+                  <th key={h} style={{
+                    padding: "10px 16px", textAlign: "left", fontWeight: 500,
+                    fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase",
+                    color: "rgba(255,255,255,0.3)", borderBottom: "1px solid rgba(255,255,255,0.08)",
+                    background: "#0d0d0d",
+                  }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                { inst: "3BRL (3x Brent Long)", dir: "LONG",  dc: "#2d6a4f", entry: "~$16.50", cur: "Exited Dec '25", pnl: "~Breakeven", plc: "rgba(255,255,255,0.3)", status: "Closed", thesis: "Conflict premium underpriced at $73 oil" },
+                { inst: "SBRT (1x Brent Short)", dir: "SHORT", dc: "#8b2e2e", entry: "~$9.13",  cur: "$9.58",         pnl: "+4.71%",    plc: "#2d6a4f",                status: "Open",   thesis: "$100 structural ceiling · IEA 3.7m b/d surplus" },
+              ].map((r,i) => (
+                <tr key={i}>
+                  {[
+                    <td key="inst" style={{ padding: "14px 16px", borderBottom: "1px solid rgba(255,255,255,0.05)", fontWeight: 500, color: "#e8e8e8" }}>{r.inst}</td>,
+                    <td key="dir" style={{ padding: "14px 16px", borderBottom: "1px solid rgba(255,255,255,0.05)", fontWeight: 700, color: r.dc }}>{r.dir}</td>,
+                    <td key="entry" style={{ padding: "14px 16px", borderBottom: "1px solid rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.5)", fontFamily: "monospace" }}>{r.entry}</td>,
+                    <td key="cur" style={{ padding: "14px 16px", borderBottom: "1px solid rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.5)", fontFamily: "monospace" }}>{r.cur}</td>,
+                    <td key="pnl" style={{ padding: "14px 16px", borderBottom: "1px solid rgba(255,255,255,0.05)", fontWeight: 600, color: r.plc }}>{r.pnl}</td>,
+                    <td key="status" style={{ padding: "14px 16px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                      <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", padding: "3px 8px", background: r.status === "Open" ? "rgba(200,135,58,0.15)" : "rgba(255,255,255,0.05)", color: r.status === "Open" ? "#c8873a" : "rgba(255,255,255,0.3)" }}>{r.status}</span>
+                    </td>,
+                    <td key="thesis" style={{ padding: "14px 16px", borderBottom: "1px solid rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.35)", fontSize: 12 }}>{r.thesis}</td>,
+                  ]}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {/* ── ABOUT STRIP ────────────────────────────────────────── */}
+      <section style={{ padding: "80px 48px", borderTop: "1px solid rgba(255,255,255,0.06)", background: "#0a0a0a" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "center" }}>
+          <div>
+            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: "#c8873a", marginBottom: 16 }}>About</div>
+            <h2 style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.02em", marginBottom: 20 }}>Suleiman Ashraf</h2>
+            <p style={{ fontSize: 14, color: "rgba(255,255,255,0.4)", lineHeight: 1.8, marginBottom: 16 }}>
+              MSc Finance, London School of Economics. Prior experience in UK public markets and governance research.
+            </p>
+            <p style={{ fontSize: 14, color: "rgba(255,255,255,0.4)", lineHeight: 1.8, marginBottom: 32 }}>
+              Primary research focus: EM sovereign credit — the intersection of sovereign risk, external financing conditions, and commodity price transmission into EM fiscal dynamics.
+            </p>
+            <div style={{ display: "flex", gap: 12 }}>
+              <a href="https://www.linkedin.com/in/suleiman-ashraf/" target="_blank" rel="noopener" style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", border: "1px solid rgba(255,255,255,0.12)", padding: "8px 16px", color: "rgba(255,255,255,0.5)", textDecoration: "none" }}>LinkedIn ↗</a>
+              <a href="mailto:suleimanashraf@outlook.com" style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", border: "1px solid rgba(255,255,255,0.12)", padding: "8px 16px", color: "rgba(255,255,255,0.5)", textDecoration: "none" }}>Email</a>
+              <Link href="/dashboard" style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", border: "1px solid rgba(200,135,58,0.3)", padding: "8px 16px", color: "#c8873a", textDecoration: "none" }}>ARI Platform ↗</Link>
+            </div>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1, background: "rgba(255,255,255,0.06)" }}>
+            {[
+              ["Focus",      "EM Sovereign Credit · Macro Strategy"],
+              ["Education",  "MSc Finance · LSE"],
+              ["Background", "UK Public Markets · Governance"],
+              ["Trading",    "Oil · ETP Mechanics · Macro Positions"],
+            ].map(([label, val]) => (
+              <div key={label} style={{ background: "#0a0a0a", padding: "20px 18px" }}>
+                <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "rgba(255,255,255,0.2)", marginBottom: 8 }}>{label}</div>
+                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", lineHeight: 1.5 }}>{val}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── FOOTER ─────────────────────────────────────────────── */}
+      <footer style={{ padding: "24px 48px", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", justifyContent: "space-between", fontSize: 11, color: "rgba(255,255,255,0.2)" }}>
+          <span>Suleiman Ashraf · EM Credit Research · 2026</span>
+          <span>Not investment advice. For research and informational purposes only.</span>
         </div>
       </footer>
 
