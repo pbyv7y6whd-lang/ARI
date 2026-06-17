@@ -4,8 +4,8 @@ import type { ParsedPDF } from "./pdf";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
 
-const PER_DOC_LIMIT = 20000;  // cap per doc — IMF PDFs can be 100+ pages, we only need key sections
-const TOTAL_LIMIT   = 30000;  // total context ceiling — enough for thorough analysis, fast to process
+const PER_DOC_LIMIT = 20000;
+const TOTAL_LIMIT   = 30000;
 
 function buildDocContext(
   docs: { file_name: string; doc_type: string; year: string | null; parsed: ParsedPDF }[]
@@ -61,81 +61,99 @@ function parseJSON<T>(raw: string): T {
 
 // ── Sovereign Analysis ────────────────────────────────────────────────────────
 
-const SOVEREIGN_SYSTEM = `You are an elite buy-side EM sovereign credit analyst. You analyse IMF Article IV consultations, central bank reports, Ministry of Finance fiscal data, Eurobond prospectuses, and rating agency reports. Your job is to produce rigorous credit assessments that help portfolio managers make Overweight/Neutral/Underweight decisions on sovereign Eurobonds.
+const SOVEREIGN_SYSTEM = `You are a senior EM sovereign credit analyst at a top-tier hedge fund (think Brevan Howard, BlueBay, Greylock Capital). You read IMF Article IVs, central bank reports, MoF fiscal data, Eurobond prospectuses, and rating agency reports. Your output goes directly to a portfolio manager making allocation decisions on sovereign Eurobonds.
 
-Rules:
-- Cite specific data points (percentages, USD amounts, ratios) from the documents provided
-- Be precise and evidence-driven — no generic observations
-- Credit view should reflect the trajectory, not just the current snapshot
+Analyst standards:
+- Every claim must cite a specific number from the documents (%, $bn, bps, ratio). No assertions without evidence.
+- Be direct and analytical — no filler phrases ("it is worth noting", "importantly", "overall"). Every sentence must add information.
+- Distinguish between current snapshot and trajectory. A deteriorating credit at 60% debt/GDP is more dangerous than a stable one at 80%.
+- Flag data gaps explicitly if key metrics are absent from documents provided.
+- Trade ideas must be actionable: name the specific bond (tenor/maturity), entry level, target, stop, and time horizon.
 - Output ONLY valid JSON. No preamble, no markdown, no text outside the JSON.
 - Ensure the JSON is complete and properly closed — never truncate mid-response.`;
 
 function buildSovereignPrompt(countryName: string, docs: { file_name: string; doc_type: string; year: string | null; text: string }[]): string {
   const content = formatDocsForPrompt(docs);
-  return `Analyse the following documents for ${countryName} and return a comprehensive EM sovereign credit assessment as JSON.
+  return `Produce a PM-ready EM sovereign credit assessment for ${countryName} from the documents below. This goes to a portfolio manager making Eurobond allocation decisions today.
 ${content}
 
-Return ONLY this exact JSON structure — all fields required:
+Return ONLY this JSON — all fields required. Use "N/A — not in documents" if data is absent rather than guessing:
 
 {
   "snapshot": {
     "country": "${countryName}",
     "region": "Sub-Saharan Africa|MENA|LatAm|Eastern Europe|Asia",
     "creditView": "Positive|Neutral|Negative",
-    "creditRationale": "2-3 sentence rationale for the credit view"
+    "creditRationale": "2 sentences max. State the dominant credit driver and its direction. No hedging."
   },
   "fiscalProfile": {
-    "fiscalBalanceGdp": "e.g. -4.2% of GDP",
-    "primaryBalanceGdp": "e.g. -1.1% of GDP",
-    "debtToGdp": "e.g. 68% of GDP",
-    "revenueToGdp": "e.g. 18% of GDP",
-    "interestToRevenue": "e.g. 32%",
+    "fiscalBalanceGdp": "e.g. -3.8% of GDP (FY2025e)",
+    "primaryBalanceGdp": "e.g. +0.4% of GDP",
+    "debtToGdp": "e.g. 87% of GDP",
+    "revenueToGdp": "e.g. 16.2% of GDP",
+    "interestToRevenue": "e.g. 38% — critical threshold if >30%",
     "trend": "improving|stable|deteriorating",
-    "commentary": "2-3 sentences on fiscal dynamics, consolidation path, revenue mobilisation"
+    "keyMetric": "The single most important fiscal data point and why it matters for credit"
   },
   "externalSector": {
-    "currentAccountGdp": "e.g. -3.5% of GDP",
-    "fxReservesUsd": "e.g. $4.2bn",
-    "importCoverMonths": "e.g. 2.8 months",
-    "externalDebtGdp": "e.g. 52% of GDP",
-    "commentary": "2-3 sentences on balance of payments, reserve adequacy, external financing needs"
+    "currentAccountGdp": "e.g. -3.1% of GDP",
+    "fxReservesUsd": "e.g. $9.4bn (gross), $4.1bn (net of swaps)",
+    "importCoverMonths": "e.g. 3.2 months — below 3m is distress threshold",
+    "externalFinancingNeed": "e.g. $18bn in FY2026 (CAD + amortisation)",
+    "keyRisk": "Primary external vulnerability in one sentence with numbers"
   },
   "debtSustainability": {
     "refinancingRisk": "High|Medium|Low",
-    "currencyMix": "e.g. 65% USD, 20% local currency, 15% multilateral",
-    "maturityProfile": "e.g. $1.2bn due 2025, $800m due 2027",
+    "maturityWall": "e.g. $2bn due H1 2026, $3.5bn due 2027 — state if bond or bilateral",
+    "currencyMix": "e.g. 55% hard currency, 30% local, 15% multilateral concessional",
     "imfProgramme": {
       "active": true,
-      "details": "e.g. $3bn ECF approved March 2023, 4th review completed"
+      "details": "e.g. $8bn EFF, approved Mar 2024, 2nd review passed Oct 2024, next tranche $1.2bn",
+      "continuationRisk": "Risk that programme goes off-track — evidence-based"
     },
-    "commentary": "2-3 sentences on debt sustainability, rollover risks, creditor structure"
+    "debtTrajectory": "Stabilising|Declining|Rising — with peak debt/GDP level and year if available"
   },
   "politicalEconomy": {
     "reformMomentum": "Strong|Moderate|Weak",
-    "governanceQuality": "assessment with evidence",
-    "externalRelations": "IMF, World Bank, bilateral creditors relationship",
-    "commentary": "2-3 sentences on political risk, reform implementation, social pressures"
+    "keyReform": "The most critical reform underway and status",
+    "socialRisk": "Austerity fatigue, unemployment, subsidy cuts — specific evidence",
+    "externalRelations": "IMF/GCC/bilateral creditor dynamics — any conditionality or geopolitical dimension"
   },
-  "bullCase": {
-    "points": [
-      { "title": "Bull point title", "evidence": "Specific evidence", "trigger": "What needs to happen" }
+  "catalystsAndRisks": {
+    "positiveCatalysts": [
+      { "catalyst": "Specific event or data release", "timing": "e.g. Q2 2026", "spreadImpact": "e.g. -50 to -80bps on the curve" }
+    ],
+    "negativeRisks": [
+      { "risk": "Specific risk", "probability": "High|Medium|Low", "spreadImpact": "e.g. +150bps+, likely triggers IMF suspension" }
     ]
   },
-  "bearCase": {
-    "points": [
-      { "title": "Bear point title", "evidence": "Specific evidence", "severity": "High|Medium|Low" }
-    ]
-  },
+  "tradeIdeas": [
+    {
+      "bond": "e.g. EGYPT 7.625% 2029 or 6.588% 2028",
+      "direction": "Long|Short|Avoid",
+      "entryLevel": "e.g. Z+820bps / ~9.10% yield / ~$85 price",
+      "target": "e.g. Z+680bps / ~$91 (12m horizon)",
+      "stop": "e.g. Z+950bps / ~$81 — IMF programme suspension",
+      "riskReward": "e.g. 2.3x (carry included)",
+      "horizon": "3m|6m|12m|18m+",
+      "rationale": "2-3 sentences: why this bond, why now, what makes the entry compelling vs alternatives on the curve",
+      "keyMonitor": "The one data point or event that changes the thesis"
+    }
+  ],
   "creditVerdict": {
     "recommendation": "Overweight|Neutral|Underweight",
-    "targetSpread": "e.g. 450-500bps over UST",
-    "keyCatalysts": ["catalyst 1", "catalyst 2"],
-    "keyRisks": ["risk 1", "risk 2"],
-    "summary": "3-4 sentence credit verdict for a portfolio manager"
+    "currentSpreadContext": "e.g. trading at Z+780bps, 200bps wide of Jan 2024 tights — cheap vs history or fair?",
+    "summary": "3 sentences for a PM: current positioning, primary driver of the view, and what would change it"
   },
   "overallScore": {
-    "total": <0-100>,
-    "rationale": "Explanation of the score covering fiscal, external, debt sustainability and political economy"
+    "total": 0,
+    "breakdown": {
+      "fiscal": "0-25",
+      "external": "0-25",
+      "debtSustainability": "0-25",
+      "politicalEconomy": "0-25"
+    },
+    "rationale": "What the score reflects — be direct about the weakest pillar"
   }
 }`;
 }
@@ -145,94 +163,113 @@ export async function analyseSovereign(
   documents: { file_name: string; doc_type: string; year: string | null; parsed: ParsedPDF }[],
   onProgress?: (msg: string) => void
 ): Promise<object> {
-  onProgress?.("Building sovereign credit analysis context...");
+  onProgress?.("Building sovereign credit context...");
   const { texts, totalChars } = buildDocContext(documents);
   console.log(`[sovereign] total context: ${totalChars.toLocaleString()} chars across ${texts.length} doc(s)`);
-  onProgress?.(`Sending ${Math.round(totalChars / 1000)}k chars to Claude Sonnet...`);
+  onProgress?.(`Running sovereign analysis across ${texts.length} document(s)...`);
 
   const t0 = Date.now();
   const raw = await callClaude(SOVEREIGN_SYSTEM, buildSovereignPrompt(countryName, texts));
   console.log(`[sovereign] Claude responded in ${Date.now() - t0}ms`);
 
-  onProgress?.("Parsing sovereign credit assessment...");
+  onProgress?.("Parsing credit assessment...");
   return parseJSON(raw);
 }
 
 // ── Corporate Analysis ────────────────────────────────────────────────────────
 
-const CORPORATE_SYSTEM = `You are an elite buy-side EM corporate credit analyst. You analyse annual reports, bond prospectuses, investor presentations, earnings transcripts, and rating agency reports for emerging market corporates. Your job is to produce rigorous credit assessments that help portfolio managers make Buy/Hold/Sell decisions on EM corporate bonds.
+const CORPORATE_SYSTEM = `You are a senior EM corporate credit analyst at a top-tier hedge fund (think Bluebay, Ashmore, Stone Harbor). You analyse annual reports, bond prospectuses, investor presentations, earnings transcripts, and rating agency reports for EM corporates. Your output goes directly to a PM making bond allocation decisions.
 
-Rules:
-- Cite specific financial figures (leverage ratios, coverage ratios, USD amounts) from the documents
-- Focus on credit quality, not equity upside
-- Pay close attention to FX risk — revenue/cost/debt currency mismatches are critical in EM
+Analyst standards:
+- Every claim must cite a specific number from the documents (leverage ratio, coverage ratio, $bn, %). No assertions without evidence.
+- Be direct — no filler. Every sentence must add information.
+- FX mismatch is often the killer in EM credit — stress-test it explicitly.
+- Distinguish between accounting metrics and cash credit quality (watch working capital, capex, related-party flows).
+- Trade ideas must be actionable: name the specific bond (coupon/maturity), entry level in spread or yield, target, stop, time horizon.
+- Flag data gaps with "N/A — not in documents" rather than guessing.
 - Output ONLY valid JSON. No preamble, no markdown, no text outside the JSON.
 - Ensure the JSON is complete and properly closed — never truncate mid-response.`;
 
 function buildCorporatePrompt(issuerName: string, docs: { file_name: string; doc_type: string; year: string | null; text: string }[]): string {
   const content = formatDocsForPrompt(docs);
-  return `Analyse the following documents for ${issuerName} and return a comprehensive EM corporate credit assessment as JSON.
+  return `Produce a PM-ready EM corporate credit assessment for ${issuerName} from the documents below. This goes to a PM making bond allocation decisions today.
 ${content}
 
-Return ONLY this exact JSON structure — all fields required:
+Return ONLY this JSON — all fields required. Use "N/A — not in documents" if data is absent:
 
 {
   "snapshot": {
     "issuer": "${issuerName}",
     "country": "Country of incorporation",
-    "sector": "Primary sector e.g. Oil & Gas, Metals & Mining, Financials, Telecoms, Real Estate",
+    "sector": "Oil & Gas|Metals & Mining|Financials|Telecoms|Real Estate|Utilities|Consumer|Infrastructure|Other",
     "creditView": "Positive|Neutral|Negative",
-    "creditRationale": "2-3 sentence rationale for the credit view"
+    "creditRationale": "2 sentences max. Lead with the dominant credit driver — leverage, liquidity, FX, or sovereign ceiling."
   },
   "creditMetrics": {
-    "netDebtToEbitda": "e.g. 3.2x",
-    "interestCoverage": "e.g. 4.1x EBITDA/interest",
-    "debtToEquity": "e.g. 1.8x",
-    "fcfConversion": "e.g. 65% FCF/EBITDA",
-    "liquidityRatio": "e.g. 1.4x current ratio",
-    "trend": "improving|stable|deteriorating"
+    "netDebtToEbitda": "e.g. 3.8x (FY2024) vs 4.2x (FY2023) — direction matters",
+    "ebitdaToInterest": "e.g. 3.1x — <2.5x is distress territory for EM",
+    "fcfYield": "e.g. 6.2% of debt — FCF after capex and interest",
+    "liquidityRunway": "e.g. $420m cash + $200m undrawn RCF vs $310m due within 12m",
+    "trend": "improving|stable|deteriorating",
+    "keyWeakness": "The metric that most concerns a credit analyst, with the number"
   },
   "debtStructure": {
-    "totalDebt": "e.g. $2.4bn",
-    "currencyMix": "e.g. 80% USD Eurobonds, 20% local currency bank debt",
-    "maturityProfile": "e.g. $500m due 2025, $750m due 2027, $1.15bn due 2029+",
-    "nextMajorMaturity": "e.g. $500m 5.75% Notes due March 2025",
+    "totalDebt": "e.g. $2.1bn gross, $1.8bn net",
+    "currencyMix": "e.g. 75% USD Eurobonds, 25% local currency bank debt",
+    "maturityWall": "e.g. $400m 5.875% due Jun 2026, $600m 6.25% due Nov 2027",
+    "nextMaturity": "e.g. $400m Notes due Jun 2026 — must refinance or repay in 18m",
     "refinancingRisk": "High|Medium|Low",
-    "commentary": "2-3 sentences on debt structure, refinancing strategy, covenant headroom"
+    "covenantHeadroom": "e.g. Net leverage covenant at 4.0x, currently 3.8x — thin headroom"
   },
   "fxRisk": {
-    "revenuesCurrency": "e.g. 70% USD, 30% local currency",
-    "debtCurrency": "e.g. 80% USD",
-    "mismatch": "High|Medium|Low|None",
-    "hedging": "e.g. natural hedge via USD export revenues / no hedging in place",
-    "commentary": "2-3 sentences on FX exposure, natural hedges, sensitivity to local currency depreciation"
+    "revenuesCurrency": "e.g. 60% USD export revenues, 40% local currency domestic",
+    "debtCurrency": "e.g. 75% USD",
+    "mismatch": "High|Medium|Low|Natural Hedge",
+    "stressTest": "e.g. 20% local currency depreciation adds ~0.4x to leverage, coverage drops to 2.3x",
+    "hedging": "e.g. No formal hedging — natural hedge via USD revenues covers 80% of USD debt service"
   },
   "businessQuality": {
-    "competitivePosition": "Market position with evidence",
-    "revenueVisibility": "High|Medium|Low — explain why",
-    "marginTrend": "Trend with numbers",
-    "countryRisk": "Assessment of operating environment risk",
-    "commentary": "2-3 sentences on business model strength, diversification, strategic direction"
+    "marketPosition": "Ranking with evidence — e.g. #2 producer in country X with 18% market share",
+    "revenueVisibility": "High|Medium|Low",
+    "marginTrend": "e.g. EBITDA margin 34% (FY24) vs 29% (FY22) — expanding on cost cuts",
+    "sovereignCeiling": "e.g. Sovereign rated B2/B, issuer at B1/B+ — one notch above ceiling, limits upside",
+    "keyRisk": "The single biggest business risk with evidence"
   },
-  "bullCase": {
-    "points": [
-      { "title": "Bull point title", "evidence": "Specific evidence from filings" }
+  "catalystsAndRisks": {
+    "positiveCatalysts": [
+      { "catalyst": "Specific event", "timing": "e.g. Q1 2026", "spreadImpact": "e.g. -60 to -80bps" }
+    ],
+    "negativeRisks": [
+      { "risk": "Specific risk with numbers", "probability": "High|Medium|Low", "spreadImpact": "e.g. +200bps+ / restructuring risk" }
     ]
   },
-  "bearCase": {
-    "points": [
-      { "title": "Bear point title", "evidence": "Specific evidence", "severity": "High|Medium|Low" }
-    ]
-  },
+  "tradeIdeas": [
+    {
+      "bond": "e.g. ISSUER 6.25% 2027 or 5.875% 2026",
+      "direction": "Long|Short|Avoid",
+      "entryLevel": "e.g. Z+480bps / ~8.2% yield / ~$94 price",
+      "target": "e.g. Z+380bps / ~$98 (6m horizon, carry + tightening)",
+      "stop": "e.g. Z+580bps / ~$90 — maturity extension risk materialises",
+      "riskReward": "e.g. 2.0x",
+      "horizon": "3m|6m|12m|18m+",
+      "rationale": "2-3 sentences: why this bond, what's the entry thesis, why now vs waiting",
+      "keyMonitor": "The single metric or event that invalidates the trade"
+    }
+  ],
   "creditVerdict": {
     "recommendation": "Buy|Hold|Sell",
-    "spreadView": "Tighten|Stable|Widen",
-    "keyRisks": ["risk 1", "risk 2"],
-    "summary": "3-4 sentence credit verdict for a portfolio manager covering entry point, catalyst, and key risk"
+    "currentSpreadContext": "e.g. trading at Z+460bps, peer group at Z+380bps — 80bps wide to peers, partially justified by FX risk",
+    "summary": "3 sentences for a PM: current positioning, the primary driver, and what changes the view"
   },
   "overallScore": {
-    "total": <0-100>,
-    "rationale": "Explanation of the score covering leverage, liquidity, business quality, FX risk and country risk"
+    "total": 0,
+    "breakdown": {
+      "leverage": "0-25",
+      "liquidity": "0-25",
+      "businessQuality": "0-25",
+      "fxAndCountryRisk": "0-25"
+    },
+    "rationale": "Be direct about the weakest pillar and whether it's structural or cyclical"
   }
 }`;
 }
@@ -242,15 +279,15 @@ export async function analyseCorporate(
   documents: { file_name: string; doc_type: string; year: string | null; parsed: ParsedPDF }[],
   onProgress?: (msg: string) => void
 ): Promise<object> {
-  onProgress?.("Building corporate credit analysis context...");
+  onProgress?.("Building corporate credit context...");
   const { texts, totalChars } = buildDocContext(documents);
   console.log(`[corporate] total context: ${totalChars.toLocaleString()} chars across ${texts.length} doc(s)`);
-  onProgress?.(`Sending ${Math.round(totalChars / 1000)}k chars to Claude Sonnet...`);
+  onProgress?.(`Running corporate analysis across ${texts.length} document(s)...`);
 
   const t0 = Date.now();
   const raw = await callClaude(CORPORATE_SYSTEM, buildCorporatePrompt(issuerName, texts));
   console.log(`[corporate] Claude responded in ${Date.now() - t0}ms`);
 
-  onProgress?.("Parsing corporate credit assessment...");
+  onProgress?.("Parsing credit assessment...");
   return parseJSON(raw);
 }

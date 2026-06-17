@@ -30,28 +30,39 @@ type StockData = {
 
 // ── EM Credit type helpers ────────────────────────────────────────────────────
 
+type TradeIdea = {
+  bond?: string; direction?: string; entryLevel?: string; target?: string;
+  stop?: string; riskReward?: string; horizon?: string; rationale?: string; keyMonitor?: string;
+};
+type CatalystItem = { catalyst?: string; timing?: string; spreadImpact?: string };
+type RiskItem     = { risk?: string; probability?: string; spreadImpact?: string };
+
 type SovereignAnalysis = {
   snapshot?: { country?: string; region?: string; creditView?: string; creditRationale?: string };
-  fiscalProfile?: { fiscalBalanceGdp?: string; primaryBalanceGdp?: string; debtToGdp?: string; revenueToGdp?: string; interestToRevenue?: string; trend?: string; commentary?: string };
-  externalSector?: { currentAccountGdp?: string; fxReservesUsd?: string; importCoverMonths?: string; externalDebtGdp?: string; commentary?: string };
-  debtSustainability?: { refinancingRisk?: string; currencyMix?: string; maturityProfile?: string; imfProgramme?: { active?: boolean; details?: string }; commentary?: string };
-  politicalEconomy?: { reformMomentum?: string; governanceQuality?: string; externalRelations?: string; commentary?: string };
+  fiscalProfile?: { fiscalBalanceGdp?: string; primaryBalanceGdp?: string; debtToGdp?: string; revenueToGdp?: string; interestToRevenue?: string; trend?: string; keyMetric?: string; commentary?: string };
+  externalSector?: { currentAccountGdp?: string; fxReservesUsd?: string; importCoverMonths?: string; externalDebtGdp?: string; externalFinancingNeed?: string; keyRisk?: string; commentary?: string };
+  debtSustainability?: { refinancingRisk?: string; currencyMix?: string; maturityWall?: string; maturityProfile?: string; debtTrajectory?: string; imfProgramme?: { active?: boolean; details?: string; continuationRisk?: string }; commentary?: string };
+  politicalEconomy?: { reformMomentum?: string; keyReform?: string; socialRisk?: string; governanceQuality?: string; externalRelations?: string; commentary?: string };
+  catalystsAndRisks?: { positiveCatalysts?: CatalystItem[]; negativeRisks?: RiskItem[] };
   bullCase?: { points?: { title?: string; evidence?: string; trigger?: string }[] };
   bearCase?: { points?: { title?: string; evidence?: string; severity?: string }[] };
-  creditVerdict?: { recommendation?: string; targetSpread?: string; keyCatalysts?: string[]; keyRisks?: string[]; summary?: string };
-  overallScore?: { total?: number; rationale?: string };
+  tradeIdeas?: TradeIdea[];
+  creditVerdict?: { recommendation?: string; targetSpread?: string; currentSpreadContext?: string; keyCatalysts?: string[]; keyRisks?: string[]; summary?: string };
+  overallScore?: { total?: number; breakdown?: { fiscal?: string; external?: string; debtSustainability?: string; politicalEconomy?: string }; rationale?: string };
 };
 
 type CorporateAnalysis = {
   snapshot?: { issuer?: string; country?: string; sector?: string; creditView?: string; creditRationale?: string };
-  creditMetrics?: { netDebtToEbitda?: string; interestCoverage?: string; debtToEquity?: string; fcfConversion?: string; liquidityRatio?: string; trend?: string };
-  debtStructure?: { totalDebt?: string; currencyMix?: string; maturityProfile?: string; nextMajorMaturity?: string; refinancingRisk?: string; commentary?: string };
-  fxRisk?: { revenuesCurrency?: string; debtCurrency?: string; mismatch?: string; hedging?: string; commentary?: string };
-  businessQuality?: { competitivePosition?: string; revenueVisibility?: string; marginTrend?: string; countryRisk?: string; commentary?: string };
+  creditMetrics?: { netDebtToEbitda?: string; interestCoverage?: string; ebitdaToInterest?: string; fcfYield?: string; debtToEquity?: string; fcfConversion?: string; liquidityRatio?: string; liquidityRunway?: string; trend?: string; keyWeakness?: string };
+  debtStructure?: { totalDebt?: string; currencyMix?: string; maturityWall?: string; maturityProfile?: string; nextMajorMaturity?: string; refinancingRisk?: string; covenantHeadroom?: string; commentary?: string };
+  fxRisk?: { revenuesCurrency?: string; debtCurrency?: string; mismatch?: string; stressTest?: string; hedging?: string; commentary?: string };
+  businessQuality?: { marketPosition?: string; competitivePosition?: string; revenueVisibility?: string; marginTrend?: string; sovereignCeiling?: string; countryRisk?: string; keyRisk?: string; commentary?: string };
+  catalystsAndRisks?: { positiveCatalysts?: CatalystItem[]; negativeRisks?: RiskItem[] };
   bullCase?: { points?: { title?: string; evidence?: string }[] };
   bearCase?: { points?: { title?: string; evidence?: string; severity?: string }[] };
-  creditVerdict?: { recommendation?: string; spreadView?: string; keyRisks?: string[]; summary?: string };
-  overallScore?: { total?: number; rationale?: string };
+  tradeIdeas?: TradeIdea[];
+  creditVerdict?: { recommendation?: string; spreadView?: string; currentSpreadContext?: string; keyRisks?: string[]; summary?: string };
+  overallScore?: { total?: number; breakdown?: { leverage?: string; liquidity?: string; businessQuality?: string; fxAndCountryRisk?: string }; rationale?: string };
 };
 
 // ── Score colour ──────────────────────────────────────────────────────────────
@@ -105,6 +116,145 @@ function Commentary({ text }: { text?: string }) {
   return <p className="mt-3 text-[12px] text-[#6b4fa0] leading-relaxed">{text}</p>;
 }
 
+// ── Trade Ideas card ─────────────────────────────────────────────────────────
+
+function TradeIdeasSection({ ideas }: { ideas: TradeIdea[] }) {
+  if (!ideas || ideas.length === 0) return null;
+  return (
+    <Section title="Trade Ideas — Fixed Income Credit">
+      <div className="space-y-4">
+        {ideas.map((t, i) => (
+          <div key={i} className="rounded-sm border border-[#d8cfe8] overflow-hidden">
+            {/* Bond header */}
+            <div className="flex items-center justify-between px-4 py-2.5 bg-[#f4f0f8] border-b border-[#d8cfe8]">
+              <div className="flex items-center gap-2.5">
+                {t.direction && (
+                  <span className={cn(
+                    "text-[9px] font-bold px-1.5 py-0.5 uppercase tracking-wider rounded-sm",
+                    t.direction === "Long"  ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20" :
+                    t.direction === "Short" ? "bg-red-400/10 text-red-500 border border-red-400/20" :
+                    "bg-amber-500/10 text-amber-600 border border-amber-500/20"
+                  )}>{t.direction}</span>
+                )}
+                <span className="text-[12px] font-mono font-semibold text-[#1a0a2e]">{t.bond || "—"}</span>
+              </div>
+              <div className="flex items-center gap-3">
+                {t.horizon && <span className="text-[10px] text-[#9a7cc0] font-mono">{t.horizon}</span>}
+                {t.riskReward && <span className="text-[10px] font-mono font-semibold text-[#5b21b6]">R:R {t.riskReward}</span>}
+              </div>
+            </div>
+
+            {/* Entry / Target / Stop row */}
+            <div className="grid grid-cols-3 divide-x divide-[#e0d8ee] border-b border-[#d8cfe8]">
+              {[
+                { label: "Entry", value: t.entryLevel, colour: "text-[#1a0a2e]" },
+                { label: "Target", value: t.target, colour: "text-emerald-600" },
+                { label: "Stop", value: t.stop, colour: "text-red-500" },
+              ].map(({ label, value, colour }) => (
+                <div key={label} className="px-3 py-2.5">
+                  <p className="text-[9px] uppercase tracking-widest text-[#9a7cc0] mb-1">{label}</p>
+                  <p className={cn("text-[11px] font-mono font-semibold leading-snug", colour)}>{value || "—"}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Rationale + monitor */}
+            <div className="px-4 py-3 space-y-2">
+              {t.rationale && <p className="text-[12px] text-[#2d1654] leading-relaxed">{t.rationale}</p>}
+              {t.keyMonitor && (
+                <p className="text-[11px] text-[#8b6bb5]">
+                  <span className="font-semibold text-[#6b4fa0]">Monitor: </span>{t.keyMonitor}
+                </p>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </Section>
+  );
+}
+
+// ── Catalysts & Risks section ────────────────────────────────────────────────
+
+function CatalystsRisksSection({ data }: { data?: { positiveCatalysts?: CatalystItem[]; negativeRisks?: RiskItem[] } }) {
+  if (!data) return null;
+  const cats  = data.positiveCatalysts || [];
+  const risks = data.negativeRisks || [];
+  if (!cats.length && !risks.length) return null;
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {cats.length > 0 && (
+        <Section title="Positive Catalysts">
+          <div className="space-y-3">
+            {cats.map((c, i) => (
+              <div key={i} className="flex items-start gap-2.5">
+                <TrendingUp className="mt-0.5 h-3 w-3 shrink-0 text-emerald-500/60" />
+                <div>
+                  <p className="text-[12px] font-medium text-[#1a0a2e]/80">{c.catalyst}</p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    {c.timing && <span className="text-[10px] font-mono text-[#8b6bb5]">{c.timing}</span>}
+                    {c.spreadImpact && <span className="text-[10px] font-mono text-emerald-600/70">{c.spreadImpact}</span>}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Section>
+      )}
+      {risks.length > 0 && (
+        <Section title="Downside Risks">
+          <div className="space-y-3">
+            {risks.map((r, i) => (
+              <div key={i} className="flex items-start gap-2.5">
+                <TrendingDown className="mt-0.5 h-3 w-3 shrink-0 text-red-400/60" />
+                <div>
+                  <p className="text-[12px] font-medium text-[#1a0a2e]/80">{r.risk}</p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    {r.probability && (
+                      <span className={cn("text-[9px] font-bold uppercase tracking-wider",
+                        r.probability === "High" ? "text-red-400" : r.probability === "Medium" ? "text-amber-500" : "text-[#b09dcc]")}>
+                        {r.probability}
+                      </span>
+                    )}
+                    {r.spreadImpact && <span className="text-[10px] font-mono text-red-400/70">{r.spreadImpact}</span>}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Section>
+      )}
+    </div>
+  );
+}
+
+// ── Score breakdown ───────────────────────────────────────────────────────────
+
+function ScoreBreakdown({ breakdown, rationale }: {
+  breakdown?: Record<string, string | undefined>;
+  rationale?: string;
+}) {
+  if (!breakdown && !rationale) return null;
+  return (
+    <div className="mt-3 pt-3 border-t border-[#ddd6ec] space-y-3">
+      {breakdown && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+          {Object.entries(breakdown).map(([k, v]) => (
+            <div key={k} className="text-center border border-[#e0d8ee] rounded-sm py-2 px-1">
+              <p className="text-[18px] font-mono font-bold text-[#5b21b6]">{v ?? "—"}</p>
+              <p className="text-[9px] uppercase tracking-wider text-[#9a7cc0] mt-0.5">
+                {k.replace(/([A-Z])/g, " $1").trim()}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+      {rationale && <p className="text-[11px] text-[#7a5aaa] leading-relaxed">{rationale}</p>}
+    </div>
+  );
+}
+
 // ── Sovereign View ────────────────────────────────────────────────────────────
 
 function SovereignView({ a }: { a: SovereignAnalysis }) {
@@ -121,9 +271,7 @@ function SovereignView({ a }: { a: SovereignAnalysis }) {
                 {a.snapshot.creditView}
               </span>
             )}
-            {a.snapshot?.region && (
-              <span className="text-[10px] text-[#8b6bb5]">{a.snapshot.region}</span>
-            )}
+            {a.snapshot?.region && <span className="text-[10px] text-[#8b6bb5]">{a.snapshot.region}</span>}
           </div>
           {a.snapshot?.creditRationale && (
             <p className="text-[13px] text-[#2d1654] leading-relaxed">{a.snapshot.creditRationale}</p>
@@ -148,7 +296,9 @@ function SovereignView({ a }: { a: SovereignAnalysis }) {
             { label: "Interest/Revenue",    value: a.fiscalProfile.interestToRevenue },
             { label: "Trend",               value: a.fiscalProfile.trend },
           ]} />
-          <Commentary text={a.fiscalProfile.commentary} />
+          {(a.fiscalProfile.keyMetric || a.fiscalProfile.commentary) && (
+            <Commentary text={a.fiscalProfile.keyMetric || a.fiscalProfile.commentary} />
+          )}
         </Section>
       )}
 
@@ -156,12 +306,15 @@ function SovereignView({ a }: { a: SovereignAnalysis }) {
       {a.externalSector && (
         <Section title="External Sector">
           <MetricGrid items={[
-            { label: "Current Account/GDP", value: a.externalSector.currentAccountGdp },
-            { label: "FX Reserves",         value: a.externalSector.fxReservesUsd },
-            { label: "Import Cover",        value: a.externalSector.importCoverMonths ? `${a.externalSector.importCoverMonths} months` : null },
-            { label: "External Debt/GDP",   value: a.externalSector.externalDebtGdp },
+            { label: "Current Account/GDP",    value: a.externalSector.currentAccountGdp },
+            { label: "FX Reserves",            value: a.externalSector.fxReservesUsd },
+            { label: "Import Cover",           value: a.externalSector.importCoverMonths },
+            { label: "External Debt/GDP",      value: a.externalSector.externalDebtGdp },
+            { label: "External Financing Need", value: a.externalSector.externalFinancingNeed },
           ]} />
-          <Commentary text={a.externalSector.commentary} />
+          {(a.externalSector.keyRisk || a.externalSector.commentary) && (
+            <Commentary text={a.externalSector.keyRisk || a.externalSector.commentary} />
+          )}
         </Section>
       )}
 
@@ -169,14 +322,21 @@ function SovereignView({ a }: { a: SovereignAnalysis }) {
       {a.debtSustainability && (
         <Section title="Debt Sustainability">
           <MetricGrid items={[
-            { label: "Refinancing Risk", value: a.debtSustainability.refinancingRisk },
-            { label: "Currency Mix",     value: a.debtSustainability.currencyMix },
-            { label: "Maturity Profile", value: a.debtSustainability.maturityProfile },
-            { label: "IMF Programme",    value: a.debtSustainability.imfProgramme?.active
-                ? `Active — ${a.debtSustainability.imfProgramme.details || ""}`
-                : "None" },
+            { label: "Refinancing Risk",  value: a.debtSustainability.refinancingRisk },
+            { label: "Currency Mix",      value: a.debtSustainability.currencyMix },
+            { label: "Maturity Wall",     value: a.debtSustainability.maturityWall || a.debtSustainability.maturityProfile },
+            { label: "Debt Trajectory",   value: a.debtSustainability.debtTrajectory },
+            { label: "IMF Programme",     value: a.debtSustainability.imfProgramme?.active
+                ? `Active — ${a.debtSustainability.imfProgramme.details || ""}` : "None" },
           ]} />
-          <Commentary text={a.debtSustainability.commentary} />
+          {a.debtSustainability.imfProgramme?.continuationRisk && (
+            <p className="mt-3 text-[11px] text-amber-600/80 leading-relaxed">
+              <span className="font-semibold">Programme Risk: </span>{a.debtSustainability.imfProgramme.continuationRisk}
+            </p>
+          )}
+          {a.debtSustainability.commentary && !a.debtSustainability.imfProgramme?.continuationRisk && (
+            <Commentary text={a.debtSustainability.commentary} />
+          )}
         </Section>
       )}
 
@@ -184,54 +344,78 @@ function SovereignView({ a }: { a: SovereignAnalysis }) {
       {a.politicalEconomy && (
         <Section title="Political Economy">
           <MetricGrid items={[
-            { label: "Reform Momentum",   value: a.politicalEconomy.reformMomentum },
-            { label: "Governance",        value: a.politicalEconomy.governanceQuality },
+            { label: "Reform Momentum",    value: a.politicalEconomy.reformMomentum },
+            { label: "Governance",         value: a.politicalEconomy.governanceQuality },
             { label: "External Relations", value: a.politicalEconomy.externalRelations },
           ]} />
-          <Commentary text={a.politicalEconomy.commentary} />
+          {(a.politicalEconomy.keyReform || a.politicalEconomy.socialRisk) && (
+            <div className="mt-3 space-y-1.5">
+              {a.politicalEconomy.keyReform && (
+                <p className="text-[11px] text-[#6b4fa0] leading-relaxed">
+                  <span className="font-semibold">Key Reform: </span>{a.politicalEconomy.keyReform}
+                </p>
+              )}
+              {a.politicalEconomy.socialRisk && (
+                <p className="text-[11px] text-amber-600/80 leading-relaxed">
+                  <span className="font-semibold">Social Risk: </span>{a.politicalEconomy.socialRisk}
+                </p>
+              )}
+            </div>
+          )}
+          {a.politicalEconomy.commentary && !a.politicalEconomy.keyReform && (
+            <Commentary text={a.politicalEconomy.commentary} />
+          )}
         </Section>
       )}
 
-      {/* Bull / Bear */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {a.bullCase?.points && a.bullCase.points.length > 0 && (
-          <Section title="Bull Case">
-            <div className="space-y-3">
-              {a.bullCase.points.map((p, i) => (
-                <div key={i} className="flex items-start gap-2.5">
-                  <TrendingUp className="mt-0.5 h-3 w-3 shrink-0 text-emerald-500/60" />
-                  <div>
-                    <p className="text-[12px] font-medium text-[#1a0a2e]/80">{p.title}</p>
-                    {p.evidence && <p className="text-[11px] text-[#7a5aaa] mt-0.5">{p.evidence}</p>}
-                    {p.trigger && <p className="text-[10px] text-emerald-500/50 mt-0.5">Trigger: {p.trigger}</p>}
-                  </div>
+      {/* Catalysts & Risks (new schema) or Bull/Bear (legacy) */}
+      {a.catalystsAndRisks
+        ? <CatalystsRisksSection data={a.catalystsAndRisks} />
+        : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {a.bullCase?.points && a.bullCase.points.length > 0 && (
+              <Section title="Bull Case">
+                <div className="space-y-3">
+                  {a.bullCase.points.map((p, i) => (
+                    <div key={i} className="flex items-start gap-2.5">
+                      <TrendingUp className="mt-0.5 h-3 w-3 shrink-0 text-emerald-500/60" />
+                      <div>
+                        <p className="text-[12px] font-medium text-[#1a0a2e]/80">{p.title}</p>
+                        {p.evidence && <p className="text-[11px] text-[#7a5aaa] mt-0.5">{p.evidence}</p>}
+                        {p.trigger && <p className="text-[10px] text-emerald-500/50 mt-0.5">Trigger: {p.trigger}</p>}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </Section>
-        )}
-        {a.bearCase?.points && a.bearCase.points.length > 0 && (
-          <Section title="Bear Case">
-            <div className="space-y-3">
-              {a.bearCase.points.map((p, i) => (
-                <div key={i} className="flex items-start gap-2.5">
-                  <TrendingDown className="mt-0.5 h-3 w-3 shrink-0 text-red-400/60" />
-                  <div>
-                    <p className="text-[12px] font-medium text-[#1a0a2e]/80">{p.title}</p>
-                    {p.evidence && <p className="text-[11px] text-[#7a5aaa] mt-0.5">{p.evidence}</p>}
-                    {p.severity && (
-                      <span className={cn("text-[9px] font-bold uppercase tracking-wider",
-                        p.severity === "High" ? "text-red-400" : p.severity === "Medium" ? "text-amber-500" : "text-[#b09dcc]")}>
-                        {p.severity} severity
-                      </span>
-                    )}
-                  </div>
+              </Section>
+            )}
+            {a.bearCase?.points && a.bearCase.points.length > 0 && (
+              <Section title="Bear Case">
+                <div className="space-y-3">
+                  {a.bearCase.points.map((p, i) => (
+                    <div key={i} className="flex items-start gap-2.5">
+                      <TrendingDown className="mt-0.5 h-3 w-3 shrink-0 text-red-400/60" />
+                      <div>
+                        <p className="text-[12px] font-medium text-[#1a0a2e]/80">{p.title}</p>
+                        {p.evidence && <p className="text-[11px] text-[#7a5aaa] mt-0.5">{p.evidence}</p>}
+                        {p.severity && (
+                          <span className={cn("text-[9px] font-bold uppercase tracking-wider",
+                            p.severity === "High" ? "text-red-400" : p.severity === "Medium" ? "text-amber-500" : "text-[#b09dcc]")}>
+                            {p.severity} severity
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </Section>
-        )}
-      </div>
+              </Section>
+            )}
+          </div>
+        )
+      }
+
+      {/* Trade Ideas */}
+      {a.tradeIdeas && a.tradeIdeas.length > 0 && <TradeIdeasSection ideas={a.tradeIdeas} />}
 
       {/* Credit Verdict */}
       {a.creditVerdict && (
@@ -246,8 +430,13 @@ function SovereignView({ a }: { a: SovereignAnalysis }) {
               <span className="text-[12px] font-mono text-[#6b4fa0]">{a.creditVerdict.targetSpread}</span>
             )}
           </div>
+          {a.creditVerdict.currentSpreadContext && (
+            <p className="text-[11px] font-mono text-[#8b6bb5] mb-3 border border-[#e0d8ee] rounded-sm px-3 py-2 bg-[#f8f5fc]">
+              {a.creditVerdict.currentSpreadContext}
+            </p>
+          )}
           {a.creditVerdict.summary && (
-            <p className="text-[13px] text-[#2d1654] leading-relaxed mb-3">{a.creditVerdict.summary}</p>
+            <p className="text-[13px] text-[#2d1654] leading-relaxed">{a.creditVerdict.summary}</p>
           )}
           {a.creditVerdict.keyCatalysts && a.creditVerdict.keyCatalysts.length > 0 && (
             <div className="mt-3">
@@ -273,12 +462,10 @@ function SovereignView({ a }: { a: SovereignAnalysis }) {
               </ul>
             </div>
           )}
-          {a.overallScore?.rationale && (
-            <div className="mt-3 pt-3 border-t border-[#ddd6ec]">
-              <p className="text-[10px] uppercase tracking-widest text-[#9a7cc0] mb-1.5">Score Rationale</p>
-              <p className="text-[11px] text-[#7a5aaa] leading-relaxed">{a.overallScore.rationale}</p>
-            </div>
-          )}
+          <ScoreBreakdown
+            breakdown={a.overallScore?.breakdown as Record<string, string | undefined>}
+            rationale={a.overallScore?.rationale}
+          />
         </Section>
       )}
     </div>
@@ -320,13 +507,17 @@ function CorporateView({ a }: { a: CorporateAnalysis }) {
       {a.creditMetrics && (
         <Section title="Credit Metrics">
           <MetricGrid items={[
-            { label: "Net Debt/EBITDA",    value: a.creditMetrics.netDebtToEbitda },
-            { label: "Interest Coverage",  value: a.creditMetrics.interestCoverage },
-            { label: "Debt/Equity",        value: a.creditMetrics.debtToEquity },
-            { label: "FCF Conversion",     value: a.creditMetrics.fcfConversion },
-            { label: "Liquidity Ratio",    value: a.creditMetrics.liquidityRatio },
-            { label: "Trend",              value: a.creditMetrics.trend },
+            { label: "Net Debt/EBITDA",     value: a.creditMetrics.netDebtToEbitda },
+            { label: "EBITDA/Interest",     value: a.creditMetrics.ebitdaToInterest || a.creditMetrics.interestCoverage },
+            { label: "FCF Yield",           value: a.creditMetrics.fcfYield || a.creditMetrics.fcfConversion },
+            { label: "Liquidity Runway",    value: a.creditMetrics.liquidityRunway || a.creditMetrics.liquidityRatio },
+            { label: "Trend",               value: a.creditMetrics.trend },
           ]} />
+          {a.creditMetrics.keyWeakness && (
+            <p className="mt-3 text-[11px] text-red-500/80 leading-relaxed">
+              <span className="font-semibold">Key Weakness: </span>{a.creditMetrics.keyWeakness}
+            </p>
+          )}
         </Section>
       )}
 
@@ -336,11 +527,12 @@ function CorporateView({ a }: { a: CorporateAnalysis }) {
           <MetricGrid items={[
             { label: "Total Debt",          value: a.debtStructure.totalDebt },
             { label: "Currency Mix",        value: a.debtStructure.currencyMix },
-            { label: "Maturity Profile",    value: a.debtStructure.maturityProfile },
-            { label: "Next Major Maturity", value: a.debtStructure.nextMajorMaturity },
+            { label: "Maturity Wall",       value: a.debtStructure.maturityWall || a.debtStructure.maturityProfile },
+            { label: "Next Maturity",       value: a.debtStructure.nextMajorMaturity },
             { label: "Refinancing Risk",    value: a.debtStructure.refinancingRisk },
+            { label: "Covenant Headroom",   value: a.debtStructure.covenantHeadroom },
           ]} />
-          <Commentary text={a.debtStructure.commentary} />
+          {a.debtStructure.commentary && <Commentary text={a.debtStructure.commentary} />}
         </Section>
       )}
 
@@ -348,12 +540,17 @@ function CorporateView({ a }: { a: CorporateAnalysis }) {
       {a.fxRisk && (
         <Section title="FX Risk">
           <MetricGrid items={[
-            { label: "Revenue Currency",  value: a.fxRisk.revenuesCurrency },
-            { label: "Debt Currency",     value: a.fxRisk.debtCurrency },
-            { label: "Mismatch",          value: a.fxRisk.mismatch },
-            { label: "Hedging",           value: a.fxRisk.hedging },
+            { label: "Revenue Currency", value: a.fxRisk.revenuesCurrency },
+            { label: "Debt Currency",    value: a.fxRisk.debtCurrency },
+            { label: "Mismatch",         value: a.fxRisk.mismatch },
+            { label: "Hedging",          value: a.fxRisk.hedging },
           ]} />
-          <Commentary text={a.fxRisk.commentary} />
+          {a.fxRisk.stressTest && (
+            <p className="mt-3 text-[11px] font-mono text-amber-600/80 border border-amber-200 bg-amber-50 rounded-sm px-3 py-2">
+              <span className="font-semibold text-amber-700">Stress: </span>{a.fxRisk.stressTest}
+            </p>
+          )}
+          {a.fxRisk.commentary && !a.fxRisk.stressTest && <Commentary text={a.fxRisk.commentary} />}
         </Section>
       )}
 
@@ -361,54 +558,65 @@ function CorporateView({ a }: { a: CorporateAnalysis }) {
       {a.businessQuality && (
         <Section title="Business Quality">
           <MetricGrid items={[
-            { label: "Competitive Position", value: a.businessQuality.competitivePosition },
-            { label: "Revenue Visibility",   value: a.businessQuality.revenueVisibility },
-            { label: "Margin Trend",         value: a.businessQuality.marginTrend },
-            { label: "Country Risk",         value: a.businessQuality.countryRisk },
+            { label: "Market Position",    value: a.businessQuality.marketPosition || a.businessQuality.competitivePosition },
+            { label: "Revenue Visibility", value: a.businessQuality.revenueVisibility },
+            { label: "Margin Trend",       value: a.businessQuality.marginTrend },
+            { label: "Sovereign Ceiling",  value: a.businessQuality.sovereignCeiling },
+            { label: "Country Risk",       value: a.businessQuality.countryRisk },
           ]} />
-          <Commentary text={a.businessQuality.commentary} />
+          {(a.businessQuality.keyRisk || a.businessQuality.commentary) && (
+            <Commentary text={a.businessQuality.keyRisk || a.businessQuality.commentary} />
+          )}
         </Section>
       )}
 
-      {/* Bull / Bear */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {a.bullCase?.points && a.bullCase.points.length > 0 && (
-          <Section title="Bull Case">
-            <div className="space-y-3">
-              {a.bullCase.points.map((p, i) => (
-                <div key={i} className="flex items-start gap-2.5">
-                  <TrendingUp className="mt-0.5 h-3 w-3 shrink-0 text-emerald-500/60" />
-                  <div>
-                    <p className="text-[12px] font-medium text-[#1a0a2e]/80">{p.title}</p>
-                    {p.evidence && <p className="text-[11px] text-[#7a5aaa] mt-0.5">{p.evidence}</p>}
-                  </div>
+      {/* Catalysts & Risks */}
+      {a.catalystsAndRisks
+        ? <CatalystsRisksSection data={a.catalystsAndRisks} />
+        : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {a.bullCase?.points && a.bullCase.points.length > 0 && (
+              <Section title="Bull Case">
+                <div className="space-y-3">
+                  {a.bullCase.points.map((p, i) => (
+                    <div key={i} className="flex items-start gap-2.5">
+                      <TrendingUp className="mt-0.5 h-3 w-3 shrink-0 text-emerald-500/60" />
+                      <div>
+                        <p className="text-[12px] font-medium text-[#1a0a2e]/80">{p.title}</p>
+                        {p.evidence && <p className="text-[11px] text-[#7a5aaa] mt-0.5">{p.evidence}</p>}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </Section>
-        )}
-        {a.bearCase?.points && a.bearCase.points.length > 0 && (
-          <Section title="Bear Case">
-            <div className="space-y-3">
-              {a.bearCase.points.map((p, i) => (
-                <div key={i} className="flex items-start gap-2.5">
-                  <TrendingDown className="mt-0.5 h-3 w-3 shrink-0 text-red-400/60" />
-                  <div>
-                    <p className="text-[12px] font-medium text-[#1a0a2e]/80">{p.title}</p>
-                    {p.evidence && <p className="text-[11px] text-[#7a5aaa] mt-0.5">{p.evidence}</p>}
-                    {p.severity && (
-                      <span className={cn("text-[9px] font-bold uppercase tracking-wider",
-                        p.severity === "High" ? "text-red-400" : p.severity === "Medium" ? "text-amber-500" : "text-[#b09dcc]")}>
-                        {p.severity} severity
-                      </span>
-                    )}
-                  </div>
+              </Section>
+            )}
+            {a.bearCase?.points && a.bearCase.points.length > 0 && (
+              <Section title="Bear Case">
+                <div className="space-y-3">
+                  {a.bearCase.points.map((p, i) => (
+                    <div key={i} className="flex items-start gap-2.5">
+                      <TrendingDown className="mt-0.5 h-3 w-3 shrink-0 text-red-400/60" />
+                      <div>
+                        <p className="text-[12px] font-medium text-[#1a0a2e]/80">{p.title}</p>
+                        {p.evidence && <p className="text-[11px] text-[#7a5aaa] mt-0.5">{p.evidence}</p>}
+                        {p.severity && (
+                          <span className={cn("text-[9px] font-bold uppercase tracking-wider",
+                            p.severity === "High" ? "text-red-400" : p.severity === "Medium" ? "text-amber-500" : "text-[#b09dcc]")}>
+                            {p.severity} severity
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </Section>
-        )}
-      </div>
+              </Section>
+            )}
+          </div>
+        )
+      }
+
+      {/* Trade Ideas */}
+      {a.tradeIdeas && a.tradeIdeas.length > 0 && <TradeIdeasSection ideas={a.tradeIdeas} />}
 
       {/* Credit Verdict */}
       {a.creditVerdict && (
@@ -427,8 +635,13 @@ function CorporateView({ a }: { a: CorporateAnalysis }) {
               </span>
             )}
           </div>
+          {a.creditVerdict.currentSpreadContext && (
+            <p className="text-[11px] font-mono text-[#8b6bb5] mb-3 border border-[#e0d8ee] rounded-sm px-3 py-2 bg-[#f8f5fc]">
+              {a.creditVerdict.currentSpreadContext}
+            </p>
+          )}
           {a.creditVerdict.summary && (
-            <p className="text-[13px] text-[#2d1654] leading-relaxed mb-3">{a.creditVerdict.summary}</p>
+            <p className="text-[13px] text-[#2d1654] leading-relaxed">{a.creditVerdict.summary}</p>
           )}
           {a.creditVerdict.keyRisks && a.creditVerdict.keyRisks.length > 0 && (
             <div className="mt-3">
@@ -442,12 +655,10 @@ function CorporateView({ a }: { a: CorporateAnalysis }) {
               </ul>
             </div>
           )}
-          {a.overallScore?.rationale && (
-            <div className="mt-3 pt-3 border-t border-[#ddd6ec]">
-              <p className="text-[10px] uppercase tracking-widest text-[#9a7cc0] mb-1.5">Score Rationale</p>
-              <p className="text-[11px] text-[#7a5aaa] leading-relaxed">{a.overallScore.rationale}</p>
-            </div>
-          )}
+          <ScoreBreakdown
+            breakdown={a.overallScore?.breakdown as Record<string, string | undefined>}
+            rationale={a.overallScore?.rationale}
+          />
         </Section>
       )}
     </div>
