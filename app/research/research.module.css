@@ -90,6 +90,37 @@
 .navLink:hover { color: var(--text); border-left-color: rgba(200,135,58,0.4); }
 .navLink.active { color: var(--gold); border-left-color: var(--gold); font-weight: 500; }
 
+/* Country group header — not a link, just a label */
+.navGroupHeader {
+  padding: 10px 20px 2px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text);
+  margin-top: 8px;
+}
+
+/* Sub-links indented under country */
+.navSubLink {
+  display: block;
+  padding: 6px 20px 6px 32px;
+  font-size: 12px;
+  color: var(--muted);
+  transition: color 0.15s, border-color 0.15s;
+  border-left: 2px solid transparent;
+  line-height: 1.4;
+  background: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+}
+
+.navSubLink:hover { color: var(--text); border-left-color: rgba(200,135,58,0.4); }
+.navSubLink.active { color: var(--gold); border-left-color: var(--gold); font-weight: 500; }
+
 .sidebarBottom {
   padding: 16px 20px;
   border-top: 1px solid var(--border);
@@ -457,6 +488,15 @@
 .macroCellLabel { font-size: 10px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
 .macroCellValue { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
 .macroCellSub   { font-size: 11px; color: var(--muted); }
+
+/* COMING SOON PLACEHOLDER */
+.comingSoon {
+  padding: 48px 0;
+  font-size: 13px;
+  color: var(--dim);
+  font-style: italic;
+  letter-spacing: 0.02em;
+}
 
 /* CHART PLACEHOLDER */
 .chartPlaceholder {

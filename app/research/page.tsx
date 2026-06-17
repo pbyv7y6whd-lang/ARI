@@ -4,20 +4,38 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import s from "./research.module.css";
 
-const NAV = [
-  { id: "intro",     label: "Introduction" },
-  { id: "oil-trade", label: "Oil Trade & EM Credit" },
-  { id: "em-macro",  label: "EM Credit Macro" },
-  { id: "sovereign", label: "Sovereign Credit" },
-  { id: "corporate", label: "Corporate Credit" },
-  { id: "cases",     label: "Case Studies" },
-  { id: "data",      label: "Data & Sources" },
+type NavItem = { id: string; label: string };
+type NavGroup = { label: string; single?: string; children?: NavItem[] };
+
+const NAV: NavGroup[] = [
+  { label: "Oil Trade",  single: "oil-trade" },
+  { label: "Egypt",    children: [
+    { id: "egypt-sovereign", label: "Sovereign" },
+    { id: "egypt-corporate", label: "Corporates" },
+  ]},
+  { label: "Pakistan", children: [
+    { id: "pakistan-sovereign", label: "Sovereign" },
+    { id: "pakistan-corporate", label: "Corporates" },
+  ]},
+  { label: "UAE",      children: [
+    { id: "uae-sovereign", label: "Sovereign" },
+    { id: "uae-corporate", label: "Corporates" },
+  ]},
+  { label: "Sources",    single: "data" },
+];
+
+// flat list of all scroll targets for the observer
+const ALL_IDS = [
+  "oil-trade",
+  "egypt-sovereign","egypt-corporate",
+  "pakistan-sovereign","pakistan-corporate",
+  "uae-sovereign","uae-corporate",
+  "data",
 ];
 
 export default function ResearchPage() {
-  const [active,      setActive]    = useState("intro");
+  const [active,      setActive]    = useState("oil-trade");
   const [sidebarOpen, setSidebar]   = useState(false);
-  const [tab,         setTab]       = useState<"egypt"|"uae">("egypt");
 
   useEffect(() => {
     const obs = new IntersectionObserver(
@@ -26,8 +44,8 @@ export default function ResearchPage() {
       },
       { rootMargin: "-30% 0px -60% 0px" }
     );
-    NAV.forEach(n => {
-      const el = document.getElementById(n.id);
+    ALL_IDS.forEach(id => {
+      const el = document.getElementById(id);
       if (el) obs.observe(el);
     });
     return () => obs.disconnect();
@@ -55,14 +73,32 @@ export default function ResearchPage() {
 
         <nav className={s.sidebarNav}>
           <div className={s.navSection}>Contents</div>
-          {NAV.map(n => (
-            <button
-              key={n.id}
-              className={`${s.navLink} ${active === n.id ? s.active : ""}`}
-              onClick={() => scrollTo(n.id)}
-            >
-              {n.label}
-            </button>
+          {NAV.map(group => (
+            <div key={group.label}>
+              {group.single ? (
+                /* top-level single link */
+                <button
+                  className={`${s.navLink} ${active === group.single ? s.active : ""}`}
+                  onClick={() => scrollTo(group.single!)}
+                >
+                  {group.label}
+                </button>
+              ) : (
+                /* country group */
+                <>
+                  <div className={s.navGroupHeader}>{group.label}</div>
+                  {group.children!.map(child => (
+                    <button
+                      key={child.id}
+                      className={`${s.navSubLink} ${active === child.id ? s.active : ""}`}
+                      onClick={() => scrollTo(child.id)}
+                    >
+                      {child.label}
+                    </button>
+                  ))}
+                </>
+              )}
+            </div>
           ))}
         </nav>
 
@@ -386,280 +422,43 @@ export default function ResearchPage() {
 
           </section>
 
-          {/* ── EM MACRO ──────────────────────────────────── */}
-          <section id="em-macro" className={s.section}>
-            <div className={s.sectionLabel}>Framework</div>
-            <h2 className={s.sectionTitle}>EM Credit: Macro Framework</h2>
-            <p className={s.sectionSub}>
-              The key macro variables that drive EM sovereign and corporate credit —
-              rates, spreads, the dollar, and commodity linkages.
-            </p>
-
-            <div className={s.macroGrid}>
-              {[
-                { label: "US 10Y Yield",        value: "4.35%",  sub: "Key external financing anchor" },
-                { label: "DXY Index",            value: "103.2",  sub: "Dollar strength = EM stress" },
-                { label: "EMBI Global Spread",   value: "+385bp", sub: "EM sovereign risk premium" },
-                { label: "Brent Crude",          value: "$80.5",  sub: "Post-Hormuz deal, Jun 2026" },
-                { label: "Fed Funds Rate",       value: "4.50%",  sub: "Higher-for-longer still dominant" },
-                { label: "EM Inflation (avg)",   value: "5.8%",   sub: "Easing but above target" },
-              ].map(m => (
-                <div key={m.label} className={s.macroCell}>
-                  <div className={s.macroCellLabel}>{m.label}</div>
-                  <div className={s.macroCellValue}>{m.value}</div>
-                  <div className={s.macroCellSub}>{m.sub}</div>
-                </div>
-              ))}
-            </div>
-
-            <div className={s.chartPlaceholder}>
-              <span className={s.chartLabel}>[ EMBI Spread vs DXY · 2022–2026 ]</span>
-            </div>
-
-            <div className={s.prose}>
-              <h3>Oil → EM Credit Transmission</h3>
-              <p>
-                The Hormuz resolution doesn't reset the oil market to neutral. For EM sovereigns,
-                the trajectory of Brent from here has direct implications for credit quality and
-                spread dynamics through two distinct channels.
-              </p>
-              <p>
-                For <strong>oil exporters</strong> — Saudi Arabia (breakeven ~$76–80/bbl), Iraq
-                (oil = 90%+ of federal revenues), UAE — a sustained period above $90 generates
-                meaningful current account and fiscal surpluses, compressing sovereign spread risk.
-                Iraq in particular sits near solvency thresholds at low oil prices; the difference
-                between $70 and $100 oil is not a margin question but a fiscal sustainability question.
-              </p>
-              <p>
-                For <strong>oil importers</strong> — Pakistan, Egypt, Kenya — the $117 oil spike
-                was a significant terms-of-trade deterioration. The Hormuz deal and normalisation
-                toward $70–75/bbl is a material credit positive: it reduces the current account
-                deficit, eases FX pressure, and loosens the inflation constraint forcing central
-                banks to keep rates restrictive.
-              </p>
-              <p>
-                The spread compression trade in oil-importing EM credit — particularly high-yield
-                frontier names with significant energy import exposure — is one of the more compelling
-                opportunities coming out of the Hormuz resolution.
-              </p>
-            </div>
+          {/* ── EGYPT ─────────────────────────────────────── */}
+          <section id="egypt-sovereign" className={s.section}>
+            <div className={s.sectionLabel}>Egypt · Sovereign</div>
+            <h2 className={s.sectionTitle}>Egypt — Sovereign Credit</h2>
+            <div className={s.comingSoon}>Research in progress — analysis coming soon.</div>
           </section>
 
-          {/* ── SOVEREIGN ─────────────────────────────────── */}
-          <section id="sovereign" className={s.section}>
-            <div className={s.sectionLabel}>Sovereign Deep Dives</div>
-            <h2 className={s.sectionTitle}>Sovereign Credit</h2>
-            <p className={s.sectionSub}>
-              Selected sovereign credit analysis — fiscal dynamics, external financing, IMF
-              programme interaction, and spread drivers.
-            </p>
-
-            <div className={s.tabs}>
-              <button className={`${s.tab} ${tab === "egypt" ? s.active : ""}`} onClick={() => setTab("egypt")}>Egypt</button>
-              <button className={`${s.tab} ${tab === "uae"   ? s.active : ""}`} onClick={() => setTab("uae")}>UAE</button>
-            </div>
-
-            {tab === "egypt" && (
-              <div>
-                <div className={s.dataRow}>
-                  {[
-                    { label: "Eurobond Spread", value: "+780bp", cls: "red",  sub: "vs UST, Jun 2026" },
-                    { label: "FX Reserves",     value: "$28bn",  cls: "gold", sub: "~4.5 months import cover" },
-                    { label: "IMF Programme",   value: "$8bn",   cls: "gold", sub: "EFF (2024–2027)" },
-                  ].map(d => (
-                    <div key={d.label} className={s.dataCell}>
-                      <div className={s.dataLabel}>{d.label}</div>
-                      <div className={`${s.dataValue} ${(s as Record<string,string>)[d.cls]}`}>{d.value}</div>
-                      <div className={s.dataSub}>{d.sub}</div>
-                    </div>
-                  ))}
-                </div>
-                <div className={s.prose}>
-                  <h3>Thesis</h3>
-                  <p>
-                    Egypt is the canonical oil-importing EM credit stress case: large twin deficits,
-                    a structurally overvalued currency held in place by GCC support and IMF conditionality,
-                    and a fiscal adjustment programme that has repeatedly underdelivered on the structural
-                    reform side. The pound's managed depreciation since 2022 has reduced some external
-                    imbalance but created significant imported inflation.
-                  </p>
-                  <p>
-                    The Hormuz oil normalisation is a genuine tailwind for Egypt — lower energy import
-                    costs improve the current account and reduce the subsidy bill. But the structural
-                    story remains constrained: IMF programme reviews have flagged persistent delays on
-                    SOE reform, energy price liberalisation, and fiscal consolidation. The spread at
-                    +780bp prices in meaningful default risk — the question is whether the IMF anchor
-                    and GCC bilateral support are sufficient to prevent crystallisation.
-                  </p>
-                  <h3>Key Risks</h3>
-                  <p>
-                    Programme derailment from delayed structural reforms; renewed energy price shock;
-                    political constraints on subsidy reduction; GCC support conditionality becoming
-                    more demanding; tourism revenue sensitivity to regional instability.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {tab === "uae" && (
-              <div>
-                <div className={s.dataRow}>
-                  {[
-                    { label: "Sovereign Rating", value: "AA-",    cls: "green", sub: "S&P, stable outlook" },
-                    { label: "Fiscal BE Oil",    value: "$50/bbl", cls: "gold", sub: "Abu Dhabi breakeven" },
-                    { label: "Non-oil GDP",      value: "~70%",    cls: "gold", sub: "of total GDP, 2025" },
-                  ].map(d => (
-                    <div key={d.label} className={s.dataCell}>
-                      <div className={s.dataLabel}>{d.label}</div>
-                      <div className={`${s.dataValue} ${(s as Record<string,string>)[d.cls]}`}>{d.value}</div>
-                      <div className={s.dataSub}>{d.sub}</div>
-                    </div>
-                  ))}
-                </div>
-                <div className={s.prose}>
-                  <h3>Thesis</h3>
-                  <p>
-                    The UAE is the most credible GCC diversification story — non-oil GDP now represents
-                    approximately 70% of total output, underpinned by Dubai's financial services, tourism,
-                    and trade hub positioning, and Abu Dhabi's sovereign wealth infrastructure. The fiscal
-                    breakeven oil price of ~$50/bbl gives substantial buffer relative to current prices and
-                    even to J.P. Morgan's pre-war $60 structural base case.
-                  </p>
-                  <p>
-                    The UAE's sukuk market and conventional Eurobond issuance represent the GCC benchmark —
-                    Abu Dhabi and Dubai credits trade near or through some Western European sovereigns.
-                    The key investment question is the spread pick-up available in the sub-sovereign and
-                    quasi-sovereign space: ADNOC, Mubadala, DP World — entities with implicit or explicit
-                    government backing but wider spreads than the sovereign.
-                  </p>
-                  <h3>Key Dynamics</h3>
-                  <p>
-                    Dubai property market cycle risk; geopolitical exposure given proximity to Iran;
-                    long-term oil price decline risk to Abu Dhabi fiscal model; labour market dependence
-                    on expatriate workforce with potential political sensitivity.
-                  </p>
-                </div>
-              </div>
-            )}
+          <section id="egypt-corporate" className={s.section}>
+            <div className={s.sectionLabel}>Egypt · Corporates</div>
+            <h2 className={s.sectionTitle}>Egypt — Corporate Credit</h2>
+            <div className={s.comingSoon}>Research in progress — analysis coming soon.</div>
           </section>
 
-          {/* ── CORPORATE CREDIT ──────────────────────────── */}
-          <section id="corporate" className={s.section}>
-            <div className={s.sectionLabel}>Corporate Credit</div>
-            <h2 className={s.sectionTitle}>EM Corporate Credit</h2>
-            <p className={s.sectionSub}>
-              Sector breakdowns and issuer-level analysis across EM corporate credit —
-              energy, financials, infrastructure, and real estate.
-            </p>
-
-            <div className={s.cardGrid}>
-              {[
-                {
-                  tag: "Energy",
-                  title: "GCC National Oil Companies",
-                  body: "ADNOC, Saudi Aramco, QatarEnergy — among the world's lowest-cost producers. Spread compression trade post-Hormuz resolution as supply normalises and sovereign backing reasserts.",
-                },
-                {
-                  tag: "Financials",
-                  title: "GCC Banks: Deposit Franchise Quality",
-                  body: "UAE and Saudi banks carry exceptionally low funding costs relative to loan yields, supported by high government deposit bases and implicit sovereign backstops. Tier 2 paper offers attractive spread pick-up.",
-                },
-                {
-                  tag: "Infrastructure",
-                  title: "DP World & Port Operators",
-                  body: "Secular growth in EM trade flows. DP World's Eurobonds trade wide of the Dubai sovereign — reflecting leverage and acquisition activity — creating a differentiated entry point into the UAE credit story.",
-                },
-                {
-                  tag: "Real Estate",
-                  title: "Egyptian & Pakistani Property",
-                  body: "High-yield domestic issuers with significant FX mismatch. Dollar-denominated debt against local currency revenues creates acute vulnerability in depreciation scenarios — requires careful position sizing.",
-                },
-              ].map(c => (
-                <div key={c.tag} className={s.card}>
-                  <div className={s.cardLabel}>{c.tag}</div>
-                  <div className={s.cardTitle}>{c.title}</div>
-                  <div className={s.cardBody}>{c.body}</div>
-                </div>
-              ))}
-            </div>
-
-            <div className={s.chartPlaceholder}>
-              <span className={s.chartLabel}>[ EM Corporate vs EM Sovereign Spread Differential ]</span>
-            </div>
+          {/* ── PAKISTAN ──────────────────────────────────── */}
+          <section id="pakistan-sovereign" className={s.section}>
+            <div className={s.sectionLabel}>Pakistan · Sovereign</div>
+            <h2 className={s.sectionTitle}>Pakistan — Sovereign Credit</h2>
+            <div className={s.comingSoon}>Research in progress — analysis coming soon.</div>
           </section>
 
-          {/* ── CASE STUDIES ──────────────────────────────── */}
-          <section id="cases" className={s.section}>
-            <div className={s.sectionLabel}>Case Studies</div>
-            <h2 className={s.sectionTitle}>Deep Dives</h2>
-            <p className={s.sectionSub}>
-              Extended analysis on selected themes — restructuring dynamics, IMF programme mechanics,
-              and diversification economics.
-            </p>
+          <section id="pakistan-corporate" className={s.section}>
+            <div className={s.sectionLabel}>Pakistan · Corporates</div>
+            <h2 className={s.sectionTitle}>Pakistan — Corporate Credit</h2>
+            <div className={s.comingSoon}>Research in progress — analysis coming soon.</div>
+          </section>
 
-            <div className={s.prose}>
-              <h3>Case Study 1 — Egypt: Restructuring Without Restructuring</h3>
-              <p>
-                Egypt has navigated three IMF programmes since 2016 without a formal sovereign
-                restructuring — managing debt sustainability through a combination of currency
-                depreciation, GCC bilateral support, and repeated programme modifications. The
-                2022 programme was agreed against a backdrop of acute reserve pressure following
-                the Russian invasion of Ukraine, which cut off a significant source of tourism
-                revenue and wheat imports simultaneously.
-              </p>
-              <p>
-                What makes Egypt analytically interesting is the gap between formal programme
-                compliance and genuine structural adjustment. Egypt has repeatedly met headline
-                fiscal targets while delaying the SOE reform and energy price liberalisation that
-                form the structural backbone of the IMF's sustainability case. The programme
-                continues because Egypt is too geopolitically important to fail — a dynamic that
-                creates a form of implicit insurance against default that is not captured in
-                spread levels alone.
-              </p>
-              <p>
-                The oil price transmission in Egypt is unusually direct: the country is a net
-                energy importer, runs a petroleum subsidy programme that represents a material
-                portion of fiscal expenditure, and generates approximately $13–14bn annually
-                from Suez Canal tolls — revenues that fell sharply during the Hormuz crisis as
-                shipping was re-routed away from the Red Sea corridor. The post-Hormuz
-                normalisation is therefore a multi-channel positive for Egypt: lower import
-                costs, reduced subsidy pressure, and recovering canal revenues simultaneously.
-              </p>
-            </div>
+          {/* ── UAE ───────────────────────────────────────── */}
+          <section id="uae-sovereign" className={s.section}>
+            <div className={s.sectionLabel}>UAE · Sovereign</div>
+            <h2 className={s.sectionTitle}>UAE — Sovereign Credit</h2>
+            <div className={s.comingSoon}>Research in progress — analysis coming soon.</div>
+          </section>
 
-            <div className={s.pullQuote}>
-              <p>
-                "Egypt continues because it is too geopolitically important to fail — a dynamic
-                that creates implicit default insurance not captured in spread levels alone."
-              </p>
-            </div>
-
-            <div className={s.prose}>
-              <h3>Case Study 2 — UAE: The Diversification Premium</h3>
-              <p>
-                The UAE represents the most credible test case for whether a Gulf hydrocarbon
-                economy can structurally diversify away from oil dependency. The data suggests
-                significant progress: non-oil GDP now represents approximately 70% of total
-                output, and the IMF projects the UAE will maintain a positive current account
-                balance even at oil prices as low as $40/bbl — well below any plausible long-run
-                equilibrium.
-              </p>
-              <p>
-                Dubai's model deserves particular attention. The emirate has essentially zero
-                oil reserves of its own; its prosperity is entirely a function of services —
-                financial intermediation, trade, tourism, and increasingly technology and
-                professional services. The depth and quality of Dubai's financial infrastructure
-                — including DIFC, which operates under English common law with independent
-                courts — creates a genuine institutional moat relative to the rest of the region.
-              </p>
-              <p>
-                The sukuk market innovation coming out of Dubai and Abu Dhabi over the past
-                decade has materially deepened the EM Islamic fixed income universe, creating
-                a new class of investment-grade instruments attractive to both conventional and
-                Shariah-compliant investors. This is the context in which GCC corporate credit —
-                ADNOC, Mubadala, DP World — needs to be evaluated.
-              </p>
-            </div>
+          <section id="uae-corporate" className={s.section}>
+            <div className={s.sectionLabel}>UAE · Corporates</div>
+            <h2 className={s.sectionTitle}>UAE — Corporate Credit</h2>
+            <div className={s.comingSoon}>Research in progress — analysis coming soon.</div>
           </section>
 
           {/* ── DATA ──────────────────────────────────────── */}
