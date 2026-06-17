@@ -9,12 +9,13 @@ export async function POST(request: NextRequest) {
   await setupDb();
 
   const formData = await request.formData();
-  const name     = (formData.get("name") as string)?.trim();
-  const ticker   = (formData.get("ticker") as string)?.trim().toUpperCase() || null;
-  const sector   = (formData.get("sector") as string)?.trim() || null;
-  const docType  = (formData.get("doc_type") as string) || "annual_report";
-  const year     = (formData.get("year") as string) || String(new Date().getFullYear());
-  const file     = formData.get("file") as File | null;
+  const name       = (formData.get("name") as string)?.trim();
+  const ticker     = (formData.get("ticker") as string)?.trim().toUpperCase() || null;
+  const sector     = (formData.get("sector") as string)?.trim() || null;
+  const docType    = (formData.get("doc_type") as string) || "annual_report";
+  const year       = (formData.get("year") as string) || String(new Date().getFullYear());
+  const entityType = (formData.get("entity_type") as string) || "corporate";
+  const file       = formData.get("file") as File | null;
 
   if (!name) return NextResponse.json({ error: "Company name required" }, { status: 400 });
   if (!file) return NextResponse.json({ error: "PDF file required" }, { status: 400 });
@@ -26,7 +27,7 @@ export async function POST(request: NextRequest) {
   const stockId = uuidv4();
   const docId   = uuidv4();
 
-  await createStock({ id: stockId, name, ticker, sector });
+  await createStock({ id: stockId, name, ticker, sector, entity_type: entityType });
   await updateStock(stockId, { status: "processing", progress: 10, progress_message: "Reading uploaded file..." });
 
   const buffer = Buffer.from(await file.arrayBuffer());

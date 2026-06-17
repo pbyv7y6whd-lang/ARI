@@ -16,6 +16,7 @@ export async function setupDb() {
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
   `;
+  await sql`ALTER TABLE stocks ADD COLUMN IF NOT EXISTS entity_type TEXT NOT NULL DEFAULT 'corporate'`;
 
   await sql`
     CREATE TABLE IF NOT EXISTS documents (
@@ -40,10 +41,12 @@ export async function createStock(stock: {
   name: string;
   ticker: string | null;
   sector: string | null;
+  entity_type?: string;
 }) {
+  const entityType = stock.entity_type || "corporate";
   await sql`
-    INSERT INTO stocks (id, name, ticker, sector, status, progress)
-    VALUES (${stock.id}, ${stock.name}, ${stock.ticker}, ${stock.sector}, 'pending', 0)
+    INSERT INTO stocks (id, name, ticker, sector, entity_type, status, progress)
+    VALUES (${stock.id}, ${stock.name}, ${stock.ticker}, ${stock.sector}, ${entityType}, 'pending', 0)
   `;
 }
 
@@ -113,16 +116,38 @@ export async function getStock(id: string) {
   return result.rows[0] ?? null;
 }
 
-export async function getAllStocks() {
+export async function getAllStocks(entityType?: string) {
+  if (entityType) {
+    const result = await sql`
+      SELECT
+        id, name, ticker, sector, entity_type, status, progress, progress_message,
+        doc_count, created_at, updated_at,
+        analysis->'overallScore' as overall_score,
+        analysis->'snapshot' as snapshot,
+        analysis->'creditVerdict' as credit_verdict,
+        analysis->'bullCase'->'points'->0->>'title' as top_bull,
+        analysis->'bearCase'->'points'->0->>'title' as top_bear,
+        analysis->'fiscalProfile' as fiscal_profile,
+        analysis->'externalSector' as external_sector,
+        analysis->'creditMetrics' as credit_metrics
+      FROM stocks
+      WHERE entity_type = ${entityType}
+      ORDER BY updated_at DESC
+    `;
+    return result.rows;
+  }
   const result = await sql`
     SELECT
-      id, name, ticker, sector, status, progress, progress_message,
+      id, name, ticker, sector, entity_type, status, progress, progress_message,
       doc_count, created_at, updated_at,
       analysis->'overallScore' as overall_score,
-      analysis->'investmentSnapshot' as investment_snapshot,
-      analysis->'investmentMemo'->>'thesis' as thesis,
+      analysis->'snapshot' as snapshot,
+      analysis->'creditVerdict' as credit_verdict,
       analysis->'bullCase'->'points'->0->>'title' as top_bull,
-      analysis->'bearCase'->'points'->0->>'title' as top_bear
+      analysis->'bearCase'->'points'->0->>'title' as top_bear,
+      analysis->'fiscalProfile' as fiscal_profile,
+      analysis->'externalSector' as external_sector,
+      analysis->'creditMetrics' as credit_metrics
     FROM stocks
     ORDER BY updated_at DESC
   `;

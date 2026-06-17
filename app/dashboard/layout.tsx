@@ -2,28 +2,15 @@
 
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import {
-  LayoutGrid, LogOut, TrendingUp, BookMarked,
-  ShieldCheck, Clock, AlertTriangle, Settings,
-  Layers, Globe,
-} from "lucide-react";
+import { Globe, Building2, LogOut, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV = [
   {
     section: "Research",
     items: [
-      { href: "/dashboard",             icon: LayoutGrid,   label: "Stock Universe" },
-      { href: "/dashboard/themes",      icon: Layers,       label: "Themes" },
-      { href: "/dashboard/watchlists",  icon: BookMarked,   label: "Watchlists" },
-    ],
-  },
-  {
-    section: "Intelligence",
-    items: [
-      { href: "/dashboard/governance",  icon: ShieldCheck,  label: "Governance Rankings" },
-      { href: "/dashboard/risk",        icon: AlertTriangle,label: "Risk Monitor" },
-      { href: "/dashboard/recent",      icon: Clock,        label: "Recent Research" },
+      { href: "/dashboard/sovereign", icon: Globe,     label: "Sovereign Tracker" },
+      { href: "/dashboard/corporate", icon: Building2, label: "Corporate Tracker" },
     ],
   },
 ];
@@ -49,8 +36,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <span className="text-black font-bold text-[9px] tracking-tight">EMI</span>
           </div>
           <div>
-            <p className="text-[11px] font-bold text-white/80 leading-none">EMI Research</p>
-            <p className="text-[9px] text-white/25 mt-0.5 font-mono uppercase tracking-wider">Research Platform</p>
+            <p className="text-[11px] font-bold text-white/80 leading-none">EMI</p>
+            <p className="text-[9px] text-white/25 mt-0.5 font-mono uppercase tracking-wider">EM Intelligence</p>
           </div>
         </div>
 
@@ -63,7 +50,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </p>
               <div className="space-y-px">
                 {items.map(({ href, icon: Icon, label }) => {
-                  const active = pathname === href;
+                  const active = pathname === href || pathname.startsWith(href + "/");
                   return (
                     <Link key={href} href={href}
                       className={cn(
