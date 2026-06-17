@@ -6,6 +6,7 @@ import Link from "next/link";
 import {
   ArrowLeft, Loader2, AlertCircle, Plus, FileText,
   RefreshCw, Trash2, TrendingUp, TrendingDown,
+  MoreHorizontal, Check, X as XIcon,
 } from "lucide-react";
 import { cn, formatDate } from "@/lib/utils";
 import type { ReportAnalysis } from "@/lib/supabase";
@@ -1053,7 +1054,7 @@ export default function StockPage({ params }: { params: Promise<{ id: string }> 
       {/* ── Content ──────────────────────────────────────────────────────── */}
       <div className="px-6 py-6">
         {activeTab === "documents" ? (
-          <DocumentsTab stock={stock} onUpload={() => setUploadOpen(true)} />
+          <DocumentsTab stock={stock} onUpload={() => setUploadOpen(true)} onRefresh={fetchStock} />
         ) : stock.status === "processing" ? (
           <ProcessingView stock={stock} displayProgress={displayProgress} />
         ) : stock.status === "pending" || stock.documents.length === 0 ? (
@@ -1164,7 +1165,61 @@ function ErrorView({ message, onRetry }: { message: string | null; onRetry: () =
 
 // ── Documents tab ──────────────────────────────────────────────────────────────
 
-function DocumentsTab({ stock, onUpload }: { stock: StockData; onUpload: () => void }) {
+function DocumentsTab({ stock, onUpload, onRefresh }: { stock: StockData; onUpload: () => void; onRefresh: () => void }) {
+  const [menuOpen,  setMenuOpen]  = useState<string | null>(null); // docId
+  const [editing,   setEditing]   = useState<string | null>(null); // docId
+  const [editName,  setEditName]  = useState("");
+  const [editType,  setEditType]  = useState("");
+  const [editYear,  setEditYear]  = useState("");
+  const [saving,    setSaving]    = useState(false);
+  const [deleting,  setDeleting]  = useState<string | null>(null);
+
+  const DOC_TYPE_OPTIONS = [
+    { value: "imf_article_iv",       label: "IMF Article IV" },
+    { value: "central_bank_report",  label: "Central Bank Report" },
+    { value: "mof_fiscal_framework", label: "MoF Fiscal Framework" },
+    { value: "eurobond_prospectus",  label: "Eurobond Prospectus" },
+    { value: "rating_agency_report", label: "Rating Agency Report" },
+    { value: "annual_report",        label: "Annual Report" },
+    { value: "bond_prospectus",      label: "Bond Prospectus" },
+    { value: "investor_presentation",label: "Investor Presentation" },
+    { value: "earnings_transcript",  label: "Earnings Transcript" },
+    { value: "other",                label: "Other" },
+  ];
+
+  const startEdit = (doc: Document) => {
+    setEditing(doc.id);
+    setEditName(doc.display_name || "");
+    setEditType(doc.doc_type);
+    setEditYear(doc.year || "");
+    setMenuOpen(null);
+  };
+
+  const saveEdit = async (doc: Document) => {
+    setSaving(true);
+    await fetch(`/api/stocks/${stock.id}/documents/${doc.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        display_name: editName.trim() || null,
+        doc_type: editType,
+        year: editYear.trim() || null,
+      }),
+    });
+    setSaving(false);
+    setEditing(null);
+    onRefresh();
+  };
+
+  const handleDelete = async (doc: Document) => {
+    if (!confirm(`Delete "${doc.display_name || doc.file_name}"?`)) return;
+    setDeleting(doc.id);
+    setMenuOpen(null);
+    await fetch(`/api/stocks/${stock.id}/documents/${doc.id}`, { method: "DELETE" });
+    setDeleting(null);
+    onRefresh();
+  };
+
   return (
     <div className="max-w-2xl">
       <div className="flex items-center justify-between mb-4">
@@ -1180,32 +1235,106 @@ function DocumentsTab({ stock, onUpload }: { stock: StockData; onUpload: () => v
       ) : (
         <div className="rounded-sm border border-[#d8cfe8] overflow-hidden">
           {stock.documents.map((doc, i) => (
-            <a key={doc.id} href={doc.blob_url} target="_blank" rel="noopener noreferrer"
-              className={cn("flex items-center gap-3 px-4 py-3 transition-colors hover:bg-[#f0edf6] group",
-                i < stock.documents.length - 1 && "border-b border-[#e0d8ee]")}>
-              <FileText className="h-3.5 w-3.5 shrink-0 text-[#9a7cc0]" />
-              <div className="flex-1 min-w-0">
-                <p className="text-[12px] font-medium text-[#2d1654] truncate">
-                  {doc.display_name || doc.file_name}
-                </p>
-                {doc.display_name && (
-                  <p className="text-[10px] text-[#c4b5d8] truncate font-mono">{doc.file_name}</p>
-                )}
-                <p className="text-[11px] text-[#b09dcc]">
-                  {DOC_TYPE_LABELS[doc.doc_type] || doc.doc_type}
-                  {doc.year && ` · ${doc.year}`}
-                  {doc.page_count && ` · ${doc.page_count} pages`}
-                  {` · Added ${formatDate(doc.created_at)}`}
-                </p>
-              </div>
-              <span className="text-[11px] text-[#c4b5d8] group-hover:text-[#6b4fa0] transition-colors">↗</span>
-            </a>
+            <div key={doc.id} className={cn(i < stock.documents.length - 1 && "border-b border-[#e0d8ee]")}>
+
+              {editing === doc.id ? (
+                /* ── Inline edit form ── */
+                <div className="px-4 py-3 bg-[#f8f5fc] space-y-3">
+                  <div>
+                    <label className="text-[9px] uppercase tracking-widest text-[#9a7cc0] mb-1 block">Document Name</label>
+                    <input
+                      autoFocus
+                      value={editName}
+                      onChange={e => setEditName(e.target.value)}
+                      placeholder={doc.file_name}
+                      className="w-full rounded-sm border border-[#d0c6e0] bg-white px-3 py-1.5 text-[12px] text-[#1a0a2e] placeholder-[#c4b5d8] outline-none focus:border-[#5b21b6] transition-colors"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-[9px] uppercase tracking-widest text-[#9a7cc0] mb-1 block">Type</label>
+                      <select value={editType} onChange={e => setEditType(e.target.value)}
+                        className="w-full rounded-sm border border-[#d0c6e0] bg-white px-2 py-1.5 text-[12px] text-[#1a0a2e] outline-none focus:border-[#5b21b6]">
+                        {DOC_TYPE_OPTIONS.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-[9px] uppercase tracking-widest text-[#9a7cc0] mb-1 block">Year</label>
+                      <input value={editYear} onChange={e => setEditYear(e.target.value)} placeholder="2025"
+                        className="w-full rounded-sm border border-[#d0c6e0] bg-white px-3 py-1.5 font-mono text-[12px] text-[#1a0a2e] placeholder-[#c4b5d8] outline-none focus:border-[#5b21b6] transition-colors" />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => saveEdit(doc)} disabled={saving}
+                      className="flex items-center gap-1.5 rounded-sm bg-[#5b21b6] px-3 py-1.5 text-[11px] font-semibold text-white hover:bg-[#5b21b6]/90 disabled:opacity-40 transition-colors">
+                      {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
+                      Save
+                    </button>
+                    <button onClick={() => setEditing(null)} disabled={saving}
+                      className="flex items-center gap-1.5 rounded-sm border border-[#d0c6e0] px-3 py-1.5 text-[11px] text-[#8b6bb5] hover:border-[#5b21b6]/40 disabled:opacity-40 transition-colors">
+                      <XIcon className="h-3 w-3" /> Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                /* ── Normal row ── */
+                <div className={cn(
+                  "flex items-center gap-3 px-4 py-3 transition-colors group",
+                  deleting === doc.id && "opacity-40"
+                )}>
+                  <FileText className="h-3.5 w-3.5 shrink-0 text-[#9a7cc0]" />
+
+                  <a href={doc.blob_url.startsWith("uploaded:") ? undefined : doc.blob_url}
+                    target="_blank" rel="noopener noreferrer"
+                    className="flex-1 min-w-0 hover:opacity-80 transition-opacity">
+                    <p className="text-[12px] font-medium text-[#2d1654] truncate">
+                      {doc.display_name || doc.file_name}
+                    </p>
+                    {doc.display_name && (
+                      <p className="text-[10px] text-[#c4b5d8] truncate font-mono">{doc.file_name}</p>
+                    )}
+                    <p className="text-[11px] text-[#b09dcc]">
+                      {DOC_TYPE_LABELS[doc.doc_type] || doc.doc_type}
+                      {doc.year && ` · ${doc.year}`}
+                      {doc.page_count && ` · ${doc.page_count} pages`}
+                      {` · Added ${formatDate(doc.created_at)}`}
+                    </p>
+                  </a>
+
+                  {/* 3-dot menu */}
+                  <div className="relative shrink-0">
+                    <button
+                      onClick={() => setMenuOpen(menuOpen === doc.id ? null : doc.id)}
+                      className="flex h-6 w-6 items-center justify-center rounded-sm text-[#c4b5d8] hover:bg-[#ede8f5] hover:text-[#6b4fa0] transition-colors">
+                      <MoreHorizontal className="h-3.5 w-3.5" />
+                    </button>
+
+                    {menuOpen === doc.id && (
+                      <>
+                        {/* Click-away backdrop */}
+                        <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(null)} />
+                        <div className="absolute right-0 top-7 z-20 w-32 rounded-sm border border-[#d8cfe8] bg-white shadow-lg overflow-hidden">
+                          <button onClick={() => startEdit(doc)}
+                            className="w-full px-3 py-2 text-left text-[12px] text-[#2d1654] hover:bg-[#f4f0f8] transition-colors">
+                            Edit details
+                          </button>
+                          <button onClick={() => handleDelete(doc)}
+                            className="w-full px-3 py-2 text-left text-[12px] text-red-500 hover:bg-red-50 transition-colors border-t border-[#e0d8ee]">
+                            Delete
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
           ))}
         </div>
       )}
 
       <p className="mt-4 text-[11px] text-[#9a7cc0] leading-relaxed">
-        Add multiple documents and use &quot;Re-analyse&quot; to regenerate the credit assessment with all available data.
+        Add documents then hit &quot;Re-analyse&quot; to generate the credit assessment across all of them.
       </p>
     </div>
   );

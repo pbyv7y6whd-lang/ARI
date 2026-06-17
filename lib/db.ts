@@ -72,6 +72,30 @@ export async function addDocument(doc: {
   `;
 }
 
+export async function updateDocument(id: string, fields: {
+  display_name?: string | null;
+  doc_type?: string;
+  year?: string | null;
+}) {
+  await sql`
+    UPDATE documents SET
+      display_name = ${fields.display_name ?? null},
+      doc_type     = COALESCE(${fields.doc_type ?? null}, doc_type),
+      year         = ${fields.year ?? null}
+    WHERE id = ${id}
+  `;
+}
+
+export async function deleteDocument(id: string) {
+  // Get stock_id first so we can decrement doc_count
+  const res = await sql`SELECT stock_id FROM documents WHERE id = ${id}`;
+  const stockId = res.rows[0]?.stock_id;
+  await sql`DELETE FROM documents WHERE id = ${id}`;
+  if (stockId) {
+    await sql`UPDATE stocks SET doc_count = GREATEST(doc_count - 1, 0), updated_at = NOW() WHERE id = ${stockId}`;
+  }
+}
+
 export async function getDocumentsForStock(stockId: string) {
   const result = await sql`
     SELECT * FROM documents WHERE stock_id = ${stockId} ORDER BY year DESC, created_at DESC
