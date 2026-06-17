@@ -17,6 +17,7 @@ type Country = {
   stance: string;
   lat: number;
   lng: number;
+  active: boolean;
 };
 
 /* ISO numeric codes for highlighting — matches world-atlas dataset */
@@ -101,32 +102,36 @@ export default function WorldMap({
               onMouseEnter={(e: React.MouseEvent) => onHover(c, e.clientX, e.clientY)}
               onMouseLeave={onLeave}
             >
-              {/* Pulse ring */}
-              <circle r={10} fill={stanceColor(c.stance) + "22"} style={{ pointerEvents: "none" }} />
+              {/* Pulse ring — only active research countries */}
+              {c.active && (
+                <circle r={12} fill={stanceColor(c.stance) + "20"} style={{ pointerEvents: "none" }} />
+              )}
               {/* Dot */}
               <circle
-                r={5}
-                fill={stanceColor(c.stance)}
+                r={c.active ? 6 : 3.5}
+                fill={c.active ? stanceColor(c.stance) : "#aaa9a3"}
                 stroke="white"
-                strokeWidth={1.5}
+                strokeWidth={c.active ? 1.5 : 1}
                 style={{ cursor: "pointer" }}
               />
-              {/* Country label */}
-              <text
-                textAnchor="middle"
-                y={-12}
-                style={{
-                  fontFamily: "'Inter', sans-serif",
-                  fontSize: 9,
-                  fontWeight: 600,
-                  fill: "#0f0f0f",
-                  letterSpacing: "0.04em",
-                  pointerEvents: "none",
-                  userSelect: "none",
-                }}
-              >
-                {c.name}
-              </text>
+              {/* Label — only for active research countries */}
+              {c.active && (
+                <text
+                  textAnchor="middle"
+                  y={-14}
+                  style={{
+                    fontFamily: "'Inter', sans-serif",
+                    fontSize: 10,
+                    fontWeight: 700,
+                    fill: "#0f0f0f",
+                    letterSpacing: "0.04em",
+                    pointerEvents: "none",
+                    userSelect: "none",
+                  }}
+                >
+                  {c.name}
+                </text>
+              )}
             </Marker>
           ))}
         </ZoomableGroup>

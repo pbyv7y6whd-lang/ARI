@@ -17,14 +17,14 @@ const GREEN  = "#2d6a4f";
 const RED    = "#8b2e2e";
 
 export const EM_COUNTRIES = [
-  { name:"Egypt",    iso:"EGY", spread:480,  rating:"B−",   stance:"bull", lat:26.8, lng:30.8  },
-  { name:"UAE",      iso:"ARE", spread:65,   rating:"AA−",  stance:"neut", lat:23.4, lng:53.8  },
-  { name:"Nigeria",  iso:"NGA", spread:700,  rating:"B−",   stance:"neut", lat:9.1,  lng:8.7   },
-  { name:"Pakistan", iso:"PAK", spread:1100, rating:"CCC+", stance:"neut", lat:30.4, lng:69.3  },
-  { name:"Kenya",    iso:"KEN", spread:560,  rating:"B",    stance:"neut", lat:-0.0, lng:37.9  },
-  { name:"Iraq",     iso:"IRQ", spread:750,  rating:"B−",   stance:"bear", lat:33.2, lng:43.7  },
-  { name:"Ghana",    iso:"GHA", spread:900,  rating:"SD",   stance:"bear", lat:7.9,  lng:-1.0  },
-  { name:"Angola",   iso:"AGO", spread:580,  rating:"B−",   stance:"neut", lat:-11.2,lng:17.9  },
+  { name:"Egypt",    iso:"EGY", spread:480,  rating:"B−",   stance:"bull", lat:26.8,  lng:30.8, active:true  },
+  { name:"UAE",      iso:"ARE", spread:65,   rating:"AA−",  stance:"neut", lat:23.4,  lng:53.8, active:true  },
+  { name:"Pakistan", iso:"PAK", spread:1100, rating:"CCC+", stance:"neut", lat:30.4,  lng:69.3, active:true  },
+  { name:"Nigeria",  iso:"NGA", spread:700,  rating:"B−",   stance:"neut", lat:9.1,   lng:8.7,  active:false },
+  { name:"Kenya",    iso:"KEN", spread:560,  rating:"B",    stance:"neut", lat:-0.0,  lng:37.9, active:false },
+  { name:"Iraq",     iso:"IRQ", spread:750,  rating:"B−",   stance:"bear", lat:33.2,  lng:43.7, active:false },
+  { name:"Ghana",    iso:"GHA", spread:900,  rating:"SD",   stance:"bear", lat:7.9,   lng:-1.0, active:false },
+  { name:"Angola",   iso:"AGO", spread:580,  rating:"B−",   stance:"neut", lat:-11.2, lng:17.9, active:false },
 ];
 
 const ARTICLES = [
@@ -221,29 +221,50 @@ export default function HomePage() {
             <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:32, fontWeight:700, letterSpacing:"-0.02em" }}>EM Country Monitor</h2>
           </div>
 
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:1, background:RULE }}>
-            {EM_COUNTRIES.map(c => (
-              <TiltCard key={c.name} style={{ background:PAPER }}>
-                <div style={{ padding:"22px 20px", background:"inherit" }}>
-                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:14 }}>
-                    <div>
-                      <div style={{ fontSize:14, fontWeight:700, letterSpacing:"-0.01em", marginBottom:2 }}>{c.name}</div>
-                      <div style={{ fontSize:10, color:MUTED, letterSpacing:"0.06em" }}>{c.rating}</div>
+          {/* Active research — 3 countries */}
+          <div style={{ marginBottom:1 }}>
+            <div style={{ fontSize:9, fontWeight:700, letterSpacing:"0.16em", textTransform:"uppercase", color:ACCENT, marginBottom:12 }}>Active Research</div>
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:1, background:RULE }}>
+              {EM_COUNTRIES.filter(c => c.active).map(c => (
+                <TiltCard key={c.name} style={{ background:PAPER }}>
+                  <div style={{ padding:"24px 22px", background:"inherit" }}>
+                    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:14 }}>
+                      <div>
+                        <div style={{ fontSize:15, fontWeight:700, letterSpacing:"-0.01em", marginBottom:2 }}>{c.name}</div>
+                        <div style={{ fontSize:10, color:MUTED, letterSpacing:"0.06em" }}>{c.rating}</div>
+                      </div>
+                      <div style={{ fontSize:9, fontWeight:700, letterSpacing:"0.1em", textTransform:"uppercase", padding:"3px 7px", border:"1px solid", color:c.stance==="bull"?GREEN:c.stance==="bear"?RED:ACCENT, borderColor:c.stance==="bull"?GREEN:c.stance==="bear"?RED:ACCENT }}>
+                        {c.stance==="bull"?"Bullish":c.stance==="bear"?"Cautious":"Neutral"}
+                      </div>
                     </div>
-                    <div style={{ fontSize:9, fontWeight:700, letterSpacing:"0.1em", textTransform:"uppercase", padding:"3px 7px", border:"1px solid", color:c.stance==="bull"?GREEN:c.stance==="bear"?RED:ACCENT, borderColor:c.stance==="bull"?GREEN:c.stance==="bear"?RED:ACCENT }}>
-                      {c.stance==="bull"?"Bullish":c.stance==="bear"?"Cautious":"Neutral"}
+                    <div style={{ fontFamily:"'Playfair Display',serif", fontSize:28, fontWeight:700, color:ACCENT, lineHeight:1, marginBottom:4 }}>
+                      {c.spread}<span style={{ fontSize:13, fontWeight:400, color:MUTED, marginLeft:4 }}>bps</span>
+                    </div>
+                    <div style={{ fontSize:9, color:MUTED, letterSpacing:"0.1em", textTransform:"uppercase", marginBottom:14 }}>EMBI Spread</div>
+                    <div style={{ height:2, background:RULE, borderRadius:1 }}>
+                      <div style={{ height:"100%", borderRadius:1, background:c.stance==="bull"?GREEN:c.stance==="bear"?RED:ACCENT, width:`${Math.min((c.spread/1200)*100,100)}%` }} />
                     </div>
                   </div>
-                  <div style={{ fontFamily:"'Playfair Display',serif", fontSize:26, fontWeight:700, color:ACCENT, lineHeight:1, marginBottom:4 }}>
-                    {c.spread}<span style={{ fontSize:13, fontWeight:400, color:MUTED, marginLeft:4 }}>bps</span>
+                </TiltCard>
+              ))}
+            </div>
+          </div>
+
+          {/* Monitoring — remaining 5 */}
+          <div>
+            <div style={{ fontSize:9, fontWeight:700, letterSpacing:"0.16em", textTransform:"uppercase", color:MUTED, marginBottom:12, marginTop:28 }}>Also Monitoring</div>
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(5,1fr)", gap:1, background:RULE }}>
+              {EM_COUNTRIES.filter(c => !c.active).map(c => (
+                <div key={c.name} style={{ background:PAPER, padding:"18px 16px", opacity:0.7 }}>
+                  <div style={{ fontSize:13, fontWeight:600, marginBottom:2 }}>{c.name}</div>
+                  <div style={{ fontSize:10, color:MUTED, marginBottom:10 }}>{c.rating}</div>
+                  <div style={{ fontFamily:"'Playfair Display',serif", fontSize:20, fontWeight:700, color:MUTED, lineHeight:1, marginBottom:2 }}>
+                    {c.spread}<span style={{ fontSize:11, fontWeight:400, marginLeft:3 }}>bps</span>
                   </div>
-                  <div style={{ fontSize:9, color:MUTED, letterSpacing:"0.1em", textTransform:"uppercase", marginBottom:14 }}>EMBI Spread</div>
-                  <div style={{ height:2, background:RULE, borderRadius:1 }}>
-                    <div style={{ height:"100%", borderRadius:1, background:c.stance==="bull"?GREEN:c.stance==="bear"?RED:ACCENT, width:`${Math.min((c.spread/1200)*100,100)}%`, transition:"width 0.8s ease" }} />
-                  </div>
+                  <div style={{ fontSize:9, color:RULE, letterSpacing:"0.08em", textTransform:"uppercase" }}>No active research</div>
                 </div>
-              </TiltCard>
-            ))}
+              ))}
+            </div>
           </div>
           <div style={{ marginTop:16, textAlign:"right", fontSize:11, color:MUTED }}>Spreads indicative · For research purposes only</div>
         </div>
