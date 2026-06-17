@@ -123,16 +123,16 @@ export default function SovereignGlobe({ countries }: { countries: GlobeCountry[
       phi:    phiRef.current,
       theta:  0.2,
       dark:   1,
-      diffuse:       1.4,
+      diffuse:       1.2,
       scale:         1,
       mapSamples:    20000,
-      mapBrightness: 8,
-      baseColor:   [0.05, 0.02, 0.12],   // near-black ocean
+      mapBrightness: 3,                   // dim land — just a faint outline
+      baseColor:   [0.04, 0.09, 0.18],   // deep navy ocean
       markerColor: [1,    1,    1   ],    // white base so per-marker hues show true
-      glowColor:   [0.36, 0.13, 0.71],   // purple glow around edge
+      glowColor:   [0.07, 0.18, 0.40],   // navy-blue edge glow
       markers: markers.map(m => ({
         location: m.coords,
-        size:  0.06,
+        size:  0.08,                      // bigger markers so they pop
         color: markerRgb(m.country.creditView),
       })),
     });

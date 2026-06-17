@@ -75,7 +75,7 @@ export default function DashboardPage() {
       </div>
 
       {/* ── Hero: globe + sovereign list ────────────────────────────────────── */}
-      <div className="bg-[#0f0520] border-b border-[#2a1050]">
+      <div className="bg-[#060e1a] border-b border-[#0d1f38]">
         <div className="max-w-5xl mx-auto px-6 py-10 flex flex-col md:flex-row items-center gap-8 md:gap-12">
 
           {/* Globe */}
@@ -84,13 +84,13 @@ export default function DashboardPage() {
               <SovereignGlobe countries={globeCountries} />
             )}
             {loading && (
-              <div className="aspect-square max-w-[340px] mx-auto rounded-full bg-[#1a0a2e] border border-[#2a1050] animate-pulse" />
+              <div className="aspect-square max-w-[340px] mx-auto rounded-full bg-[#060e1a] border border-[#0d1f38] animate-pulse" />
             )}
           </div>
 
           {/* Sovereign list */}
           <div className="flex-1 w-full">
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-[#7a5aaa] mb-4">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-[#4a7aaa] mb-4">
               Sovereign Coverage
             </p>
 
@@ -103,7 +103,7 @@ export default function DashboardPage() {
             )}
 
             {!loading && complete.length === 0 && (
-              <div className="text-[13px] text-[#5a3a8a] py-6">
+              <div className="text-[13px] text-[#3a6090] py-6">
                 No sovereign analyses yet. Add a sovereign to see it on the map.
               </div>
             )}
@@ -116,13 +116,13 @@ export default function DashboardPage() {
                   const rec   = s.credit_verdict?.recommendation;
                   return (
                     <Link key={s.id} href={`/dashboard/stocks/${s.id}`}>
-                      <div className="group flex items-center gap-4 rounded-sm border border-[#2a1050] bg-[#160830] hover:bg-[#1f0d40] hover:border-[#3d1a6e] transition-colors px-4 py-3 cursor-pointer">
+                      <div className="group flex items-center gap-4 rounded-sm border border-[#0d1f38] bg-[#070f1c] hover:bg-[#0b1a2e] hover:border-[#1a3a5c] transition-colors px-4 py-3 cursor-pointer">
                         {/* Score arc mini */}
                         {score !== undefined && (
                           <div className="shrink-0 w-10 h-10 relative">
                             <svg viewBox="0 0 40 28" width="40" height="28">
                               <path d="M 3 20 A 17 17 0 0 1 37 20"
-                                fill="none" stroke="#2a1050" strokeWidth="4" strokeLinecap="round" />
+                                fill="none" stroke="#0d1f38" strokeWidth="4" strokeLinecap="round" />
                               <path d="M 3 20 A 17 17 0 0 1 37 20"
                                 fill="none" stroke={scoreColour(score)} strokeWidth="4" strokeLinecap="round"
                                 strokeDasharray={Math.PI * 17}
@@ -141,7 +141,7 @@ export default function DashboardPage() {
                               {s.name}
                             </span>
                             {s.ticker && (
-                              <span className="text-[10px] font-mono text-[#7a5aaa] shrink-0">{s.ticker}</span>
+                              <span className="text-[10px] font-mono text-[#4a7aaa] shrink-0">{s.ticker}</span>
                             )}
                             {view && (
                               <span className={cn("text-[9px] font-bold px-1.5 py-0.5 uppercase tracking-wider border rounded-sm shrink-0", viewColour(view))}>
@@ -150,7 +150,7 @@ export default function DashboardPage() {
                             )}
                           </div>
                           {s.snapshot?.creditRationale && (
-                            <p className="text-[11px] text-[#7a5aaa] line-clamp-1 leading-snug">
+                            <p className="text-[11px] text-[#4a7aaa] line-clamp-1 leading-snug">
                               {s.snapshot.creditRationale}
                             </p>
                           )}
@@ -162,13 +162,13 @@ export default function DashboardPage() {
                             <p className={cn("text-[11px] font-bold uppercase tracking-wider", recColour(rec))}>{rec}</p>
                           )}
                           {s.fiscal_profile?.debtToGdp && (
-                            <p className="text-[10px] font-mono text-[#5a3a8a]">
+                            <p className="text-[10px] font-mono text-[#3a6090]">
                               D/GDP {s.fiscal_profile.debtToGdp.split(" ")[0]}
                             </p>
                           )}
                         </div>
 
-                        <ChevronRight className="h-3.5 w-3.5 text-[#3d1a6e] shrink-0 group-hover:text-[#7a5aaa] transition-colors" />
+                        <ChevronRight className="h-3.5 w-3.5 text-[#1a3a5c] shrink-0 group-hover:text-[#4a7aaa] transition-colors" />
                       </div>
                     </Link>
                   );
@@ -184,7 +184,7 @@ export default function DashboardPage() {
                 { label: "Documents",   value: stats.totalDocs  },
               ].map(({ label, value }) => (
                 <div key={label}>
-                  <p className="text-[10px] uppercase tracking-widest text-[#5a3a8a] mb-1">{label}</p>
+                  <p className="text-[10px] uppercase tracking-widest text-[#3a6090] mb-1">{label}</p>
                   <p className="font-mono text-[22px] font-bold text-white/80 leading-none">{value}</p>
                 </div>
               ))}
