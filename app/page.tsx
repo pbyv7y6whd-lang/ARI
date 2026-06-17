@@ -57,9 +57,10 @@ export default function HomePage() {
               <span className="text-[12px] font-semibold text-white/70">Annual Report Intelligence</span>
             </div>
             <div className="hidden md:flex items-center gap-5">
-              <a href="#research" className="text-[12px] text-white/35 hover:text-white/70 transition-colors">Research</a>
-              <a href="#themes"   className="text-[12px] text-white/35 hover:text-white/70 transition-colors">Themes</a>
-              <Link href="/about" className="text-[12px] text-white/35 hover:text-white/70 transition-colors">About</Link>
+              <a href="#research"     className="text-[12px] text-white/35 hover:text-white/70 transition-colors">Research</a>
+              <a href="#themes"      className="text-[12px] text-white/35 hover:text-white/70 transition-colors">Themes</a>
+              <Link href="/research" className="text-[12px] text-white/35 hover:text-white/70 transition-colors">Portfolio</Link>
+              <Link href="/about"    className="text-[12px] text-white/35 hover:text-white/70 transition-colors">About</Link>
             </div>
           </div>
           <Link href="/dashboard"

@@ -19,5 +19,6 @@
   "/dashboard/themes/page": "/dashboard/themes",
   "/dashboard/watchlists/page": "/dashboard/watchlists",
   "/login/page": "/login",
-  "/page": "/"
+  "/page": "/",
+  "/research/page": "/research"
 }

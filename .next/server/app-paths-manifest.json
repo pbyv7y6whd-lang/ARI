@@ -19,5 +19,6 @@
   "/dashboard/themes/page": "app/dashboard/themes/page.js",
   "/dashboard/watchlists/page": "app/dashboard/watchlists/page.js",
   "/login/page": "app/login/page.js",
-  "/page": "app/page.js"
+  "/page": "app/page.js",
+  "/research/page": "app/research/page.js"
 }
