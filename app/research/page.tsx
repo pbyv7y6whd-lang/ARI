@@ -113,19 +113,18 @@ export default function ResearchPage() {
 
           {/* ── HERO ──────────────────────────────────────── */}
           <section id="intro" className={s.hero}>
-            <div className={s.heroEyebrow}>Research Portfolio · 2026</div>
+            <div className={s.heroEyebrow}>Research Notes · 2026</div>
             <h1 className={s.heroName}>Suleiman Ashraf</h1>
             <p className={s.heroRole}>
-              MSc Finance, London School of Economics &nbsp;·&nbsp; Macro &amp; EM Credit Research<br />
-              Prior experience in UK public markets and governance research
+              MSc Finance, London School of Economics
             </p>
             <p className={s.heroThesis}>
-              Focused on the intersection of macro, sovereign credit, and geopolitics —
-              where commodity price dynamics, external financing conditions, and political
-              economy determine which countries and companies are mispriced.
+              This is where I document my thinking on EM credit and macro as I learn —
+              trade journals, sovereign research notes, and frameworks I'm building out.
+              Not professional analysis. Just genuine curiosity, written down.
             </p>
             <div className={s.heroBadges}>
-              {["EM Sovereign Credit","Oil & Commodities","Macro Strategy","Governance","UK Small Caps","AIM"].map(b => (
+              {["EM Sovereign Credit","Oil & Commodities","Macro","Pakistan","Egypt","UAE"].map(b => (
                 <span key={b} className={s.badge}>{b}</span>
               ))}
             </div>
