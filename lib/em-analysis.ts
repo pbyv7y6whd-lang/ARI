@@ -4,8 +4,8 @@ import type { ParsedPDF } from "./pdf";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
 
-const PER_DOC_LIMIT = 40000;
-const TOTAL_LIMIT   = 60000;
+const PER_DOC_LIMIT = 20000;  // cap per doc — IMF PDFs can be 100+ pages, we only need key sections
+const TOTAL_LIMIT   = 30000;  // total context ceiling — enough for thorough analysis, fast to process
 
 function buildDocContext(
   docs: { file_name: string; doc_type: string; year: string | null; parsed: ParsedPDF }[]
@@ -34,7 +34,7 @@ async function callClaude(system: string, user: string): Promise<string> {
   const message = await Promise.race([
     client.messages.create({
       model: "claude-sonnet-4-6",
-      max_tokens: 16000,
+      max_tokens: 4096,
       system,
       messages: [{ role: "user", content: user }],
     }),
