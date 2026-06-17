@@ -78,9 +78,9 @@ function recClass(rec?: string) {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="border border-[#1e1e1e] rounded-sm overflow-hidden">
-      <div className="px-4 py-2.5 border-b border-[#1e1e1e] bg-[#0f0f0f]">
-        <p className="text-[10px] font-semibold uppercase tracking-widest text-white/30">{title}</p>
+    <div className="border border-[#d8cfe8] rounded-sm overflow-hidden">
+      <div className="px-4 py-2.5 border-b border-[#d8cfe8] bg-[#ede8f5]">
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-[#8b6bb5]">{title}</p>
       </div>
       <div className="p-4">{children}</div>
     </div>
@@ -92,8 +92,8 @@ function MetricGrid({ items }: { items: { label: string; value?: string | null }
     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
       {items.filter(i => i.value).map(({ label, value }) => (
         <div key={label}>
-          <p className="text-[9px] uppercase tracking-widest text-white/25 mb-0.5">{label}</p>
-          <p className="text-[13px] font-mono font-semibold text-white/70">{value}</p>
+          <p className="text-[9px] uppercase tracking-widest text-[#9a7cc0] mb-0.5">{label}</p>
+          <p className="text-[13px] font-mono font-semibold text-[#1a0a2e]/80">{value}</p>
         </div>
       ))}
     </div>
@@ -102,7 +102,7 @@ function MetricGrid({ items }: { items: { label: string; value?: string | null }
 
 function Commentary({ text }: { text?: string }) {
   if (!text) return null;
-  return <p className="mt-3 text-[12px] text-white/40 leading-relaxed">{text}</p>;
+  return <p className="mt-3 text-[12px] text-[#6b4fa0] leading-relaxed">{text}</p>;
 }
 
 // ── Sovereign View ────────────────────────────────────────────────────────────
@@ -113,7 +113,7 @@ function SovereignView({ a }: { a: SovereignAnalysis }) {
   return (
     <div className="space-y-4 max-w-3xl">
       {/* Header card */}
-      <div className="border border-[#1e1e1e] rounded-sm p-4 flex items-start justify-between gap-4">
+      <div className="border border-[#d8cfe8] rounded-sm p-4 flex items-start justify-between gap-4">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
             {a.snapshot?.creditView && (
@@ -122,17 +122,17 @@ function SovereignView({ a }: { a: SovereignAnalysis }) {
               </span>
             )}
             {a.snapshot?.region && (
-              <span className="text-[10px] text-white/30">{a.snapshot.region}</span>
+              <span className="text-[10px] text-[#8b6bb5]">{a.snapshot.region}</span>
             )}
           </div>
           {a.snapshot?.creditRationale && (
-            <p className="text-[13px] text-white/60 leading-relaxed">{a.snapshot.creditRationale}</p>
+            <p className="text-[13px] text-[#2d1654] leading-relaxed">{a.snapshot.creditRationale}</p>
           )}
         </div>
         {score !== undefined && (
-          <div className="shrink-0 text-right border border-[#1e1e1e] rounded-sm px-3 py-2">
+          <div className="shrink-0 text-right border border-[#d8cfe8] rounded-sm px-3 py-2">
             <div className="font-mono text-[28px] font-bold leading-none" style={{ color: scoreColour(score) }}>{score}</div>
-            <div className="text-[9px] text-white/25 font-mono mt-0.5">/100</div>
+            <div className="text-[9px] text-[#9a7cc0] font-mono mt-0.5">/100</div>
           </div>
         )}
       </div>
@@ -201,8 +201,8 @@ function SovereignView({ a }: { a: SovereignAnalysis }) {
                 <div key={i} className="flex items-start gap-2.5">
                   <TrendingUp className="mt-0.5 h-3 w-3 shrink-0 text-emerald-500/60" />
                   <div>
-                    <p className="text-[12px] font-medium text-white/70">{p.title}</p>
-                    {p.evidence && <p className="text-[11px] text-white/35 mt-0.5">{p.evidence}</p>}
+                    <p className="text-[12px] font-medium text-[#1a0a2e]/80">{p.title}</p>
+                    {p.evidence && <p className="text-[11px] text-[#7a5aaa] mt-0.5">{p.evidence}</p>}
                     {p.trigger && <p className="text-[10px] text-emerald-500/50 mt-0.5">Trigger: {p.trigger}</p>}
                   </div>
                 </div>
@@ -217,11 +217,11 @@ function SovereignView({ a }: { a: SovereignAnalysis }) {
                 <div key={i} className="flex items-start gap-2.5">
                   <TrendingDown className="mt-0.5 h-3 w-3 shrink-0 text-red-400/60" />
                   <div>
-                    <p className="text-[12px] font-medium text-white/70">{p.title}</p>
-                    {p.evidence && <p className="text-[11px] text-white/35 mt-0.5">{p.evidence}</p>}
+                    <p className="text-[12px] font-medium text-[#1a0a2e]/80">{p.title}</p>
+                    {p.evidence && <p className="text-[11px] text-[#7a5aaa] mt-0.5">{p.evidence}</p>}
                     {p.severity && (
                       <span className={cn("text-[9px] font-bold uppercase tracking-wider",
-                        p.severity === "High" ? "text-red-400" : p.severity === "Medium" ? "text-amber-500" : "text-white/40")}>
+                        p.severity === "High" ? "text-red-400" : p.severity === "Medium" ? "text-amber-500" : "text-[#b09dcc]")}>
                         {p.severity} severity
                       </span>
                     )}
@@ -243,18 +243,18 @@ function SovereignView({ a }: { a: SovereignAnalysis }) {
               </span>
             )}
             {a.creditVerdict.targetSpread && (
-              <span className="text-[12px] font-mono text-white/40">{a.creditVerdict.targetSpread}</span>
+              <span className="text-[12px] font-mono text-[#6b4fa0]">{a.creditVerdict.targetSpread}</span>
             )}
           </div>
           {a.creditVerdict.summary && (
-            <p className="text-[13px] text-white/60 leading-relaxed mb-3">{a.creditVerdict.summary}</p>
+            <p className="text-[13px] text-[#2d1654] leading-relaxed mb-3">{a.creditVerdict.summary}</p>
           )}
           {a.creditVerdict.keyCatalysts && a.creditVerdict.keyCatalysts.length > 0 && (
             <div className="mt-3">
-              <p className="text-[10px] uppercase tracking-widest text-white/25 mb-1.5">Key Catalysts</p>
+              <p className="text-[10px] uppercase tracking-widest text-[#9a7cc0] mb-1.5">Key Catalysts</p>
               <ul className="space-y-1">
                 {a.creditVerdict.keyCatalysts.map((c, i) => (
-                  <li key={i} className="text-[11px] text-white/40 flex items-start gap-1.5">
+                  <li key={i} className="text-[11px] text-[#6b4fa0] flex items-start gap-1.5">
                     <span className="text-emerald-500/40 shrink-0">+</span>{c}
                   </li>
                 ))}
@@ -263,10 +263,10 @@ function SovereignView({ a }: { a: SovereignAnalysis }) {
           )}
           {a.creditVerdict.keyRisks && a.creditVerdict.keyRisks.length > 0 && (
             <div className="mt-3">
-              <p className="text-[10px] uppercase tracking-widest text-white/25 mb-1.5">Key Risks</p>
+              <p className="text-[10px] uppercase tracking-widest text-[#9a7cc0] mb-1.5">Key Risks</p>
               <ul className="space-y-1">
                 {a.creditVerdict.keyRisks.map((r, i) => (
-                  <li key={i} className="text-[11px] text-white/40 flex items-start gap-1.5">
+                  <li key={i} className="text-[11px] text-[#6b4fa0] flex items-start gap-1.5">
                     <span className="text-red-400/40 shrink-0">−</span>{r}
                   </li>
                 ))}
@@ -274,9 +274,9 @@ function SovereignView({ a }: { a: SovereignAnalysis }) {
             </div>
           )}
           {a.overallScore?.rationale && (
-            <div className="mt-3 pt-3 border-t border-[#1a1a1a]">
-              <p className="text-[10px] uppercase tracking-widest text-white/25 mb-1.5">Score Rationale</p>
-              <p className="text-[11px] text-white/35 leading-relaxed">{a.overallScore.rationale}</p>
+            <div className="mt-3 pt-3 border-t border-[#ddd6ec]">
+              <p className="text-[10px] uppercase tracking-widest text-[#9a7cc0] mb-1.5">Score Rationale</p>
+              <p className="text-[11px] text-[#7a5aaa] leading-relaxed">{a.overallScore.rationale}</p>
             </div>
           )}
         </Section>
@@ -293,7 +293,7 @@ function CorporateView({ a }: { a: CorporateAnalysis }) {
   return (
     <div className="space-y-4 max-w-3xl">
       {/* Header card */}
-      <div className="border border-[#1e1e1e] rounded-sm p-4 flex items-start justify-between gap-4">
+      <div className="border border-[#d8cfe8] rounded-sm p-4 flex items-start justify-between gap-4">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
             {a.snapshot?.creditView && (
@@ -301,17 +301,17 @@ function CorporateView({ a }: { a: CorporateAnalysis }) {
                 {a.snapshot.creditView}
               </span>
             )}
-            {a.snapshot?.country && <span className="text-[10px] text-white/30">{a.snapshot.country}</span>}
-            {a.snapshot?.sector && <span className="text-[10px] text-white/30">· {a.snapshot.sector}</span>}
+            {a.snapshot?.country && <span className="text-[10px] text-[#8b6bb5]">{a.snapshot.country}</span>}
+            {a.snapshot?.sector && <span className="text-[10px] text-[#8b6bb5]">· {a.snapshot.sector}</span>}
           </div>
           {a.snapshot?.creditRationale && (
-            <p className="text-[13px] text-white/60 leading-relaxed">{a.snapshot.creditRationale}</p>
+            <p className="text-[13px] text-[#2d1654] leading-relaxed">{a.snapshot.creditRationale}</p>
           )}
         </div>
         {score !== undefined && (
-          <div className="shrink-0 text-right border border-[#1e1e1e] rounded-sm px-3 py-2">
+          <div className="shrink-0 text-right border border-[#d8cfe8] rounded-sm px-3 py-2">
             <div className="font-mono text-[28px] font-bold leading-none" style={{ color: scoreColour(score) }}>{score}</div>
-            <div className="text-[9px] text-white/25 font-mono mt-0.5">/100</div>
+            <div className="text-[9px] text-[#9a7cc0] font-mono mt-0.5">/100</div>
           </div>
         )}
       </div>
@@ -379,8 +379,8 @@ function CorporateView({ a }: { a: CorporateAnalysis }) {
                 <div key={i} className="flex items-start gap-2.5">
                   <TrendingUp className="mt-0.5 h-3 w-3 shrink-0 text-emerald-500/60" />
                   <div>
-                    <p className="text-[12px] font-medium text-white/70">{p.title}</p>
-                    {p.evidence && <p className="text-[11px] text-white/35 mt-0.5">{p.evidence}</p>}
+                    <p className="text-[12px] font-medium text-[#1a0a2e]/80">{p.title}</p>
+                    {p.evidence && <p className="text-[11px] text-[#7a5aaa] mt-0.5">{p.evidence}</p>}
                   </div>
                 </div>
               ))}
@@ -394,11 +394,11 @@ function CorporateView({ a }: { a: CorporateAnalysis }) {
                 <div key={i} className="flex items-start gap-2.5">
                   <TrendingDown className="mt-0.5 h-3 w-3 shrink-0 text-red-400/60" />
                   <div>
-                    <p className="text-[12px] font-medium text-white/70">{p.title}</p>
-                    {p.evidence && <p className="text-[11px] text-white/35 mt-0.5">{p.evidence}</p>}
+                    <p className="text-[12px] font-medium text-[#1a0a2e]/80">{p.title}</p>
+                    {p.evidence && <p className="text-[11px] text-[#7a5aaa] mt-0.5">{p.evidence}</p>}
                     {p.severity && (
                       <span className={cn("text-[9px] font-bold uppercase tracking-wider",
-                        p.severity === "High" ? "text-red-400" : p.severity === "Medium" ? "text-amber-500" : "text-white/40")}>
+                        p.severity === "High" ? "text-red-400" : p.severity === "Medium" ? "text-amber-500" : "text-[#b09dcc]")}>
                         {p.severity} severity
                       </span>
                     )}
@@ -428,14 +428,14 @@ function CorporateView({ a }: { a: CorporateAnalysis }) {
             )}
           </div>
           {a.creditVerdict.summary && (
-            <p className="text-[13px] text-white/60 leading-relaxed mb-3">{a.creditVerdict.summary}</p>
+            <p className="text-[13px] text-[#2d1654] leading-relaxed mb-3">{a.creditVerdict.summary}</p>
           )}
           {a.creditVerdict.keyRisks && a.creditVerdict.keyRisks.length > 0 && (
             <div className="mt-3">
-              <p className="text-[10px] uppercase tracking-widest text-white/25 mb-1.5">Key Risks</p>
+              <p className="text-[10px] uppercase tracking-widest text-[#9a7cc0] mb-1.5">Key Risks</p>
               <ul className="space-y-1">
                 {a.creditVerdict.keyRisks.map((r, i) => (
-                  <li key={i} className="text-[11px] text-white/40 flex items-start gap-1.5">
+                  <li key={i} className="text-[11px] text-[#6b4fa0] flex items-start gap-1.5">
                     <span className="text-red-400/40 shrink-0">−</span>{r}
                   </li>
                 ))}
@@ -443,9 +443,9 @@ function CorporateView({ a }: { a: CorporateAnalysis }) {
             </div>
           )}
           {a.overallScore?.rationale && (
-            <div className="mt-3 pt-3 border-t border-[#1a1a1a]">
-              <p className="text-[10px] uppercase tracking-widest text-white/25 mb-1.5">Score Rationale</p>
-              <p className="text-[11px] text-white/35 leading-relaxed">{a.overallScore.rationale}</p>
+            <div className="mt-3 pt-3 border-t border-[#ddd6ec]">
+              <p className="text-[10px] uppercase tracking-widest text-[#9a7cc0] mb-1.5">Score Rationale</p>
+              <p className="text-[11px] text-[#7a5aaa] leading-relaxed">{a.overallScore.rationale}</p>
             </div>
           )}
         </Section>
@@ -543,8 +543,8 @@ export default function StockPage({ params }: { params: Promise<{ id: string }> 
   };
 
   if (loading) return (
-    <div className="flex h-screen items-center justify-center bg-[#0a0a0a]">
-      <Loader2 className="h-5 w-5 animate-spin text-[#333]" />
+    <div className="flex h-screen items-center justify-center bg-[#fafaf8]">
+      <Loader2 className="h-5 w-5 animate-spin text-[#9a7cc0]" />
     </div>
   );
   if (!stock) return null;
@@ -558,66 +558,66 @@ export default function StockPage({ params }: { params: Promise<{ id: string }> 
   const isEmAnalysis = stock.analysis && typeof stock.analysis === "object" && "snapshot" in stock.analysis;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen bg-[#fafaf8]">
       {/* ── Top bar ─────────────────────────────────────────────────────── */}
-      <div className="sticky top-0 z-20 border-b border-[#1a1a1a] bg-[#0a0a0a]">
+      <div className="sticky top-0 z-20 border-b border-[#ddd6ec] bg-white/90 backdrop-blur-sm">
         <div className="flex items-center gap-4 px-6 py-3">
-          <Link href={backHref} className="text-[#333] transition-colors hover:text-[#888]">
+          <Link href={backHref} className="text-[#9a7cc0] transition-colors hover:text-[#7a5aaa]">
             <ArrowLeft className="h-4 w-4" />
           </Link>
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               {stock.ticker && (
-                <span className="text-mono text-[12px] font-bold text-[#555] bg-[#141414] border border-[#242424] px-2 py-0.5 rounded-sm">
+                <span className="text-mono text-[12px] font-bold text-[#6b4fa0] bg-[#f0edf6] border border-[#d0c6e0] px-2 py-0.5 rounded-sm">
                   {stock.ticker}
                 </span>
               )}
-              <h1 className="text-[14px] font-semibold text-[#e8e8e8]">{stock.name}</h1>
-              {sector && <span className="text-[12px] text-[#3a3a3a]">· {sector}</span>}
-              <span className="text-[10px] text-white/20 uppercase tracking-wider font-mono">{entityType}</span>
+              <h1 className="text-[14px] font-semibold text-[#1a0a2e]">{stock.name}</h1>
+              {sector && <span className="text-[12px] text-[#c4b5d8]">· {sector}</span>}
+              <span className="text-[10px] text-[#b09dcc] uppercase tracking-wider font-mono">{entityType}</span>
             </div>
-            <p className="text-[11px] text-[#333] mt-0.5">
+            <p className="text-[11px] text-[#9a7cc0] mt-0.5">
               {stock.documents.length} filing{stock.documents.length !== 1 ? "s" : ""} · Updated {formatDate(stock.updated_at)}
             </p>
           </div>
 
           <div className="flex items-center gap-2">
             {score !== undefined && (
-              <div className="text-right px-3 py-1 rounded-sm border border-[#1e1e1e]">
+              <div className="text-right px-3 py-1 rounded-sm border border-[#d8cfe8]">
                 <div className="text-mono text-[18px] font-bold leading-none" style={{ color: scoreColour(score) }}>
                   {score}
                 </div>
-                <div className="text-[10px] text-[#333]">/100</div>
+                <div className="text-[10px] text-[#9a7cc0]">/100</div>
               </div>
             )}
             <button onClick={() => setUploadOpen(true)}
-              className="flex items-center gap-1.5 rounded-sm border border-[#242424] px-2.5 py-1.5 text-[11px] text-[#666] transition-colors hover:border-[#333] hover:text-[#aaa]">
+              className="flex items-center gap-1.5 rounded-sm border border-[#d0c6e0] px-2.5 py-1.5 text-[11px] text-[#8b6bb5] transition-colors hover:border-[#5b21b6]/50 hover:text-[#4a2980]">
               <Plus className="h-3 w-3" /> Add Doc
             </button>
             {stock.documents.length > 0 && stock.status !== "processing" && (
               <button onClick={handleReanalyse} disabled={reanalysing}
-                className="flex items-center gap-1.5 rounded-sm border border-[#242424] px-2.5 py-1.5 text-[11px] text-[#666] transition-colors hover:border-[#333] hover:text-[#aaa] disabled:opacity-40">
+                className="flex items-center gap-1.5 rounded-sm border border-[#d0c6e0] px-2.5 py-1.5 text-[11px] text-[#8b6bb5] transition-colors hover:border-[#5b21b6]/50 hover:text-[#4a2980] disabled:opacity-40">
                 <RefreshCw className={cn("h-3 w-3", reanalysing && "animate-spin")} />
                 Re-analyse
               </button>
             )}
             <button onClick={handleDelete} title="Delete"
-              className="rounded-sm p-1.5 text-[#2a2a2a] transition-colors hover:text-[#ef4444]">
+              className="rounded-sm p-1.5 text-[#c4b5d8] transition-colors hover:text-[#ef4444]">
               <Trash2 className="h-3.5 w-3.5" />
             </button>
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-0 border-t border-[#141414] px-6">
+        <div className="flex gap-0 border-t border-[#e0d8ee] px-6">
           {(["research", "documents"] as const).map(tab => (
             <button key={tab} onClick={() => setActiveTab(tab)}
               className={cn(
                 "border-b-2 px-4 py-2.5 text-[12px] font-medium capitalize transition-colors",
                 activeTab === tab
-                  ? "border-white text-[#e0e0e0]"
-                  : "border-transparent text-[#444] hover:text-[#888]"
+                  ? "border-[#5b21b6] text-[#5b21b6]"
+                  : "border-transparent text-[#b09dcc] hover:text-[#7a5aaa]"
               )}>
               {tab === "research" ? "Credit Assessment" : `Documents (${stock.documents.length})`}
             </button>
@@ -658,19 +658,19 @@ function ProcessingView({ stock, displayProgress }: { stock: StockData; displayP
 
   return (
     <div className="max-w-lg mx-auto py-16">
-      <div className="rounded-sm border border-[#1e1e1e] bg-[#0f0f0f] p-6">
+      <div className="rounded-sm border border-[#d8cfe8] bg-[#ede8f5] p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-[#444]">Credit Analysis Pipeline</p>
-            <h3 className="mt-1 text-[14px] font-semibold text-[#e0e0e0]">{stock.name}</h3>
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-[#b09dcc]">Credit Analysis Pipeline</p>
+            <h3 className="mt-1 text-[14px] font-semibold text-[#1a0a2e]">{stock.name}</h3>
           </div>
           <div className="text-right">
             <div className="text-mono text-[20px] font-bold text-[#f59e0b] leading-none">{Math.round(displayProgress)}%</div>
-            <div className="text-[10px] text-[#444] mt-0.5">complete</div>
+            <div className="text-[10px] text-[#b09dcc] mt-0.5">complete</div>
           </div>
         </div>
 
-        <div className="h-px w-full bg-[#1a1a1a] mb-5">
+        <div className="h-px w-full bg-[#ddd6ec] mb-5">
           <div className="h-px bg-[#f59e0b] transition-all duration-1000" style={{ width: `${displayProgress || 3}%` }} />
         </div>
 
@@ -681,11 +681,11 @@ function ProcessingView({ stock, displayProgress }: { stock: StockData; displayP
             return (
               <div key={i} className={cn(
                 "flex items-center gap-2.5 text-[11px] transition-colors",
-                done ? "text-[#444]" : current ? "text-[#c0c0c0]" : "text-[#2a2a2a]"
+                done ? "text-[#b09dcc]" : current ? "text-[#2d1654]" : "text-[#c4b5d8]"
               )}>
                 <div className={cn(
                   "h-1 w-1 shrink-0 rounded-full transition-colors",
-                  done ? "bg-[#22c55e]" : current ? "bg-[#f59e0b]" : "bg-[#1e1e1e]"
+                  done ? "bg-[#22c55e]" : current ? "bg-[#f59e0b]" : "bg-[#d8cfe8]"
                 )} />
                 <span>{step.label}</span>
               </div>
@@ -693,7 +693,7 @@ function ProcessingView({ stock, displayProgress }: { stock: StockData; displayP
           })}
         </div>
 
-        <p className="mt-4 text-[11px] text-[#333]">Typically takes 2–4 minutes. Page updates automatically.</p>
+        <p className="mt-4 text-[11px] text-[#9a7cc0]">Typically takes 2–4 minutes. Page updates automatically.</p>
       </div>
     </div>
   );
@@ -704,17 +704,17 @@ function ProcessingView({ stock, displayProgress }: { stock: StockData; displayP
 function PendingView({ onUpload, entityType }: { onUpload: () => void; entityType: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-24 text-center">
-      <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-sm border border-[#1e1e1e] bg-[#111]">
-        <FileText className="h-4 w-4 text-[#333]" />
+      <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-sm border border-[#d8cfe8] bg-[#f0edf6]">
+        <FileText className="h-4 w-4 text-[#9a7cc0]" />
       </div>
-      <h3 className="text-[14px] font-semibold text-[#888]">No documents uploaded</h3>
-      <p className="mt-1.5 max-w-xs text-[12px] text-[#444]">
+      <h3 className="text-[14px] font-semibold text-[#7a5aaa]">No documents uploaded</h3>
+      <p className="mt-1.5 max-w-xs text-[12px] text-[#b09dcc]">
         {entityType === "sovereign"
           ? "Upload an IMF Article IV, central bank report, or Eurobond prospectus to generate the credit assessment."
           : "Upload an annual report, bond prospectus, or investor presentation to generate the credit assessment."}
       </p>
       <button onClick={onUpload}
-        className="mt-5 flex items-center gap-1.5 rounded-sm bg-white px-4 py-2 text-[12px] font-semibold text-black hover:bg-[#e8e8e8] transition-colors">
+        className="mt-5 flex items-center gap-1.5 rounded-sm bg-[#5b21b6] px-4 py-2 text-[12px] font-semibold text-white hover:bg-[#5b21b6]/90 transition-colors">
         <Plus className="h-3 w-3" /> Add Document
       </button>
     </div>
@@ -727,10 +727,10 @@ function ErrorView({ message, onRetry }: { message: string | null; onRetry: () =
   return (
     <div className="flex flex-col items-center justify-center py-24 text-center">
       <AlertCircle className="mb-3 h-8 w-8 text-[#ef4444]/60" />
-      <h3 className="text-[14px] font-semibold text-[#888]">Analysis failed</h3>
-      <p className="mt-1.5 max-w-sm text-[12px] text-[#555]">{message || "An error occurred."}</p>
+      <h3 className="text-[14px] font-semibold text-[#7a5aaa]">Analysis failed</h3>
+      <p className="mt-1.5 max-w-sm text-[12px] text-[#9a7cc0]">{message || "An error occurred."}</p>
       <button onClick={onRetry}
-        className="mt-5 flex items-center gap-1.5 rounded-sm border border-[#242424] px-4 py-2 text-[12px] text-[#888] hover:border-[#333] hover:text-[#ccc] transition-colors">
+        className="mt-5 flex items-center gap-1.5 rounded-sm border border-[#d0c6e0] px-4 py-2 text-[12px] text-[#7a5aaa] hover:border-[#5b21b6]/50 hover:text-[#4a2980] transition-colors">
         <RefreshCw className="h-3 w-3" /> Retry Analysis
       </button>
     </div>
@@ -743,38 +743,38 @@ function DocumentsTab({ stock, onUpload }: { stock: StockData; onUpload: () => v
   return (
     <div className="max-w-2xl">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-[13px] font-semibold text-[#c0c0c0]">Documents</h2>
+        <h2 className="text-[13px] font-semibold text-[#2d1654]">Documents</h2>
         <button onClick={onUpload}
-          className="flex items-center gap-1.5 rounded-sm bg-white px-3 py-1.5 text-[11px] font-semibold text-black hover:bg-[#e8e8e8] transition-colors">
+          className="flex items-center gap-1.5 rounded-sm bg-[#5b21b6] px-3 py-1.5 text-[11px] font-semibold text-white hover:bg-[#5b21b6]/90 transition-colors">
           <Plus className="h-3 w-3" /> Add Document
         </button>
       </div>
 
       {stock.documents.length === 0 ? (
-        <p className="text-[12px] text-[#444]">No documents yet.</p>
+        <p className="text-[12px] text-[#b09dcc]">No documents yet.</p>
       ) : (
-        <div className="rounded-sm border border-[#1e1e1e] overflow-hidden">
+        <div className="rounded-sm border border-[#d8cfe8] overflow-hidden">
           {stock.documents.map((doc, i) => (
             <a key={doc.id} href={doc.blob_url} target="_blank" rel="noopener noreferrer"
-              className={cn("flex items-center gap-3 px-4 py-3 transition-colors hover:bg-[#111] group",
-                i < stock.documents.length - 1 && "border-b border-[#141414]")}>
-              <FileText className="h-3.5 w-3.5 shrink-0 text-[#333]" />
+              className={cn("flex items-center gap-3 px-4 py-3 transition-colors hover:bg-[#f0edf6] group",
+                i < stock.documents.length - 1 && "border-b border-[#e0d8ee]")}>
+              <FileText className="h-3.5 w-3.5 shrink-0 text-[#9a7cc0]" />
               <div className="flex-1 min-w-0">
-                <p className="text-[12px] font-medium text-[#c0c0c0] truncate">{doc.file_name}</p>
-                <p className="text-[11px] text-[#444]">
+                <p className="text-[12px] font-medium text-[#2d1654] truncate">{doc.file_name}</p>
+                <p className="text-[11px] text-[#b09dcc]">
                   {DOC_TYPE_LABELS[doc.doc_type] || doc.doc_type}
                   {doc.year && ` · ${doc.year}`}
                   {doc.page_count && ` · ${doc.page_count} pages`}
                   {` · Added ${formatDate(doc.created_at)}`}
                 </p>
               </div>
-              <span className="text-[11px] text-[#2a2a2a] group-hover:text-[#555] transition-colors">↗</span>
+              <span className="text-[11px] text-[#c4b5d8] group-hover:text-[#6b4fa0] transition-colors">↗</span>
             </a>
           ))}
         </div>
       )}
 
-      <p className="mt-4 text-[11px] text-[#333] leading-relaxed">
+      <p className="mt-4 text-[11px] text-[#9a7cc0] leading-relaxed">
         Add multiple documents and use &quot;Re-analyse&quot; to regenerate the credit assessment with all available data.
       </p>
     </div>
