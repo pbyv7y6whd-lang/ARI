@@ -644,7 +644,7 @@ export default function StockPage({ params }: { params: Promise<{ id: string }> 
         ) : null}
       </div>
 
-      <UploadDocModal stockId={id} open={uploadOpen}
+      <UploadDocModal stockId={id} entityType={stock?.entity_type} open={uploadOpen}
         onClose={() => setUploadOpen(false)}
         onSuccess={() => { setUploadOpen(false); fetchStock(); }} />
     </div>

@@ -4,34 +4,38 @@ import { useState, useEffect, useRef } from "react";
 import { X, Loader2, AlertCircle, Upload, Link } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type Props = { stockId: string; open: boolean; onClose: () => void; onSuccess: () => void };
+type Props = { stockId: string; entityType?: string; open: boolean; onClose: () => void; onSuccess: () => void };
 
-const DOC_TYPES = [
+const SOVEREIGN_DOC_TYPES = [
+  { value: "imf_article_iv",       label: "IMF Article IV" },
+  { value: "central_bank_report",  label: "Central Bank Report" },
+  { value: "mof_fiscal_framework", label: "MoF Fiscal Framework" },
+  { value: "eurobond_prospectus",  label: "Eurobond Prospectus" },
+  { value: "rating_agency_report", label: "Rating Agency Report" },
+  { value: "other",                label: "Other" },
+];
+
+const CORPORATE_DOC_TYPES = [
   { value: "annual_report",         label: "Annual Report" },
-  { value: "interim_report",        label: "Interim Report" },
+  { value: "bond_prospectus",       label: "Bond Prospectus" },
   { value: "investor_presentation", label: "Investor Presentation" },
-  { value: "earnings_call",         label: "Earnings Transcript" },
-  { value: "prospectus",            label: "Prospectus" },
-  { value: "other",                 label: "Other Filing" },
+  { value: "earnings_transcript",   label: "Earnings Transcript" },
+  { value: "rating_agency_report",  label: "Rating Agency Report" },
+  { value: "other",                 label: "Other" },
 ];
 
 function detectYear(s: string): string {
   const m = s.match(/20(1[5-9]|2[0-9])/);
   return m ? m[0] : String(new Date().getFullYear());
 }
-function detectDocType(s: string): string {
-  const u = s.toLowerCase();
-  if (u.includes("interim") || u.includes("half")) return "interim_report";
-  if (u.includes("presentation") || u.includes("slides")) return "investor_presentation";
-  if (u.includes("prospectus") || u.includes("ipo")) return "prospectus";
-  return "annual_report";
-}
 
-export default function UploadDocModal({ stockId, open, onClose, onSuccess }: Props) {
-  const [mode,    setMode]    = useState<"url" | "upload">("url");
+export default function UploadDocModal({ stockId, entityType = "corporate", open, onClose, onSuccess }: Props) {
+  const DOC_TYPES = entityType === "sovereign" ? SOVEREIGN_DOC_TYPES : CORPORATE_DOC_TYPES;
+
+  const [mode,    setMode]    = useState<"url" | "upload">("upload");
   const [url,     setUrl]     = useState("");
   const [file,    setFile]    = useState<File | null>(null);
-  const [docType, setDocType] = useState("annual_report");
+  const [docType, setDocType] = useState(DOC_TYPES[0].value);
   const [year,    setYear]    = useState(String(new Date().getFullYear()));
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState("");
@@ -42,7 +46,6 @@ export default function UploadDocModal({ stockId, open, onClose, onSuccess }: Pr
   useEffect(() => {
     if (!url) return;
     setYear(detectYear(url));
-    setDocType(detectDocType(url));
   }, [url]);
 
   const urlValid = url.trim().startsWith("http") && url.trim().includes(".");
@@ -50,8 +53,8 @@ export default function UploadDocModal({ stockId, open, onClose, onSuccess }: Pr
 
   const handleClose = () => {
     if (loading) return;
-    setUrl(""); setFile(null); setError(""); setTouched(false); setMode("url");
-    setDocType("annual_report"); setYear(String(new Date().getFullYear()));
+    setUrl(""); setFile(null); setError(""); setTouched(false); setMode("upload");
+    setDocType(DOC_TYPES[0].value); setYear(String(new Date().getFullYear()));
     onClose();
   };
 
@@ -61,13 +64,6 @@ export default function UploadDocModal({ stockId, open, onClose, onSuccess }: Pr
     setError("");
     setFile(f);
     setYear(detectYear(f.name));
-    setDocType(detectDocType(f.name));
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setDragOver(false);
-    handleFile(e.dataTransfer.files[0] ?? null);
   };
 
   const handleSubmit = async () => {
@@ -84,7 +80,7 @@ export default function UploadDocModal({ stockId, open, onClose, onSuccess }: Pr
     const res = await fetch(`/api/stocks/${stockId}/documents`, { method: "POST", body: fd });
     if (!res.ok) {
       const d = await res.json();
-      setError(d.error || "Failed to add filing");
+      setError(d.error || "Failed to add document");
       setLoading(false);
       return;
     }
@@ -94,17 +90,20 @@ export default function UploadDocModal({ stockId, open, onClose, onSuccess }: Pr
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm p-4">
-      <div className="w-full max-w-md rounded-sm border border-[#282828] bg-[#0f0f0f]"
-           style={{ boxShadow: "0 32px 64px rgba(0,0,0,0.6)" }}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1a0a2e]/60 backdrop-blur-sm p-4">
+      <div className="w-full max-w-md rounded-sm border border-[#c8bedd] bg-[#fafaf8]"
+           style={{ boxShadow: "0 24px 48px rgba(91,33,182,0.12)" }}>
 
-        <div className="flex items-center justify-between border-b border-[#1e1e1e] px-5 py-4">
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-[#e0d8ee] px-5 py-4">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-[#555]">ARI Research</p>
-            <h2 className="mt-0.5 text-[15px] font-semibold text-[#f0f0f0]">Add Filing</h2>
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-[#9a7cc0]">
+              {entityType === "sovereign" ? "Sovereign Tracker" : "Corporate Tracker"}
+            </p>
+            <h2 className="mt-0.5 text-[15px] font-semibold text-[#1a0a2e]">Add Document</h2>
           </div>
           <button onClick={handleClose} disabled={loading}
-            className="flex h-7 w-7 items-center justify-center rounded-sm text-[#444] hover:bg-[#1a1a1a] hover:text-[#aaa] disabled:opacity-40 transition-colors">
+            className="flex h-7 w-7 items-center justify-center rounded-sm text-[#b09dcc] hover:bg-[#ede8f5] hover:text-[#4a2980] disabled:opacity-40 transition-colors">
             <X className="h-3.5 w-3.5" />
           </button>
         </div>
@@ -112,143 +111,114 @@ export default function UploadDocModal({ stockId, open, onClose, onSuccess }: Pr
         <div className="space-y-4 px-5 py-5">
 
           {/* Mode toggle */}
-          <div className="flex rounded-sm border border-[#242424] bg-[#0a0a0a] p-0.5">
-            <button
-              onClick={() => { setMode("url"); setError(""); }}
-              disabled={loading}
-              className={cn(
-                "flex flex-1 items-center justify-center gap-1.5 rounded-sm py-1.5 text-[11px] font-medium transition-colors",
-                mode === "url" ? "bg-[#1e1e1e] text-[#e0e0e0]" : "text-[#555] hover:text-[#888]"
-              )}
-            >
-              <Link className="h-3 w-3" />
-              Paste URL
-            </button>
-            <button
-              onClick={() => { setMode("upload"); setError(""); }}
-              disabled={loading}
-              className={cn(
-                "flex flex-1 items-center justify-center gap-1.5 rounded-sm py-1.5 text-[11px] font-medium transition-colors",
-                mode === "upload" ? "bg-[#1e1e1e] text-[#e0e0e0]" : "text-[#555] hover:text-[#888]"
-              )}
-            >
-              <Upload className="h-3 w-3" />
-              Upload PDF
-            </button>
+          <div className="flex rounded-sm border border-[#e0d8ee] bg-[#f4f0f8] p-0.5">
+            {(["upload", "url"] as const).map(m => (
+              <button key={m} onClick={() => { setMode(m); setError(""); }} disabled={loading}
+                className={cn(
+                  "flex flex-1 items-center justify-center gap-1.5 rounded-sm py-1.5 text-[11px] font-medium transition-colors",
+                  mode === m ? "bg-white text-[#2d1654] shadow-sm" : "text-[#9a7cc0] hover:text-[#4a2980]"
+                )}>
+                {m === "upload" ? <><Upload className="h-3 w-3" />Upload PDF</> : <><Link className="h-3 w-3" />Paste URL</>}
+              </button>
+            ))}
           </div>
 
           {/* URL input */}
           {mode === "url" && (
             <div>
-              <label className="text-label mb-1.5 block">Filing URL</label>
+              <label className="text-[10px] uppercase tracking-widest text-[#9a7cc0] mb-1.5 block">Document URL</label>
               <input
                 autoFocus
                 value={url}
                 onChange={e => { setUrl(e.target.value); setTouched(true); setError(""); }}
-                placeholder="https://ir.company.com/report-2023.pdf"
+                placeholder="https://imf.org/country-report.pdf"
                 disabled={loading}
                 className={cn(
-                  "w-full rounded-sm border bg-[#0a0a0a] px-3 py-2 text-[13px] text-[#e0e0e0] placeholder-[#333] outline-none transition-colors disabled:opacity-50",
-                  touched && url && !urlValid ? "border-[#ef4444]/60" : "border-[#242424] focus:border-[#3a3a3a]"
+                  "w-full rounded-sm border bg-white px-3 py-2 text-[13px] text-[#1a0a2e] placeholder-[#b09dcc] outline-none transition-colors disabled:opacity-50",
+                  touched && url && !urlValid ? "border-red-300" : "border-[#d0c6e0] focus:border-[#5b21b6]"
                 )}
               />
-              <p className="mt-1.5 text-[11px] text-[#444]">
-                Right-click the PDF on the company's IR page → Copy link address
-              </p>
             </div>
           )}
 
           {/* File upload */}
           {mode === "upload" && (
             <div>
-              <label className="text-label mb-1.5 block">PDF File</label>
+              <label className="text-[10px] uppercase tracking-widest text-[#9a7cc0] mb-1.5 block">PDF File</label>
               <div
                 onClick={() => fileInputRef.current?.click()}
                 onDragOver={e => { e.preventDefault(); setDragOver(true); }}
                 onDragLeave={() => setDragOver(false)}
-                onDrop={handleDrop}
+                onDrop={e => { e.preventDefault(); setDragOver(false); handleFile(e.dataTransfer.files[0] ?? null); }}
                 className={cn(
                   "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-sm border-2 border-dashed px-4 py-6 transition-colors",
-                  dragOver ? "border-[#f59e0b]/60 bg-[#f59e0b]/5"
-                  : file ? "border-[#22c55e]/40 bg-[#22c55e]/5"
-                  : "border-[#242424] hover:border-[#333]"
+                  dragOver ? "border-[#5b21b6]/60 bg-[#5b21b6]/5"
+                  : file ? "border-emerald-400/60 bg-emerald-50"
+                  : "border-[#d0c6e0] hover:border-[#5b21b6]/40 hover:bg-[#5b21b6]/[0.03]"
                 )}
               >
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".pdf,application/pdf"
-                  className="hidden"
-                  disabled={loading}
-                  onChange={e => handleFile(e.target.files?.[0] ?? null)}
-                />
+                <input ref={fileInputRef} type="file" accept=".pdf,application/pdf" className="hidden"
+                  disabled={loading} onChange={e => handleFile(e.target.files?.[0] ?? null)} />
                 {file ? (
-                  <>
-                    <div className="h-6 w-6 rounded-sm bg-[#22c55e]/20 flex items-center justify-center">
-                      <Upload className="h-3 w-3 text-[#22c55e]" />
-                    </div>
-                    <div className="text-center">
-                      <p className="text-[12px] font-medium text-[#e0e0e0]">{file.name}</p>
-                      <p className="text-[11px] text-[#555]">{(file.size / 1024 / 1024).toFixed(1)} MB · click to change</p>
-                    </div>
-                  </>
+                  <div className="text-center">
+                    <p className="text-[12px] font-medium text-[#1a0a2e]">{file.name}</p>
+                    <p className="text-[11px] text-[#9a7cc0]">{(file.size / 1024 / 1024).toFixed(1)} MB · click to change</p>
+                  </div>
                 ) : (
-                  <>
-                    <div className="h-6 w-6 rounded-sm bg-[#1e1e1e] flex items-center justify-center">
-                      <Upload className="h-3 w-3 text-[#555]" />
-                    </div>
-                    <div className="text-center">
-                      <p className="text-[12px] text-[#888]">Drop PDF here or click to browse</p>
-                      <p className="text-[11px] text-[#444]">Max 50MB</p>
-                    </div>
-                  </>
+                  <div className="text-center">
+                    <Upload className="h-4 w-4 text-[#b09dcc] mx-auto mb-1" />
+                    <p className="text-[12px] text-[#7a5aaa]">Drop PDF here or click to browse</p>
+                    <p className="text-[11px] text-[#b09dcc]">Max 50MB</p>
+                  </div>
                 )}
               </div>
             </div>
           )}
 
+          {/* Doc type + year */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-label mb-1.5 block">Filing Type</label>
+              <label className="text-[10px] uppercase tracking-widest text-[#9a7cc0] mb-1.5 block">Document Type</label>
               <select value={docType} onChange={e => setDocType(e.target.value)} disabled={loading}
-                className="w-full rounded-sm border border-[#242424] bg-[#0a0a0a] px-3 py-2 text-[13px] text-[#e0e0e0] outline-none focus:border-[#3a3a3a] disabled:opacity-50">
-                {DOC_TYPES.map(t => <option key={t.value} value={t.value} className="bg-[#0f0f0f]">{t.label}</option>)}
+                className="w-full rounded-sm border border-[#d0c6e0] bg-white px-3 py-2 text-[13px] text-[#1a0a2e] outline-none focus:border-[#5b21b6] disabled:opacity-50">
+                {DOC_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
               </select>
             </div>
             <div>
-              <label className="text-label mb-1.5 block">Year</label>
+              <label className="text-[10px] uppercase tracking-widest text-[#9a7cc0] mb-1.5 block">Year</label>
               <input value={year} onChange={e => setYear(e.target.value)} placeholder="2024" disabled={loading}
-                className="w-full rounded-sm border border-[#242424] bg-[#0a0a0a] px-3 py-2 font-mono text-[13px] text-[#e0e0e0] placeholder-[#333] outline-none focus:border-[#3a3a3a] disabled:opacity-50 transition-colors" />
+                className="w-full rounded-sm border border-[#d0c6e0] bg-white px-3 py-2 font-mono text-[13px] text-[#1a0a2e] placeholder-[#b09dcc] outline-none focus:border-[#5b21b6] disabled:opacity-50 transition-colors" />
             </div>
           </div>
 
           {loading && (
-            <div className="flex items-center gap-2 rounded-sm border border-[#242424] bg-[#0a0a0a] px-4 py-3">
-              <Loader2 className="h-3.5 w-3.5 animate-spin text-[#f59e0b] shrink-0" />
-              <span className="text-[12px] text-[#9a9a9a]">
-                {mode === "upload" ? "Uploading and queuing re-analysis..." : "Downloading filing and queuing re-analysis..."}
+            <div className="flex items-center gap-2 rounded-sm border border-[#e0d8ee] bg-[#f4f0f8] px-4 py-3">
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-[#5b21b6] shrink-0" />
+              <span className="text-[12px] text-[#6b4fa0]">
+                {mode === "upload" ? "Uploading and queuing re-analysis..." : "Fetching document and queuing re-analysis..."}
               </span>
             </div>
           )}
 
           {error && (
-            <div className="flex items-start gap-2 rounded-sm border border-[#ef4444]/25 bg-[#ef4444]/5 px-4 py-3">
-              <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#ef4444]" />
-              <p className="text-[12px] text-[#9a9a9a]">{error}</p>
+            <div className="flex items-start gap-2 rounded-sm border border-red-200 bg-red-50 px-4 py-3">
+              <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-red-500" />
+              <p className="text-[12px] text-red-600">{error}</p>
             </div>
           )}
         </div>
 
-        <div className="flex gap-2.5 border-t border-[#1a1a1a] px-5 py-4">
+        {/* Footer */}
+        <div className="flex gap-2.5 border-t border-[#e0d8ee] px-5 py-4">
           <button onClick={handleClose} disabled={loading}
-            className="flex-none rounded-sm border border-[#242424] px-4 py-2 text-[12px] text-[#666] hover:border-[#333] hover:text-[#aaa] disabled:opacity-40 transition-colors">
+            className="flex-none rounded-sm border border-[#d0c6e0] px-4 py-2 text-[12px] text-[#8b6bb5] hover:border-[#5b21b6]/40 hover:text-[#4a2980] disabled:opacity-40 transition-colors">
             Cancel
           </button>
           <button onClick={handleSubmit} disabled={!canSubmit}
-            className="flex flex-1 items-center justify-center gap-2 rounded-sm bg-white px-4 py-2 text-[12px] font-semibold text-black hover:bg-[#e8e8e8] disabled:cursor-not-allowed disabled:opacity-30 transition-colors">
+            className="flex flex-1 items-center justify-center gap-2 rounded-sm bg-[#5b21b6] px-4 py-2 text-[12px] font-semibold text-white hover:bg-[#5b21b6]/90 disabled:cursor-not-allowed disabled:opacity-30 transition-colors">
             {loading
-              ? <><Loader2 className="h-3.5 w-3.5 animate-spin" />Adding filing...</>
-              : "Add Filing & Re-analyse"
+              ? <><Loader2 className="h-3.5 w-3.5 animate-spin" />Adding...</>
+              : "Add Document & Re-analyse"
             }
           </button>
         </div>
