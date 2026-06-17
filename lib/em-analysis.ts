@@ -4,8 +4,8 @@ import type { ParsedPDF } from "./pdf";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
 
-const PER_DOC_LIMIT = 20000;
-const TOTAL_LIMIT   = 30000;
+const PER_DOC_LIMIT = 25000;  // more pages parsed means more content per doc
+const TOTAL_LIMIT   = 40000;  // raised to accommodate 4-doc Egypt analysis
 
 function buildDocContext(
   docs: { file_name: string; doc_type: string; year: string | null; parsed: ParsedPDF }[]

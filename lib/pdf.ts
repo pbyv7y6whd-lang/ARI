@@ -38,7 +38,7 @@ const SECTION_PATTERNS: { pattern: RegExp; title: string; priority: number }[] =
 // ── Parse PDF buffer ──────────────────────────────────────────────────────────
 export async function parsePDF(buffer: Buffer): Promise<ParsedPDF> {
   const t0 = Date.now();
-  const data = await pdfParse(buffer, { max: 60 }); // cap at 60 pages — IMF Article IVs are typically 40-80pp, key content in first half
+  const data = await pdfParse(buffer, { max: 120 }); // cap at 120 pages — IMF Article IVs are 150-200pp with key data tables in statistical appendix (pp 100-150)
   console.log(`[pdf] parse completed in ${Date.now() - t0}ms — ${data.numpages} pages`);
 
   const text      = data.text;
