@@ -31,7 +31,7 @@ type StockData = {
 // ── EM Credit type helpers ────────────────────────────────────────────────────
 
 type TradeIdea = {
-  bond?: string; direction?: string; entryLevel?: string; target?: string;
+  type?: string; bond?: string; direction?: string; entryLevel?: string; target?: string;
   stop?: string; riskReward?: string; horizon?: string; rationale?: string; keyMonitor?: string;
 };
 type CatalystItem = { catalyst?: string; timing?: string; spreadImpact?: string };
@@ -40,27 +40,36 @@ type RiskItem     = { risk?: string; probability?: string; spreadImpact?: string
 type SovereignAnalysis = {
   snapshot?: { country?: string; region?: string; creditView?: string; creditRationale?: string };
   fiscalProfile?: { fiscalBalanceGdp?: string; primaryBalanceGdp?: string; debtToGdp?: string; revenueToGdp?: string; interestToRevenue?: string; trend?: string; keyMetric?: string; commentary?: string };
-  externalSector?: { currentAccountGdp?: string; fxReservesUsd?: string; importCoverMonths?: string; externalDebtGdp?: string; externalFinancingNeed?: string; keyRisk?: string; commentary?: string };
+  financingSourcesAndUses?: { grossFinancingNeed?: string; fundingSources?: string; fundingGap?: string; domesticFundingCapacity?: string; commentary?: string };
+  debtRepaymentSchedule?: { next12Months?: string; next24Months?: string; imfTranchePipeline?: string; refinancingStrategy?: string };
+  externalSector?: { currentAccountGdp?: string; fxReservesUsd?: string; importCoverMonths?: string; externalDebtGdp?: string; externalFinancingNeed?: string; keyVulnerability?: string; keyRisk?: string; commentary?: string };
   debtSustainability?: { refinancingRisk?: string; currencyMix?: string; maturityWall?: string; maturityProfile?: string; debtTrajectory?: string; imfProgramme?: { active?: boolean; details?: string; continuationRisk?: string }; commentary?: string };
   politicalEconomy?: { reformMomentum?: string; keyReform?: string; socialRisk?: string; governanceQuality?: string; externalRelations?: string; commentary?: string };
+  relativeValue?: { currentSpread?: string; peerComparison?: string; curveShape?: string; historicalContext?: string; rvConclusion?: string };
   catalystsAndRisks?: { positiveCatalysts?: CatalystItem[]; negativeRisks?: RiskItem[] };
   bullCase?: { points?: { title?: string; evidence?: string; trigger?: string }[] };
   bearCase?: { points?: { title?: string; evidence?: string; severity?: string }[] };
   tradeIdeas?: TradeIdea[];
+  portfolioSizing?: { recommendation?: string; convictionLevel?: string; sizingRationale?: string; addLevels?: string; exitStrategy?: string };
   creditVerdict?: { recommendation?: string; targetSpread?: string; currentSpreadContext?: string; keyCatalysts?: string[]; keyRisks?: string[]; summary?: string };
   overallScore?: { total?: number; breakdown?: { fiscal?: string; external?: string; debtSustainability?: string; politicalEconomy?: string }; rationale?: string };
 };
 
 type CorporateAnalysis = {
-  snapshot?: { issuer?: string; country?: string; sector?: string; creditView?: string; creditRationale?: string };
-  creditMetrics?: { netDebtToEbitda?: string; interestCoverage?: string; ebitdaToInterest?: string; fcfYield?: string; debtToEquity?: string; fcfConversion?: string; liquidityRatio?: string; liquidityRunway?: string; trend?: string; keyWeakness?: string };
-  debtStructure?: { totalDebt?: string; currencyMix?: string; maturityWall?: string; maturityProfile?: string; nextMajorMaturity?: string; refinancingRisk?: string; covenantHeadroom?: string; commentary?: string };
+  snapshot?: { issuer?: string; country?: string; sector?: string; isQuasiSovereign?: boolean; sovereignOwnership?: string; creditView?: string; creditRationale?: string };
+  threeStatementSummary?: { revenue?: string; ebitda?: string; interestExpense?: string; netIncome?: string; capex?: string; freeCashFlow?: string; workingCapital?: string; cashAndEquivalents?: string };
+  creditMetrics?: { netDebtToEbitda?: string; interestCoverage?: string; ebitdaToInterest?: string; fcfDebtServiceCoverage?: string; fcfYield?: string; debtToEquity?: string; fcfConversion?: string; liquidityRatio?: string; liquidityRunway?: string; trend?: string; keyWeakness?: string };
+  financingSourcesAndUses?: { annualDebtService?: string; fundingSources?: string; fundingGap?: string; accessToMarkets?: string; parentOrSovereignSupport?: string };
+  debtRepaymentSchedule?: { next12Months?: string; next24Months?: string; beyondTwoYears?: string; refinancingStrategy?: string; refinancingRisk?: string };
+  quasiSovereignAssessment?: { applicable?: boolean; ownershipStructure?: string; strategicImportance?: string; supportTrackRecord?: string; spreadToSovereign?: string; supportAssumption?: string };
   fxRisk?: { revenuesCurrency?: string; debtCurrency?: string; mismatch?: string; stressTest?: string; hedging?: string; commentary?: string };
   businessQuality?: { marketPosition?: string; competitivePosition?: string; revenueVisibility?: string; marginTrend?: string; sovereignCeiling?: string; countryRisk?: string; keyRisk?: string; commentary?: string };
+  relativeValue?: { currentSpread?: string; peerComparison?: string; seniorSubStack?: string; historicalContext?: string; rvConclusion?: string };
   catalystsAndRisks?: { positiveCatalysts?: CatalystItem[]; negativeRisks?: RiskItem[] };
   bullCase?: { points?: { title?: string; evidence?: string }[] };
   bearCase?: { points?: { title?: string; evidence?: string; severity?: string }[] };
   tradeIdeas?: TradeIdea[];
+  portfolioSizing?: { recommendation?: string; convictionLevel?: string; sizingRationale?: string; addLevels?: string; exitStrategy?: string };
   creditVerdict?: { recommendation?: string; spreadView?: string; currentSpreadContext?: string; keyRisks?: string[]; summary?: string };
   overallScore?: { total?: number; breakdown?: { leverage?: string; liquidity?: string; businessQuality?: string; fxAndCountryRisk?: string }; rationale?: string };
 };
@@ -229,6 +238,199 @@ function CatalystsRisksSection({ data }: { data?: { positiveCatalysts?: Catalyst
   );
 }
 
+// ── Portfolio Sizing card ─────────────────────────────────────────────────────
+
+function PortfolioSizingSection({ ps }: { ps?: SovereignAnalysis["portfolioSizing"] | CorporateAnalysis["portfolioSizing"] }) {
+  if (!ps) return null;
+  return (
+    <Section title="Portfolio Sizing">
+      <div className="flex items-center gap-3 mb-3">
+        {ps.recommendation && (
+          <span className="text-[12px] font-mono font-semibold text-[#5b21b6] border border-[#c8b6e0] bg-[#f4f0f8] px-3 py-1.5 rounded-sm">
+            {ps.recommendation}
+          </span>
+        )}
+        {ps.convictionLevel && (
+          <span className={cn("text-[9px] font-bold px-2 py-0.5 uppercase tracking-wider rounded-sm",
+            ps.convictionLevel === "High"   ? "text-emerald-600 bg-emerald-50 border border-emerald-200" :
+            ps.convictionLevel === "Medium" ? "text-amber-600 bg-amber-50 border border-amber-200" :
+            "text-[#9a7cc0] bg-[#f4f0f8] border border-[#d8cfe8]")}>
+            {ps.convictionLevel} conviction
+          </span>
+        )}
+      </div>
+      <div className="space-y-2">
+        {ps.sizingRationale && <p className="text-[12px] text-[#2d1654] leading-relaxed">{ps.sizingRationale}</p>}
+        {ps.addLevels && (
+          <p className="text-[11px] text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-sm px-3 py-2">
+            <span className="font-semibold">Add: </span>{ps.addLevels}
+          </p>
+        )}
+        {ps.exitStrategy && (
+          <p className="text-[11px] text-[#8b6bb5] bg-[#f8f5fc] border border-[#e0d8ee] rounded-sm px-3 py-2">
+            <span className="font-semibold">Exit: </span>{ps.exitStrategy}
+          </p>
+        )}
+      </div>
+    </Section>
+  );
+}
+
+// ── Relative Value section ────────────────────────────────────────────────────
+
+function RelativeValueSection({ rv }: { rv?: { currentSpread?: string; peerComparison?: string; curveShape?: string; seniorSubStack?: string; historicalContext?: string; rvConclusion?: string } }) {
+  if (!rv) return null;
+  const items = [
+    { label: "Current Spread",    value: rv.currentSpread },
+    { label: "Peer Comparison",   value: rv.peerComparison },
+    { label: "Curve Shape",       value: rv.curveShape },
+    { label: "Senior/Sub Stack",  value: rv.seniorSubStack },
+    { label: "Historical Context",value: rv.historicalContext },
+  ].filter(i => i.value);
+  if (!items.length && !rv.rvConclusion) return null;
+  return (
+    <Section title="Relative Value">
+      <div className="space-y-2.5">
+        {items.map(({ label, value }) => (
+          <div key={label}>
+            <p className="text-[9px] uppercase tracking-widest text-[#9a7cc0] mb-0.5">{label}</p>
+            <p className="text-[11px] font-mono text-[#2d1654] leading-relaxed">{value}</p>
+          </div>
+        ))}
+      </div>
+      {rv.rvConclusion && (
+        <div className="mt-3 pt-3 border-t border-[#ddd6ec]">
+          <p className="text-[10px] uppercase tracking-widest text-[#9a7cc0] mb-1.5">RV Conclusion</p>
+          <p className="text-[12px] text-[#2d1654] font-medium leading-relaxed">{rv.rvConclusion}</p>
+        </div>
+      )}
+    </Section>
+  );
+}
+
+// ── Financing Sources & Uses ──────────────────────────────────────────────────
+
+function FinancingSection({ data }: { data?: { grossFinancingNeed?: string; fundingSources?: string; fundingGap?: string; domesticFundingCapacity?: string; annualDebtService?: string; accessToMarkets?: string; parentOrSovereignSupport?: string; commentary?: string } }) {
+  if (!data) return null;
+  const items = [
+    { label: "Gross Financing Need",     value: data.grossFinancingNeed },
+    { label: "Annual Debt Service",      value: data.annualDebtService },
+    { label: "Funding Sources",          value: data.fundingSources },
+    { label: "Funding Gap",              value: data.fundingGap },
+    { label: "Domestic Funding Capacity",value: data.domesticFundingCapacity },
+    { label: "Market Access",            value: data.accessToMarkets },
+    { label: "Parent/Sovereign Support", value: data.parentOrSovereignSupport },
+  ].filter(i => i.value);
+  if (!items.length) return null;
+  return (
+    <Section title="Financing Sources & Uses">
+      <div className="space-y-2.5">
+        {items.map(({ label, value }) => (
+          <div key={label}>
+            <p className="text-[9px] uppercase tracking-widest text-[#9a7cc0] mb-0.5">{label}</p>
+            <p className="text-[11px] font-mono text-[#1a0a2e]/80 leading-relaxed">{value}</p>
+          </div>
+        ))}
+      </div>
+      {data.commentary && <Commentary text={data.commentary} />}
+    </Section>
+  );
+}
+
+// ── Debt Repayment Schedule ───────────────────────────────────────────────────
+
+function DebtScheduleSection({ data }: { data?: { next12Months?: string; next24Months?: string; beyondTwoYears?: string; imfTranchePipeline?: string; refinancingStrategy?: string; refinancingRisk?: string } }) {
+  if (!data) return null;
+  const items = [
+    { label: "Next 12 Months",    value: data.next12Months },
+    { label: "12–24 Months",      value: data.next24Months },
+    { label: "Beyond 2 Years",    value: data.beyondTwoYears },
+    { label: "IMF Tranche Pipeline", value: data.imfTranchePipeline },
+    { label: "Refinancing Risk",  value: data.refinancingRisk },
+  ].filter(i => i.value);
+  if (!items.length) return null;
+  return (
+    <Section title="Debt Repayment Schedule">
+      <div className="space-y-2.5">
+        {items.map(({ label, value }) => (
+          <div key={label} className={cn("", label === "Next 12 Months" ? "" : "")}>
+            <p className="text-[9px] uppercase tracking-widest text-[#9a7cc0] mb-0.5">{label}</p>
+            <p className="text-[11px] font-mono text-[#1a0a2e]/80 leading-relaxed">{value}</p>
+          </div>
+        ))}
+      </div>
+      {data.refinancingStrategy && (
+        <div className="mt-3 pt-3 border-t border-[#ddd6ec]">
+          <p className="text-[9px] uppercase tracking-widest text-[#9a7cc0] mb-1">Refinancing Strategy</p>
+          <p className="text-[11px] text-[#6b4fa0] leading-relaxed">{data.refinancingStrategy}</p>
+        </div>
+      )}
+    </Section>
+  );
+}
+
+// ── Three-Statement Summary ───────────────────────────────────────────────────
+
+function ThreeStatementSection({ data }: { data?: CorporateAnalysis["threeStatementSummary"] }) {
+  if (!data) return null;
+  const items = [
+    { label: "Revenue",          value: data.revenue },
+    { label: "EBITDA",           value: data.ebitda },
+    { label: "Interest Expense", value: data.interestExpense },
+    { label: "Net Income",       value: data.netIncome },
+    { label: "Capex",            value: data.capex },
+    { label: "Free Cash Flow",   value: data.freeCashFlow },
+    { label: "Working Capital",  value: data.workingCapital },
+    { label: "Cash & Equivalents",value: data.cashAndEquivalents },
+  ].filter(i => i.value);
+  if (!items.length) return null;
+  return (
+    <Section title="Three-Statement Summary">
+      <div className="grid grid-cols-2 gap-3">
+        {items.map(({ label, value }) => (
+          <div key={label}>
+            <p className="text-[9px] uppercase tracking-widest text-[#9a7cc0] mb-0.5">{label}</p>
+            <p className="text-[11px] font-mono text-[#1a0a2e]/80 leading-snug">{value}</p>
+          </div>
+        ))}
+      </div>
+    </Section>
+  );
+}
+
+// ── Quasi-Sovereign Assessment ────────────────────────────────────────────────
+
+function QuasiSovereignSection({ data }: { data?: CorporateAnalysis["quasiSovereignAssessment"] }) {
+  if (!data?.applicable) return null;
+  return (
+    <Section title="Quasi-Sovereign Assessment">
+      <div className="space-y-2.5">
+        {[
+          { label: "Ownership",           value: data.ownershipStructure },
+          { label: "Strategic Importance",value: data.strategicImportance },
+          { label: "Support Track Record",value: data.supportTrackRecord },
+          { label: "Spread to Sovereign", value: data.spreadToSovereign },
+        ].filter(i => i.value).map(({ label, value }) => (
+          <div key={label}>
+            <p className="text-[9px] uppercase tracking-widest text-[#9a7cc0] mb-0.5">{label}</p>
+            <p className="text-[11px] font-mono text-[#1a0a2e]/80 leading-relaxed">{value}</p>
+          </div>
+        ))}
+      </div>
+      {data.supportAssumption && (
+        <div className="mt-3 pt-3 border-t border-[#ddd6ec]">
+          <p className="text-[9px] uppercase tracking-widest text-[#9a7cc0] mb-1">Support Assumption</p>
+          <p className={cn("text-[11px] font-semibold leading-relaxed",
+            data.supportAssumption.startsWith("Explicit") ? "text-emerald-600" :
+            data.supportAssumption.startsWith("Implicit") ? "text-amber-600" : "text-red-500")}>
+            {data.supportAssumption}
+          </p>
+        </div>
+      )}
+    </Section>
+  );
+}
+
 // ── Score breakdown ───────────────────────────────────────────────────────────
 
 function ScoreBreakdown({ breakdown, rationale }: {
@@ -368,54 +570,61 @@ function SovereignView({ a }: { a: SovereignAnalysis }) {
         </Section>
       )}
 
-      {/* Catalysts & Risks (new schema) or Bull/Bear (legacy) */}
-      {a.catalystsAndRisks
-        ? <CatalystsRisksSection data={a.catalystsAndRisks} />
-        : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {a.bullCase?.points && a.bullCase.points.length > 0 && (
-              <Section title="Bull Case">
-                <div className="space-y-3">
-                  {a.bullCase.points.map((p, i) => (
-                    <div key={i} className="flex items-start gap-2.5">
-                      <TrendingUp className="mt-0.5 h-3 w-3 shrink-0 text-emerald-500/60" />
-                      <div>
-                        <p className="text-[12px] font-medium text-[#1a0a2e]/80">{p.title}</p>
-                        {p.evidence && <p className="text-[11px] text-[#7a5aaa] mt-0.5">{p.evidence}</p>}
-                        {p.trigger && <p className="text-[10px] text-emerald-500/50 mt-0.5">Trigger: {p.trigger}</p>}
-                      </div>
+      {/* Financing Sources & Uses + Debt Repayment Schedule */}
+      <FinancingSection data={a.financingSourcesAndUses} />
+      <DebtScheduleSection data={a.debtRepaymentSchedule} />
+
+      {/* Catalysts & Risks */}
+      {a.catalystsAndRisks ? <CatalystsRisksSection data={a.catalystsAndRisks} /> : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {a.bullCase?.points && a.bullCase.points.length > 0 && (
+            <Section title="Bull Case">
+              <div className="space-y-3">
+                {a.bullCase.points.map((p, i) => (
+                  <div key={i} className="flex items-start gap-2.5">
+                    <TrendingUp className="mt-0.5 h-3 w-3 shrink-0 text-emerald-500/60" />
+                    <div>
+                      <p className="text-[12px] font-medium text-[#1a0a2e]/80">{p.title}</p>
+                      {p.evidence && <p className="text-[11px] text-[#7a5aaa] mt-0.5">{p.evidence}</p>}
+                      {p.trigger && <p className="text-[10px] text-emerald-500/50 mt-0.5">Trigger: {p.trigger}</p>}
                     </div>
-                  ))}
-                </div>
-              </Section>
-            )}
-            {a.bearCase?.points && a.bearCase.points.length > 0 && (
-              <Section title="Bear Case">
-                <div className="space-y-3">
-                  {a.bearCase.points.map((p, i) => (
-                    <div key={i} className="flex items-start gap-2.5">
-                      <TrendingDown className="mt-0.5 h-3 w-3 shrink-0 text-red-400/60" />
-                      <div>
-                        <p className="text-[12px] font-medium text-[#1a0a2e]/80">{p.title}</p>
-                        {p.evidence && <p className="text-[11px] text-[#7a5aaa] mt-0.5">{p.evidence}</p>}
-                        {p.severity && (
-                          <span className={cn("text-[9px] font-bold uppercase tracking-wider",
-                            p.severity === "High" ? "text-red-400" : p.severity === "Medium" ? "text-amber-500" : "text-[#b09dcc]")}>
-                            {p.severity} severity
-                          </span>
-                        )}
-                      </div>
+                  </div>
+                ))}
+              </div>
+            </Section>
+          )}
+          {a.bearCase?.points && a.bearCase.points.length > 0 && (
+            <Section title="Bear Case">
+              <div className="space-y-3">
+                {a.bearCase.points.map((p, i) => (
+                  <div key={i} className="flex items-start gap-2.5">
+                    <TrendingDown className="mt-0.5 h-3 w-3 shrink-0 text-red-400/60" />
+                    <div>
+                      <p className="text-[12px] font-medium text-[#1a0a2e]/80">{p.title}</p>
+                      {p.evidence && <p className="text-[11px] text-[#7a5aaa] mt-0.5">{p.evidence}</p>}
+                      {p.severity && (
+                        <span className={cn("text-[9px] font-bold uppercase tracking-wider",
+                          p.severity === "High" ? "text-red-400" : p.severity === "Medium" ? "text-amber-500" : "text-[#b09dcc]")}>
+                          {p.severity} severity
+                        </span>
+                      )}
                     </div>
-                  ))}
-                </div>
-              </Section>
-            )}
-          </div>
-        )
-      }
+                  </div>
+                ))}
+              </div>
+            </Section>
+          )}
+        </div>
+      )}
+
+      {/* Relative Value */}
+      <RelativeValueSection rv={a.relativeValue} />
 
       {/* Trade Ideas */}
       {a.tradeIdeas && a.tradeIdeas.length > 0 && <TradeIdeasSection ideas={a.tradeIdeas} />}
+
+      {/* Portfolio Sizing */}
+      <PortfolioSizingSection ps={a.portfolioSizing} />
 
       {/* Credit Verdict */}
       {a.creditVerdict && (
@@ -488,6 +697,11 @@ function CorporateView({ a }: { a: CorporateAnalysis }) {
                 {a.snapshot.creditView}
               </span>
             )}
+            {a.snapshot?.isQuasiSovereign && (
+              <span className="text-[9px] font-bold px-2 py-0.5 uppercase tracking-wider rounded-sm text-blue-600 bg-blue-50 border border-blue-200">
+                Quasi-Sovereign
+              </span>
+            )}
             {a.snapshot?.country && <span className="text-[10px] text-[#8b6bb5]">{a.snapshot.country}</span>}
             {a.snapshot?.sector && <span className="text-[10px] text-[#8b6bb5]">· {a.snapshot.sector}</span>}
           </div>
@@ -503,38 +717,35 @@ function CorporateView({ a }: { a: CorporateAnalysis }) {
         )}
       </div>
 
+      {/* Three-Statement Summary */}
+      <ThreeStatementSection data={a.threeStatementSummary} />
+
       {/* Credit Metrics */}
       {a.creditMetrics && (
         <Section title="Credit Metrics">
           <MetricGrid items={[
-            { label: "Net Debt/EBITDA",     value: a.creditMetrics.netDebtToEbitda },
-            { label: "EBITDA/Interest",     value: a.creditMetrics.ebitdaToInterest || a.creditMetrics.interestCoverage },
-            { label: "FCF Yield",           value: a.creditMetrics.fcfYield || a.creditMetrics.fcfConversion },
-            { label: "Liquidity Runway",    value: a.creditMetrics.liquidityRunway || a.creditMetrics.liquidityRatio },
-            { label: "Trend",               value: a.creditMetrics.trend },
+            { label: "Net Debt/EBITDA",      value: a.creditMetrics.netDebtToEbitda },
+            { label: "EBITDA/Interest",      value: a.creditMetrics.ebitdaToInterest || a.creditMetrics.interestCoverage },
+            { label: "FCF/Debt Service",     value: a.creditMetrics.fcfDebtServiceCoverage },
+            { label: "FCF Yield",            value: a.creditMetrics.fcfYield || a.creditMetrics.fcfConversion },
+            { label: "Liquidity Runway",     value: a.creditMetrics.liquidityRunway || a.creditMetrics.liquidityRatio },
+            { label: "Trend",                value: a.creditMetrics.trend },
           ]} />
           {a.creditMetrics.keyWeakness && (
-            <p className="mt-3 text-[11px] text-red-500/80 leading-relaxed">
+            <p className="mt-3 text-[11px] text-red-500/80 border border-red-100 bg-red-50 rounded-sm px-3 py-2 leading-relaxed">
               <span className="font-semibold">Key Weakness: </span>{a.creditMetrics.keyWeakness}
             </p>
           )}
         </Section>
       )}
 
-      {/* Debt Structure */}
-      {a.debtStructure && (
-        <Section title="Debt Structure">
-          <MetricGrid items={[
-            { label: "Total Debt",          value: a.debtStructure.totalDebt },
-            { label: "Currency Mix",        value: a.debtStructure.currencyMix },
-            { label: "Maturity Wall",       value: a.debtStructure.maturityWall || a.debtStructure.maturityProfile },
-            { label: "Next Maturity",       value: a.debtStructure.nextMajorMaturity },
-            { label: "Refinancing Risk",    value: a.debtStructure.refinancingRisk },
-            { label: "Covenant Headroom",   value: a.debtStructure.covenantHeadroom },
-          ]} />
-          {a.debtStructure.commentary && <Commentary text={a.debtStructure.commentary} />}
-        </Section>
-      )}
+      {/* Financing Sources & Uses + Debt Repayment */}
+      <FinancingSection data={a.financingSourcesAndUses} />
+      <DebtScheduleSection data={a.debtRepaymentSchedule} />
+
+      {/* Quasi-Sovereign Assessment */}
+      <QuasiSovereignSection data={a.quasiSovereignAssessment} />
+
 
       {/* FX Risk */}
       {a.fxRisk && (
@@ -546,8 +757,8 @@ function CorporateView({ a }: { a: CorporateAnalysis }) {
             { label: "Hedging",          value: a.fxRisk.hedging },
           ]} />
           {a.fxRisk.stressTest && (
-            <p className="mt-3 text-[11px] font-mono text-amber-600/80 border border-amber-200 bg-amber-50 rounded-sm px-3 py-2">
-              <span className="font-semibold text-amber-700">Stress: </span>{a.fxRisk.stressTest}
+            <p className="mt-3 text-[11px] font-mono text-amber-700 border border-amber-200 bg-amber-50 rounded-sm px-3 py-2">
+              <span className="font-semibold">FX Stress: </span>{a.fxRisk.stressTest}
             </p>
           )}
           {a.fxRisk.commentary && !a.fxRisk.stressTest && <Commentary text={a.fxRisk.commentary} />}
@@ -571,52 +782,55 @@ function CorporateView({ a }: { a: CorporateAnalysis }) {
       )}
 
       {/* Catalysts & Risks */}
-      {a.catalystsAndRisks
-        ? <CatalystsRisksSection data={a.catalystsAndRisks} />
-        : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {a.bullCase?.points && a.bullCase.points.length > 0 && (
-              <Section title="Bull Case">
-                <div className="space-y-3">
-                  {a.bullCase.points.map((p, i) => (
-                    <div key={i} className="flex items-start gap-2.5">
-                      <TrendingUp className="mt-0.5 h-3 w-3 shrink-0 text-emerald-500/60" />
-                      <div>
-                        <p className="text-[12px] font-medium text-[#1a0a2e]/80">{p.title}</p>
-                        {p.evidence && <p className="text-[11px] text-[#7a5aaa] mt-0.5">{p.evidence}</p>}
-                      </div>
+      {a.catalystsAndRisks ? <CatalystsRisksSection data={a.catalystsAndRisks} /> : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {a.bullCase?.points && a.bullCase.points.length > 0 && (
+            <Section title="Bull Case">
+              <div className="space-y-3">
+                {a.bullCase.points.map((p, i) => (
+                  <div key={i} className="flex items-start gap-2.5">
+                    <TrendingUp className="mt-0.5 h-3 w-3 shrink-0 text-emerald-500/60" />
+                    <div>
+                      <p className="text-[12px] font-medium text-[#1a0a2e]/80">{p.title}</p>
+                      {p.evidence && <p className="text-[11px] text-[#7a5aaa] mt-0.5">{p.evidence}</p>}
                     </div>
-                  ))}
-                </div>
-              </Section>
-            )}
-            {a.bearCase?.points && a.bearCase.points.length > 0 && (
-              <Section title="Bear Case">
-                <div className="space-y-3">
-                  {a.bearCase.points.map((p, i) => (
-                    <div key={i} className="flex items-start gap-2.5">
-                      <TrendingDown className="mt-0.5 h-3 w-3 shrink-0 text-red-400/60" />
-                      <div>
-                        <p className="text-[12px] font-medium text-[#1a0a2e]/80">{p.title}</p>
-                        {p.evidence && <p className="text-[11px] text-[#7a5aaa] mt-0.5">{p.evidence}</p>}
-                        {p.severity && (
-                          <span className={cn("text-[9px] font-bold uppercase tracking-wider",
-                            p.severity === "High" ? "text-red-400" : p.severity === "Medium" ? "text-amber-500" : "text-[#b09dcc]")}>
-                            {p.severity} severity
-                          </span>
-                        )}
-                      </div>
+                  </div>
+                ))}
+              </div>
+            </Section>
+          )}
+          {a.bearCase?.points && a.bearCase.points.length > 0 && (
+            <Section title="Bear Case">
+              <div className="space-y-3">
+                {a.bearCase.points.map((p, i) => (
+                  <div key={i} className="flex items-start gap-2.5">
+                    <TrendingDown className="mt-0.5 h-3 w-3 shrink-0 text-red-400/60" />
+                    <div>
+                      <p className="text-[12px] font-medium text-[#1a0a2e]/80">{p.title}</p>
+                      {p.evidence && <p className="text-[11px] text-[#7a5aaa] mt-0.5">{p.evidence}</p>}
+                      {p.severity && (
+                        <span className={cn("text-[9px] font-bold uppercase tracking-wider",
+                          p.severity === "High" ? "text-red-400" : p.severity === "Medium" ? "text-amber-500" : "text-[#b09dcc]")}>
+                          {p.severity} severity
+                        </span>
+                      )}
                     </div>
-                  ))}
-                </div>
-              </Section>
-            )}
-          </div>
-        )
-      }
+                  </div>
+                ))}
+              </div>
+            </Section>
+          )}
+        </div>
+      )}
+
+      {/* Relative Value */}
+      <RelativeValueSection rv={a.relativeValue} />
 
       {/* Trade Ideas */}
       {a.tradeIdeas && a.tradeIdeas.length > 0 && <TradeIdeasSection ideas={a.tradeIdeas} />}
+
+      {/* Portfolio Sizing */}
+      <PortfolioSizingSection ps={a.portfolioSizing} />
 
       {/* Credit Verdict */}
       {a.creditVerdict && (

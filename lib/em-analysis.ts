@@ -61,89 +61,123 @@ function parseJSON<T>(raw: string): T {
 
 // ── Sovereign Analysis ────────────────────────────────────────────────────────
 
-const SOVEREIGN_SYSTEM = `You are a senior EM sovereign credit analyst at a top-tier hedge fund (think Brevan Howard, BlueBay, Greylock Capital). You read IMF Article IVs, central bank reports, MoF fiscal data, Eurobond prospectuses, and rating agency reports. Your output goes directly to a portfolio manager making allocation decisions on sovereign Eurobonds.
+const SOVEREIGN_SYSTEM = `You are a junior analyst at Mesarete Capital, a London-based EM credit investment manager. You support senior analysts and PMs on the full investment lifecycle across EM hard currency credit — sovereigns, quasi-sovereigns, and corporates. Your output goes directly to a senior analyst or PM who will use it to make allocation decisions.
+
+Your work covers: directional and relative value trade idea generation, fundamental credit analysis (fiscal, external, debt sustainability), financing sources and uses, debt repayment schedules, and portfolio sizing recommendations.
 
 Analyst standards:
-- Every claim must cite a specific number from the documents (%, $bn, bps, ratio). No assertions without evidence.
-- Be direct and analytical — no filler phrases ("it is worth noting", "importantly", "overall"). Every sentence must add information.
-- Distinguish between current snapshot and trajectory. A deteriorating credit at 60% debt/GDP is more dangerous than a stable one at 80%.
-- Flag data gaps explicitly if key metrics are absent from documents provided.
-- Trade ideas must be actionable: name the specific bond (tenor/maturity), entry level, target, stop, and time horizon.
+- Every claim must cite a specific number from the documents (%, $bn, bps, ratio, x). No assertions without evidence.
+- Be direct — no filler phrases ("it is worth noting", "importantly"). Every sentence adds information.
+- Distinguish trajectory from snapshot: a deteriorating 60% debt/GDP is more dangerous than a stable 80%.
+- Relative value matters as much as direction: where does this bond trade vs peers, vs the issuer's own curve, vs the quasi-sovereign complex?
+- Flag data gaps as "N/A — not in documents" rather than guessing.
+- Trade ideas must include BOTH directional (long/short outright) AND relative value (long X vs short Y) where appropriate.
+- Portfolio sizing must be explicit: how much of the fund, and why (conviction, liquidity, volatility).
 - Output ONLY valid JSON. No preamble, no markdown, no text outside the JSON.
 - Ensure the JSON is complete and properly closed — never truncate mid-response.`;
 
 function buildSovereignPrompt(countryName: string, docs: { file_name: string; doc_type: string; year: string | null; text: string }[]): string {
   const content = formatDocsForPrompt(docs);
-  return `Produce a PM-ready EM sovereign credit assessment for ${countryName} from the documents below. This goes to a portfolio manager making Eurobond allocation decisions today.
+  return `Produce a senior-analyst-ready EM sovereign credit note for ${countryName}. This is for Mesarete Capital, an EM credit HF — it goes to the PM and senior analyst for allocation decisions across hard currency Eurobonds.
+
+Cover: fundamental credit analysis, financing sources and uses, debt repayment schedule, relative value vs peers, directional and RV trade ideas, and a portfolio sizing recommendation.
 ${content}
 
-Return ONLY this JSON — all fields required. Use "N/A — not in documents" if data is absent rather than guessing:
+Return ONLY this JSON — all fields required. Use "N/A — not in documents" if data is absent:
 
 {
   "snapshot": {
     "country": "${countryName}",
     "region": "Sub-Saharan Africa|MENA|LatAm|Eastern Europe|Asia",
     "creditView": "Positive|Neutral|Negative",
-    "creditRationale": "2 sentences max. State the dominant credit driver and its direction. No hedging."
+    "creditRationale": "2 sentences max. Lead with the dominant credit driver and trajectory. No hedging language."
   },
   "fiscalProfile": {
     "fiscalBalanceGdp": "e.g. -3.8% of GDP (FY2025e)",
     "primaryBalanceGdp": "e.g. +0.4% of GDP",
     "debtToGdp": "e.g. 87% of GDP",
     "revenueToGdp": "e.g. 16.2% of GDP",
-    "interestToRevenue": "e.g. 38% — critical threshold if >30%",
+    "interestToRevenue": "e.g. 38% — flag if >30%, distress if >50%",
     "trend": "improving|stable|deteriorating",
-    "keyMetric": "The single most important fiscal data point and why it matters for credit"
+    "keyMetric": "The single fiscal data point most relevant to creditworthiness, with context"
+  },
+  "financingSourcesAndUses": {
+    "grossFinancingNeed": "e.g. $22bn FY2026 (CAD $8bn + debt amortisation $14bn)",
+    "fundingSources": "e.g. IMF/MFI $6bn, bilateral GCC $4bn, domestic T-bills $8bn, Eurobond $4bn",
+    "fundingGap": "e.g. $4bn unfunded — requires market access or additional bilateral support",
+    "domesticFundingCapacity": "e.g. T-bill issuance running at $1.2bn/month, local banks absorbed 85% of recent auction",
+    "commentary": "1-2 sentences on the realism of the funding plan and key execution risks"
+  },
+  "debtRepaymentSchedule": {
+    "next12Months": "e.g. $2.1bn Eurobond Apr 2026 + $900m bilateral Jun 2026",
+    "next24Months": "e.g. additional $3.5bn due 2027 — largest maturity wall",
+    "imfTranchePipeline": "e.g. $1.2bn tranche expected Q1 2026 subject to 3rd review",
+    "refinancingStrategy": "e.g. Plans to pre-fund Apr 2026 maturity via new Eurobond in Q4 2025 — market access dependent"
   },
   "externalSector": {
     "currentAccountGdp": "e.g. -3.1% of GDP",
-    "fxReservesUsd": "e.g. $9.4bn (gross), $4.1bn (net of swaps)",
-    "importCoverMonths": "e.g. 3.2 months — below 3m is distress threshold",
-    "externalFinancingNeed": "e.g. $18bn in FY2026 (CAD + amortisation)",
-    "keyRisk": "Primary external vulnerability in one sentence with numbers"
+    "fxReservesUsd": "e.g. $9.4bn gross / $4.1bn net of swaps and forwards",
+    "importCoverMonths": "e.g. 3.2 months gross — below 3m is a distress signal",
+    "externalFinancingNeed": "e.g. $18bn FY2026",
+    "keyVulnerability": "Primary external risk in one sentence with numbers"
   },
   "debtSustainability": {
     "refinancingRisk": "High|Medium|Low",
-    "maturityWall": "e.g. $2bn due H1 2026, $3.5bn due 2027 — state if bond or bilateral",
-    "currencyMix": "e.g. 55% hard currency, 30% local, 15% multilateral concessional",
+    "maturityWall": "e.g. $2bn H1 2026 (Eurobond) + $3.5bn 2027 (bilateral + bond)",
+    "currencyMix": "e.g. 55% hard currency Eurobonds, 30% domestic, 15% multilateral concessional",
     "imfProgramme": {
       "active": true,
-      "details": "e.g. $8bn EFF, approved Mar 2024, 2nd review passed Oct 2024, next tranche $1.2bn",
-      "continuationRisk": "Risk that programme goes off-track — evidence-based"
+      "details": "e.g. $8bn EFF approved Mar 2024, 2nd review passed Oct 2024, $1.2bn next tranche",
+      "continuationRisk": "Evidence-based assessment of programme derailment risk"
     },
-    "debtTrajectory": "Stabilising|Declining|Rising — with peak debt/GDP level and year if available"
+    "debtTrajectory": "Stabilising|Declining|Rising — with peak debt/GDP estimate and year"
   },
   "politicalEconomy": {
     "reformMomentum": "Strong|Moderate|Weak",
-    "keyReform": "The most critical reform underway and status",
-    "socialRisk": "Austerity fatigue, unemployment, subsidy cuts — specific evidence",
-    "externalRelations": "IMF/GCC/bilateral creditor dynamics — any conditionality or geopolitical dimension"
+    "keyReform": "Most credit-relevant reform in progress and current status",
+    "socialRisk": "Austerity fatigue, subsidy cuts, unemployment — specific evidence with numbers",
+    "externalRelations": "IMF, GCC, bilateral creditors, geopolitical dynamics — any conditionality"
+  },
+  "relativeValue": {
+    "currentSpread": "e.g. EGYPT curve: 2026 at Z+580bps, 2029 at Z+820bps, 2032 at Z+890bps",
+    "peerComparison": "e.g. vs Nigeria 2029 at Z+750bps, Pakistan 2029 at Z+950bps — EGYPT screens cheap to NG but rich to PK",
+    "curveShape": "e.g. 2-10yr curve at +310bps — steep vs peer median of +200bps, front-end expensive on roll",
+    "historicalContext": "e.g. Current spread 220bps wide of Jan 2024 tights, 180bps tight of Oct 2023 stress peak",
+    "rvConclusion": "Which part of the curve offers best risk-adjusted entry and why"
   },
   "catalystsAndRisks": {
     "positiveCatalysts": [
       { "catalyst": "Specific event or data release", "timing": "e.g. Q2 2026", "spreadImpact": "e.g. -50 to -80bps on the curve" }
     ],
     "negativeRisks": [
-      { "risk": "Specific risk", "probability": "High|Medium|Low", "spreadImpact": "e.g. +150bps+, likely triggers IMF suspension" }
+      { "risk": "Specific risk with evidence", "probability": "High|Medium|Low", "spreadImpact": "e.g. +150bps+, likely triggers IMF suspension" }
     ]
   },
   "tradeIdeas": [
     {
-      "bond": "e.g. EGYPT 7.625% 2029 or 6.588% 2028",
-      "direction": "Long|Short|Avoid",
-      "entryLevel": "e.g. Z+820bps / ~9.10% yield / ~$85 price",
-      "target": "e.g. Z+680bps / ~$91 (12m horizon)",
-      "stop": "e.g. Z+950bps / ~$81 — IMF programme suspension",
-      "riskReward": "e.g. 2.3x (carry included)",
+      "type": "Directional|RV",
+      "bond": "e.g. EGYPT 7.625% 2029 — for RV: Long EGYPT 2029 / Short NIGERIA 2029",
+      "direction": "Long|Short|Long-Short|Avoid",
+      "entryLevel": "e.g. Z+820bps / ~9.10% yield / ~$85 price — or for RV: EGYPT/NIGERIA spread at -70bps",
+      "target": "e.g. Z+680bps / ~$91 — or RV: spread narrows to +50bps",
+      "stop": "e.g. Z+950bps / ~$81 — IMF review failure",
+      "riskReward": "e.g. 2.3x (carry + spread compression)",
       "horizon": "3m|6m|12m|18m+",
-      "rationale": "2-3 sentences: why this bond, why now, what makes the entry compelling vs alternatives on the curve",
-      "keyMonitor": "The one data point or event that changes the thesis"
+      "rationale": "2-3 sentences: why this bond/pair, entry thesis, what makes it compelling",
+      "keyMonitor": "One data point or event that invalidates the trade"
     }
   ],
+  "portfolioSizing": {
+    "recommendation": "e.g. 2-3% of AUM — Moderate conviction, add on weakness",
+    "convictionLevel": "High|Medium|Low",
+    "sizingRationale": "Why this size: conviction, liquidity, spread volatility, correlation to existing book",
+    "addLevels": "e.g. Add to 4% if spread widens to Z+900bps on IMF review delay without programme break",
+    "exitStrategy": "e.g. Reduce to 1% at Z+650bps target or on signs of fiscal slippage"
+  },
   "creditVerdict": {
     "recommendation": "Overweight|Neutral|Underweight",
-    "currentSpreadContext": "e.g. trading at Z+780bps, 200bps wide of Jan 2024 tights — cheap vs history or fair?",
-    "summary": "3 sentences for a PM: current positioning, primary driver of the view, and what would change it"
+    "currentSpreadContext": "e.g. Z+820bps — 200bps wide of Jan 2024 tights, carry of ~9.1% compensates for refinancing risk",
+    "summary": "3 sentences for the PM: positioning, primary driver, what changes the view"
   },
   "overallScore": {
     "total": 0,
@@ -153,7 +187,7 @@ Return ONLY this JSON — all fields required. Use "N/A — not in documents" if
       "debtSustainability": "0-25",
       "politicalEconomy": "0-25"
     },
-    "rationale": "What the score reflects — be direct about the weakest pillar"
+    "rationale": "Direct assessment of the weakest pillar and whether it is structural or cyclical"
   }
 }`;
 }
@@ -178,21 +212,23 @@ export async function analyseSovereign(
 
 // ── Corporate Analysis ────────────────────────────────────────────────────────
 
-const CORPORATE_SYSTEM = `You are a senior EM corporate credit analyst at a top-tier hedge fund (think Bluebay, Ashmore, Stone Harbor). You analyse annual reports, bond prospectuses, investor presentations, earnings transcripts, and rating agency reports for EM corporates. Your output goes directly to a PM making bond allocation decisions.
+const CORPORATE_SYSTEM = `You are a junior analyst at Mesarete Capital, a London-based EM credit investment manager. You support senior analysts and PMs on EM hard currency credit across sovereigns, quasi-sovereigns, and corporates. Your corporate analysis covers three-statement fundamentals (income statement, balance sheet, cash flow), debt repayment schedules, financing sources and uses, FX risk, and relative value vs sector peers. Your output goes directly to a senior analyst or PM.
 
 Analyst standards:
-- Every claim must cite a specific number from the documents (leverage ratio, coverage ratio, $bn, %). No assertions without evidence.
-- Be direct — no filler. Every sentence must add information.
-- FX mismatch is often the killer in EM credit — stress-test it explicitly.
-- Distinguish between accounting metrics and cash credit quality (watch working capital, capex, related-party flows).
-- Trade ideas must be actionable: name the specific bond (coupon/maturity), entry level in spread or yield, target, stop, time horizon.
-- Flag data gaps with "N/A — not in documents" rather than guessing.
+- Every claim must cite a specific number (leverage, coverage, $bn, %). No assertions without evidence.
+- Be direct — no filler. Every sentence adds information.
+- For quasi-sovereigns, assess implicit sovereign support explicitly: ownership structure, strategic importance, track record of support, and whether spreads appropriately reflect the linkage.
+- FX mismatch is often the kill-shot in EM credit — stress-test it explicitly.
+- Distinguish accounting from cash credit quality: watch working capital, capex intensity, related-party flows, and dividend upstreaming.
+- Trade ideas must include both directional and RV (vs sector peers, vs senior/sub stack) where relevant.
+- New issue analysis: assess fair value vs secondary, NIP, and portfolio sizing relative to existing exposure.
+- Flag data gaps as "N/A — not in documents" rather than guessing.
 - Output ONLY valid JSON. No preamble, no markdown, no text outside the JSON.
 - Ensure the JSON is complete and properly closed — never truncate mid-response.`;
 
 function buildCorporatePrompt(issuerName: string, docs: { file_name: string; doc_type: string; year: string | null; text: string }[]): string {
   const content = formatDocsForPrompt(docs);
-  return `Produce a PM-ready EM corporate credit assessment for ${issuerName} from the documents below. This goes to a PM making bond allocation decisions today.
+  return `Produce a senior-analyst-ready EM corporate credit note for ${issuerName}. This is for Mesarete Capital, an EM credit HF. Cover: three-statement fundamentals, financing sources and uses, debt repayment schedule, quasi-sovereign support (if applicable), FX stress test, relative value vs peers, and portfolio sizing.
 ${content}
 
 Return ONLY this JSON — all fields required. Use "N/A — not in documents" if data is absent:
@@ -202,64 +238,105 @@ Return ONLY this JSON — all fields required. Use "N/A — not in documents" if
     "issuer": "${issuerName}",
     "country": "Country of incorporation",
     "sector": "Oil & Gas|Metals & Mining|Financials|Telecoms|Real Estate|Utilities|Consumer|Infrastructure|Other",
+    "isQuasiSovereign": true,
+    "sovereignOwnership": "e.g. 70% state-owned via Ministry of Finance — classify as quasi-sovereign",
     "creditView": "Positive|Neutral|Negative",
-    "creditRationale": "2 sentences max. Lead with the dominant credit driver — leverage, liquidity, FX, or sovereign ceiling."
+    "creditRationale": "2 sentences max. Lead with the dominant driver — leverage, liquidity, FX mismatch, or sovereign ceiling."
+  },
+  "threeStatementSummary": {
+    "revenue": "e.g. $4.2bn FY2024 (+8% YoY) — growth driver and sustainability",
+    "ebitda": "e.g. $1.4bn, margin 33% (FY23: 29%) — note if margin expansion is structural or one-off",
+    "interestExpense": "e.g. $280m — rising due to higher USD rates on floating bank debt",
+    "netIncome": "e.g. $620m — but note $200m non-cash FX gain inflating reported earnings",
+    "capex": "e.g. $380m maintenance + $150m growth — flag if maintenance capex is being deferred",
+    "freeCashFlow": "e.g. $680m after interest and tax, $320m after capex — state if FCF covers debt service",
+    "workingCapital": "e.g. Receivables up $340m YoY — flag if related-party or government receivables",
+    "cashAndEquivalents": "e.g. $920m — assess accessibility (any trapped cash in restricted subsidiaries?)"
   },
   "creditMetrics": {
-    "netDebtToEbitda": "e.g. 3.8x (FY2024) vs 4.2x (FY2023) — direction matters",
-    "ebitdaToInterest": "e.g. 3.1x — <2.5x is distress territory for EM",
-    "fcfYield": "e.g. 6.2% of debt — FCF after capex and interest",
-    "liquidityRunway": "e.g. $420m cash + $200m undrawn RCF vs $310m due within 12m",
+    "netDebtToEbitda": "e.g. 3.8x FY2024 vs 4.2x FY2023 — trajectory matters",
+    "ebitdaToInterest": "e.g. 3.1x — flag if <2.5x, distress if <1.5x",
+    "fcfDebtServiceCoverage": "e.g. 1.8x — FCF / (interest + scheduled amortisation)",
+    "liquidityRunway": "e.g. $920m cash + $300m undrawn RCF vs $450m due in 12m — 2.7x coverage",
     "trend": "improving|stable|deteriorating",
-    "keyWeakness": "The metric that most concerns a credit analyst, with the number"
+    "keyWeakness": "The metric that most concerns a credit investor, with specific numbers"
   },
-  "debtStructure": {
-    "totalDebt": "e.g. $2.1bn gross, $1.8bn net",
-    "currencyMix": "e.g. 75% USD Eurobonds, 25% local currency bank debt",
-    "maturityWall": "e.g. $400m 5.875% due Jun 2026, $600m 6.25% due Nov 2027",
-    "nextMaturity": "e.g. $400m Notes due Jun 2026 — must refinance or repay in 18m",
-    "refinancingRisk": "High|Medium|Low",
-    "covenantHeadroom": "e.g. Net leverage covenant at 4.0x, currently 3.8x — thin headroom"
+  "financingSourcesAndUses": {
+    "annualDebtService": "e.g. $280m interest + $400m scheduled amortisation = $680m FY2026",
+    "fundingSources": "e.g. Operating FCF $680m, RCF drawdown $200m, new bond issuance planned $500m",
+    "fundingGap": "e.g. Fully funded if new bond executes — execution risk is the key variable",
+    "accessToMarkets": "e.g. Last accessed market Nov 2023 at 7.5% — current all-in cost estimated 9%+",
+    "parentOrSovereignSupport": "e.g. Government has provided $400m liquidity facility in past two crises — implicit but not contractual"
+  },
+  "debtRepaymentSchedule": {
+    "next12Months": "e.g. $400m 5.875% Notes due Jun 2026 + $150m local bank amortisation",
+    "next24Months": "e.g. $600m 6.25% Notes due Nov 2027 — largest single maturity",
+    "beyondTwoYears": "e.g. $850m 2029+ — manageable if near-term maturities addressed",
+    "refinancingStrategy": "Stated plan and credibility assessment",
+    "refinancingRisk": "High|Medium|Low"
+  },
+  "quasiSovereignAssessment": {
+    "applicable": true,
+    "ownershipStructure": "e.g. 65% MOF, 35% free float — listed on local exchange",
+    "strategicImportance": "e.g. Sole gas distribution monopoly — critical infrastructure, cannot be allowed to default",
+    "supportTrackRecord": "e.g. Government injected $600m capital in 2018 and provided $400m guarantee in 2020",
+    "spreadToSovereign": "e.g. Trading at Z+180bps over sovereign curve — historically 80-120bps, currently cheap",
+    "supportAssumption": "Explicit|Implicit|Unclear — state why and how it affects the credit view"
   },
   "fxRisk": {
-    "revenuesCurrency": "e.g. 60% USD export revenues, 40% local currency domestic",
-    "debtCurrency": "e.g. 75% USD",
+    "revenuesCurrency": "e.g. 60% USD exports, 40% local currency domestic",
+    "debtCurrency": "e.g. 80% USD Eurobonds, 20% local bank",
     "mismatch": "High|Medium|Low|Natural Hedge",
-    "stressTest": "e.g. 20% local currency depreciation adds ~0.4x to leverage, coverage drops to 2.3x",
-    "hedging": "e.g. No formal hedging — natural hedge via USD revenues covers 80% of USD debt service"
+    "stressTest": "e.g. 25% EGP depreciation: leverage +0.6x to 4.4x, EBITDA/interest drops to 2.1x — manageable but tight",
+    "hedging": "e.g. No derivatives — natural hedge via USD revenues covers ~75% of USD debt service"
   },
   "businessQuality": {
-    "marketPosition": "Ranking with evidence — e.g. #2 producer in country X with 18% market share",
-    "revenueVisibility": "High|Medium|Low",
-    "marginTrend": "e.g. EBITDA margin 34% (FY24) vs 29% (FY22) — expanding on cost cuts",
-    "sovereignCeiling": "e.g. Sovereign rated B2/B, issuer at B1/B+ — one notch above ceiling, limits upside",
-    "keyRisk": "The single biggest business risk with evidence"
+    "marketPosition": "Ranking with evidence — e.g. #1 cement producer with 28% market share",
+    "revenueVisibility": "High|Medium|Low — and why",
+    "marginTrend": "e.g. EBITDA margin 33% FY24 vs 29% FY22 — expanding on pricing, flag if sustainable",
+    "sovereignCeiling": "e.g. Sovereign B2/B, issuer B1/B+ — one notch above ceiling, upside constrained",
+    "keyRisk": "Biggest credit risk with evidence"
+  },
+  "relativeValue": {
+    "currentSpread": "e.g. ISSUER 2027s at Z+480bps, 2029s at Z+540bps",
+    "peerComparison": "e.g. vs PEER1 2027 at Z+420bps, PEER2 2027 at Z+510bps — ISSUER screens 60bps wide to PEER1",
+    "seniorSubStack": "e.g. Senior at Z+480bps vs Sub Tier 2 at Z+680bps — 200bps pickup for one notch of subordination, historically 150bps",
+    "historicalContext": "e.g. Current spread 150bps wide of 12m tights, 80bps tight of stress peak",
+    "rvConclusion": "Best entry point on the curve or capital structure and why"
   },
   "catalystsAndRisks": {
     "positiveCatalysts": [
       { "catalyst": "Specific event", "timing": "e.g. Q1 2026", "spreadImpact": "e.g. -60 to -80bps" }
     ],
     "negativeRisks": [
-      { "risk": "Specific risk with numbers", "probability": "High|Medium|Low", "spreadImpact": "e.g. +200bps+ / restructuring risk" }
+      { "risk": "Specific risk with numbers", "probability": "High|Medium|Low", "spreadImpact": "e.g. +200bps+, restructuring risk" }
     ]
   },
   "tradeIdeas": [
     {
-      "bond": "e.g. ISSUER 6.25% 2027 or 5.875% 2026",
-      "direction": "Long|Short|Avoid",
-      "entryLevel": "e.g. Z+480bps / ~8.2% yield / ~$94 price",
-      "target": "e.g. Z+380bps / ~$98 (6m horizon, carry + tightening)",
-      "stop": "e.g. Z+580bps / ~$90 — maturity extension risk materialises",
+      "type": "Directional|RV",
+      "bond": "e.g. ISSUER 6.25% 2027 — or for RV: Long ISSUER 2027 / Short PEER 2027",
+      "direction": "Long|Short|Long-Short|Avoid",
+      "entryLevel": "e.g. Z+480bps / ~8.2% / ~$94 — or RV: ISSUER/PEER at +60bps",
+      "target": "e.g. Z+380bps / ~$98 — or RV: spread narrows to +20bps",
+      "stop": "e.g. Z+580bps / ~$90 — refinancing execution fails",
       "riskReward": "e.g. 2.0x",
       "horizon": "3m|6m|12m|18m+",
-      "rationale": "2-3 sentences: why this bond, what's the entry thesis, why now vs waiting",
-      "keyMonitor": "The single metric or event that invalidates the trade"
+      "rationale": "2-3 sentences: why this bond/pair, what's the entry thesis",
+      "keyMonitor": "Single metric or event that invalidates the trade"
     }
   ],
+  "portfolioSizing": {
+    "recommendation": "e.g. 1.5-2% of AUM — medium conviction, size reflects refinancing risk",
+    "convictionLevel": "High|Medium|Low",
+    "sizingRationale": "Conviction, liquidity, spread vol, correlation to EM sovereign book",
+    "addLevels": "e.g. Add to 3% if 2027 spreads widen past Z+550bps without fundamental deterioration",
+    "exitStrategy": "e.g. Take profit at Z+380bps or reduce if FCF/interest falls below 2.0x"
+  },
   "creditVerdict": {
     "recommendation": "Buy|Hold|Sell",
-    "currentSpreadContext": "e.g. trading at Z+460bps, peer group at Z+380bps — 80bps wide to peers, partially justified by FX risk",
-    "summary": "3 sentences for a PM: current positioning, the primary driver, and what changes the view"
+    "currentSpreadContext": "e.g. Z+480bps — 80bps wide to peer average, NIP on last deal was 40bps, secondary looks fair to cheap",
+    "summary": "3 sentences for a PM: positioning, primary driver, what changes the view"
   },
   "overallScore": {
     "total": 0,
@@ -269,7 +346,7 @@ Return ONLY this JSON — all fields required. Use "N/A — not in documents" if
       "businessQuality": "0-25",
       "fxAndCountryRisk": "0-25"
     },
-    "rationale": "Be direct about the weakest pillar and whether it's structural or cyclical"
+    "rationale": "Direct assessment of weakest pillar — structural or cyclical?"
   }
 }`;
 }
