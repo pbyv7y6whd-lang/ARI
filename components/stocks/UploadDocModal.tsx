@@ -79,6 +79,7 @@ export default function UploadDocModal({ stockId, entityType = "corporate", open
     if (mode === "url") fd.append("pdf_url", url.trim());
     else fd.append("file", file!);
 
+    // Step 1: save the document (parses PDF, stores to DB) — typically 5-15s
     const res = await fetch(`/api/stocks/${stockId}/documents`, { method: "POST", body: fd });
     if (!res.ok) {
       const d = await res.json();
@@ -86,6 +87,10 @@ export default function UploadDocModal({ stockId, entityType = "corporate", open
       setLoading(false);
       return;
     }
+
+    // Step 2: fire analysis in the background — don't await, modal closes immediately
+    fetch(`/api/stocks/${stockId}/analyse`, { method: "POST" }).catch(() => {});
+
     onSuccess();
   };
 
@@ -211,7 +216,7 @@ export default function UploadDocModal({ stockId, entityType = "corporate", open
             <div className="flex items-center gap-2 rounded-sm border border-[#e0d8ee] bg-[#f4f0f8] px-4 py-3">
               <Loader2 className="h-3.5 w-3.5 animate-spin text-[#5b21b6] shrink-0" />
               <span className="text-[12px] text-[#6b4fa0]">
-                {mode === "upload" ? "Uploading and queuing re-analysis..." : "Fetching document and queuing re-analysis..."}
+                {mode === "upload" ? "Uploading and parsing PDF..." : "Fetching and parsing document..."}
               </span>
             </div>
           )}
