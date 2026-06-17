@@ -69,14 +69,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     parsed_content: null,
   });
 
-  await updateStock(stockId, {
-    status: "processing", progress: 5,
-    progress_message: "Document saved — parsing PDF...",
-  });
-
-  // Parse PDF after the response is sent — captures buffer in closure
-  // after() keeps the Vercel function alive until this completes
-  const bufferCopy = Buffer.from(buffer); // ensure closure capture
+  // Parse PDF after the response is sent — after() keeps the Vercel function alive
+  const bufferCopy = Buffer.from(buffer);
   after(async () => {
     try {
       const parsed = await parsePDF(bufferCopy);
@@ -87,13 +81,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
             word_count     = ${parsed.wordCount}
         WHERE id = ${docId}
       `;
-      await updateStock(stockId, {
-        status: "processing", progress: 15,
-        progress_message: `PDF parsed (${parsed.pageCount} pages) — ready for analysis`,
-      });
+      console.log(`[documents] parsed ${parsed.pageCount} pages for doc ${docId}`);
     } catch (err) {
       console.error("[documents] post-response parse failed:", err);
-      // Not fatal — analysis will attempt to re-parse URL docs, or skip uploaded ones
     }
   });
 
