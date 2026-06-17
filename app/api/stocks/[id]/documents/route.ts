@@ -1,12 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { addDocument, getStock, updateStock, setupDb } from "@/lib/db";
 import { parsePDF } from "@/lib/pdf";
+import { sql } from "@vercel/postgres";
 import { v4 as uuidv4 } from "uuid";
-import type { ParsedPDF } from "@/lib/pdf";
 
-// This route ONLY saves the document — it returns fast (~5-10s).
-// The client fires /analyse separately so the modal closes immediately.
-export const maxDuration = 120;
+// Upload route: saves doc and returns immediately (~1-2s).
+// PDF parsing happens after the response via after() — never blocks the modal.
+// Analysis is triggered separately by the client.
+export const maxDuration = 60;
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   await setupDb();
@@ -58,31 +59,44 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     storedUrl = `uploaded:${file!.name}`;
   }
 
-  // Parse and store — this is the slow part for large PDFs, but happens once and is cached
-  let pageCount: number | null = null;
-  let wordCount: number | null = null;
-  let parsed: ParsedPDF | null = null;
-  try {
-    parsed    = await parsePDF(buffer);
-    pageCount = parsed.pageCount;
-    wordCount = parsed.wordCount;
-  } catch { /* non-fatal */ }
-
+  // Save document record immediately — no parsing yet
   const docId = uuidv4();
   await addDocument({
     id: docId, stock_id: stockId, file_name: fileName,
     display_name: displayName,
     doc_type: docType, year, blob_url: storedUrl,
-    page_count: pageCount, word_count: wordCount,
-    parsed_content: parsed ?? null,
+    page_count: null, word_count: null,
+    parsed_content: null,
   });
 
-  // Mark as pending re-analysis so the page shows a queued state
   await updateStock(stockId, {
     status: "processing", progress: 5,
-    progress_message: "Document saved — queuing analysis...",
+    progress_message: "Document saved — parsing PDF...",
   });
 
-  // Return immediately — client fires /analyse separately
+  // Parse PDF after the response is sent — captures buffer in closure
+  // after() keeps the Vercel function alive until this completes
+  const bufferCopy = Buffer.from(buffer); // ensure closure capture
+  after(async () => {
+    try {
+      const parsed = await parsePDF(bufferCopy);
+      await sql`
+        UPDATE documents
+        SET parsed_content = ${JSON.stringify(parsed)}::jsonb,
+            page_count     = ${parsed.pageCount},
+            word_count     = ${parsed.wordCount}
+        WHERE id = ${docId}
+      `;
+      await updateStock(stockId, {
+        status: "processing", progress: 15,
+        progress_message: `PDF parsed (${parsed.pageCount} pages) — ready for analysis`,
+      });
+    } catch (err) {
+      console.error("[documents] post-response parse failed:", err);
+      // Not fatal — analysis will attempt to re-parse URL docs, or skip uploaded ones
+    }
+  });
+
+  // Returns in ~1s for uploads, ~5-45s for URL downloads (download time only)
   return NextResponse.json({ docId });
 }
