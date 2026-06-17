@@ -34,6 +34,7 @@ export async function setupDb() {
   `;
   // Add parsed_content column to existing tables that predate this migration
   await sql`ALTER TABLE documents ADD COLUMN IF NOT EXISTS parsed_content JSONB`;
+  await sql`ALTER TABLE documents ADD COLUMN IF NOT EXISTS display_name TEXT`;
 }
 
 export async function createStock(stock: {
@@ -54,6 +55,7 @@ export async function addDocument(doc: {
   id: string;
   stock_id: string;
   file_name: string;
+  display_name?: string | null;
   doc_type: string;
   year: string | null;
   blob_url: string;
@@ -62,8 +64,8 @@ export async function addDocument(doc: {
   parsed_content?: object | null;
 }) {
   await sql`
-    INSERT INTO documents (id, stock_id, file_name, doc_type, year, blob_url, page_count, word_count, parsed_content)
-    VALUES (${doc.id}, ${doc.stock_id}, ${doc.file_name}, ${doc.doc_type}, ${doc.year}, ${doc.blob_url}, ${doc.page_count}, ${doc.word_count}, ${doc.parsed_content ? JSON.stringify(doc.parsed_content) : null}::jsonb)
+    INSERT INTO documents (id, stock_id, file_name, display_name, doc_type, year, blob_url, page_count, word_count, parsed_content)
+    VALUES (${doc.id}, ${doc.stock_id}, ${doc.file_name}, ${doc.display_name ?? null}, ${doc.doc_type}, ${doc.year}, ${doc.blob_url}, ${doc.page_count}, ${doc.word_count}, ${doc.parsed_content ? JSON.stringify(doc.parsed_content) : null}::jsonb)
   `;
   await sql`
     UPDATE stocks SET doc_count = doc_count + 1, updated_at = NOW() WHERE id = ${doc.stock_id}

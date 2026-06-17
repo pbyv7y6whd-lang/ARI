@@ -15,10 +15,11 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   if (!stock) return NextResponse.json({ error: "Stock not found" }, { status: 404 });
 
   const formData = await request.formData();
-  const docType  = (formData.get("doc_type") as string) || "annual_report";
-  const year     = (formData.get("year") as string) || null;
-  const pdfUrl   = formData.get("pdf_url") as string | null;
-  const file     = formData.get("file") as File | null;
+  const docType     = (formData.get("doc_type") as string) || "annual_report";
+  const year        = (formData.get("year") as string) || null;
+  const displayName = (formData.get("display_name") as string) || null;
+  const pdfUrl      = formData.get("pdf_url") as string | null;
+  const file        = formData.get("file") as File | null;
 
   if (!file && !pdfUrl) return NextResponse.json({ error: "No file or URL" }, { status: 400 });
 
@@ -70,6 +71,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   // Store parsed_content so all future re-analyses use the cached version
   await addDocument({
     id: docId, stock_id: stockId, file_name: fileName,
+    display_name: displayName,
     doc_type: docType, year, blob_url: storedUrl,
     page_count: pageCount, word_count: wordCount,
     parsed_content: parsed ?? null,

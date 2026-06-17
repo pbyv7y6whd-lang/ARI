@@ -32,15 +32,16 @@ function detectYear(s: string): string {
 export default function UploadDocModal({ stockId, entityType = "corporate", open, onClose, onSuccess }: Props) {
   const DOC_TYPES = entityType === "sovereign" ? SOVEREIGN_DOC_TYPES : CORPORATE_DOC_TYPES;
 
-  const [mode,    setMode]    = useState<"url" | "upload">("upload");
-  const [url,     setUrl]     = useState("");
-  const [file,    setFile]    = useState<File | null>(null);
-  const [docType, setDocType] = useState(DOC_TYPES[0].value);
-  const [year,    setYear]    = useState(String(new Date().getFullYear()));
-  const [loading, setLoading] = useState(false);
-  const [error,   setError]   = useState("");
-  const [touched, setTouched] = useState(false);
-  const [dragOver, setDragOver] = useState(false);
+  const [mode,        setMode]        = useState<"url" | "upload">("upload");
+  const [url,         setUrl]         = useState("");
+  const [file,        setFile]        = useState<File | null>(null);
+  const [docType,     setDocType]     = useState(DOC_TYPES[0].value);
+  const [year,        setYear]        = useState(String(new Date().getFullYear()));
+  const [displayName, setDisplayName] = useState("");
+  const [loading,     setLoading]     = useState(false);
+  const [error,       setError]       = useState("");
+  const [touched,     setTouched]     = useState(false);
+  const [dragOver,    setDragOver]    = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -54,7 +55,7 @@ export default function UploadDocModal({ stockId, entityType = "corporate", open
   const handleClose = () => {
     if (loading) return;
     setUrl(""); setFile(null); setError(""); setTouched(false); setMode("upload");
-    setDocType(DOC_TYPES[0].value); setYear(String(new Date().getFullYear()));
+    setDocType(DOC_TYPES[0].value); setYear(String(new Date().getFullYear())); setDisplayName("");
     onClose();
   };
 
@@ -74,6 +75,7 @@ export default function UploadDocModal({ stockId, entityType = "corporate", open
     const fd = new FormData();
     fd.append("doc_type", docType);
     fd.append("year", year);
+    if (displayName.trim()) fd.append("display_name", displayName.trim());
     if (mode === "url") fd.append("pdf_url", url.trim());
     else fd.append("file", file!);
 
@@ -174,6 +176,20 @@ export default function UploadDocModal({ stockId, entityType = "corporate", open
               </div>
             </div>
           )}
+
+          {/* Document name (optional) */}
+          <div>
+            <label className="text-[10px] uppercase tracking-widest text-[#9a7cc0] mb-1.5 block">
+              Document Name <span className="normal-case tracking-normal text-[#b09dcc]">— optional</span>
+            </label>
+            <input
+              value={displayName}
+              onChange={e => setDisplayName(e.target.value)}
+              placeholder="e.g. CBE Statistical Bulletin May 2026"
+              disabled={loading}
+              className="w-full rounded-sm border border-[#d0c6e0] bg-white px-3 py-2 text-[13px] text-[#1a0a2e] placeholder-[#b09dcc] outline-none focus:border-[#5b21b6] disabled:opacity-50 transition-colors"
+            />
+          </div>
 
           {/* Doc type + year */}
           <div className="grid grid-cols-2 gap-3">

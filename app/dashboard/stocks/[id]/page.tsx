@@ -13,7 +13,7 @@ import ReportView from "@/components/report/ReportView";
 import UploadDocModal from "@/components/stocks/UploadDocModal";
 
 type Document = {
-  id: string; file_name: string; doc_type: string;
+  id: string; file_name: string; display_name: string | null; doc_type: string;
   year: string | null; blob_url: string;
   page_count: number | null; created_at: string;
 };
@@ -1185,7 +1185,12 @@ function DocumentsTab({ stock, onUpload }: { stock: StockData; onUpload: () => v
                 i < stock.documents.length - 1 && "border-b border-[#e0d8ee]")}>
               <FileText className="h-3.5 w-3.5 shrink-0 text-[#9a7cc0]" />
               <div className="flex-1 min-w-0">
-                <p className="text-[12px] font-medium text-[#2d1654] truncate">{doc.file_name}</p>
+                <p className="text-[12px] font-medium text-[#2d1654] truncate">
+                  {doc.display_name || doc.file_name}
+                </p>
+                {doc.display_name && (
+                  <p className="text-[10px] text-[#c4b5d8] truncate font-mono">{doc.file_name}</p>
+                )}
                 <p className="text-[11px] text-[#b09dcc]">
                   {DOC_TYPE_LABELS[doc.doc_type] || doc.doc_type}
                   {doc.year && ` · ${doc.year}`}
