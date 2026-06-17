@@ -176,7 +176,7 @@ export default function ResearchPage() {
             </div>
 
             <div className={s.prose}>
-              <h3>Act One: The Long — And How I Left £59,000 on the Table</h3>
+              <h3>Act One: The Long — And How I Left Over £50,000 on the Table</h3>
               <p>
                 Starting 26 November 2025, I built a position in the <strong>WisdomTree Brent Crude
                 Oil 3x Daily Leveraged ETP (3BRL)</strong>, accumulating approximately £14,700 at a
@@ -200,7 +200,7 @@ export default function ResearchPage() {
               </div>
               <div className={s.dataCell}>
                 <div className={s.dataLabel}>Profit Foregone</div>
-                <div className={`${s.dataValue} ${s.red}`}>~£59k</div>
+                <div className={`${s.dataValue} ${s.red}`}>~£50k</div>
                 <div className={s.dataSub}>On £14,699 invested</div>
               </div>
             </div>
@@ -216,7 +216,36 @@ export default function ResearchPage() {
             </div>
 
             <div className={s.prose}>
-              <h3>Act Three: The Short — Right Thesis, Wrong Timing</h3>
+              <h3>Act Two: The Airstrike — A Trade Within a Trade</h3>
+              <p>
+                In June 2025, Israel conducted a series of airstrikes on Iranian nuclear and military
+                infrastructure. Oil spiked sharply — Brent moved from the low $70s to above $85 in
+                under a week. I did not hold a position at the time, but I was tracking it closely.
+                The key analytical observation was not the spike itself but what happened next: within
+                ten days, oil gave back more than half the move. The market had priced in an escalation
+                that didn't come, then repriced quickly when the Iranian response was measured rather
+                than retaliatory at scale.
+              </p>
+              <p>
+                This episode directly informed the short thesis that followed. It confirmed that the
+                oil market's geopolitical risk premium was highly mean-reverting — spikes driven by
+                event risk, rather than fundamental supply disruption, were pricing anomalies. It also
+                showed that AIS tracking data was a reliable leading indicator: Vortexa's real-time
+                tanker flow data showed normalising traffic through the Gulf before the price normalised.
+                Shipping data was moving faster than the market.
+              </p>
+              <p>
+                By late 2025 and into early 2026, VLCC war-risk insurance premia had risen to their
+                highest levels since 2019 — confirming elevated geopolitical concern — but actual tanker
+                transits through Hormuz remained elevated. The divergence between insurance pricing and
+                actual traffic volume was a signal the risk premium was being systematically overstated.
+                The futures curve was in steep backwardation, the market pricing a supply shock as
+                structural rather than transitory.
+              </p>
+            </div>
+
+            <div className={s.prose}>
+              <h3>Act Three: The Short — Right Thesis, Wrong Instrument</h3>
               <p>
                 With oil at ~$103 in late March 2026, I initiated a short via the{" "}
                 <strong>WisdomTree Brent Crude Oil 1x Daily Short ETP (SBRT)</strong> — 1x rather
@@ -230,6 +259,15 @@ export default function ResearchPage() {
                 $117.29/bbl across April with intraday spikes above $140 — the highest since 2008. My
                 short went immediately underwater. SBRT hit a low of ~$7.60 against my average entry of
                 $9.13, a drawdown of ~17%. I held — and continued adding small amounts.
+              </p>
+              <p>
+                The instrument mattered enormously here. Daily-resetting leveraged ETPs suffer path
+                dependency — when an underlying spikes sharply and then reverts, the compounding drag
+                means you don't recover dollar-for-dollar even when your directional call is ultimately
+                correct. A direct CFD on Brent crude — or a longer-dated put spread — would have
+                captured the same thesis without the structural headwind. At SOFR-linked financing rates
+                of ~5.3%, the roll cost on a CFD was meaningful but materially less damaging than the
+                ~$3,400 in compounding drag the ETP produced from the $140 intraday spike.
               </p>
               <p>
                 On 15 June 2026, a US-Iran peace agreement was signed. Oil fell from above $100 to
@@ -288,6 +326,64 @@ export default function ResearchPage() {
                 </div>
               </div>
             ))}
+
+            {/* ── OIL → EM CREDIT SECOND LIFE ───────────────── */}
+            <div className={s.prose} style={{ marginTop: 48 }}>
+              <h3>Oil and EM Credit: Why This Trade Has a Second Life</h3>
+              <p>
+                The Hormuz resolution doesn't end the oil analysis — it begins it. For EM sovereign
+                credit, the trajectory of Brent from $80 toward J.P. Morgan's structural base case
+                of $60 creates a second-order opportunity that is, in many ways, more interesting than
+                the commodity trade itself.
+              </p>
+              <p>
+                Pakistan, Egypt, and Kenya are all significant net oil importers. At $117/bbl — the
+                April average during the Hormuz blockade — each country faced acute terms-of-trade
+                deterioration: wider current account deficits, depleted FX reserves, higher imported
+                inflation forcing central banks to keep rates restrictive, and in Pakistan's and
+                Egypt's cases, direct pressure on IMF programme conditionality as fiscal targets became
+                harder to meet with a higher energy import bill.
+              </p>
+              <p>
+                As oil normalises toward $70–75/bbl, all three channels reverse simultaneously.
+                For <strong>Pakistan</strong> — where the current account deficit was already under
+                IMF-monitored stress — every $10/bbl decline in Brent saves approximately $1.5–2bn
+                annually in import costs. At current spread levels (~1,100bp), the Pakistan Eurobond
+                market is pricing meaningful refinancing risk. That spread pricing is partially an
+                oil-import story dressed up as a political risk story. The two are not independent.
+              </p>
+              <p>
+                For <strong>Egypt</strong>, the oil normalisation is a three-channel positive: lower
+                energy import costs reduce the subsidy bill directly; reduced FX pressure eases the
+                managed depreciation constraint; and Suez Canal revenues — which fell sharply as
+                shipping was re-routed away from the Red Sea corridor during the Hormuz crisis — begin
+                recovering as tanker transits normalise. Egypt earns approximately $8–10bn annually
+                from the Canal; that revenue stream is oil-conflict correlated in a way the market
+                doesn't always price correctly.
+              </p>
+              <p>
+                For <strong>Kenya</strong> — a frontier credit with approximately 75% of its energy
+                needs met by oil imports — the transmission is more direct. Fuel costs represent a
+                significant share of the CPI basket; lower oil reduces the inflation overshoot that
+                has kept the Central Bank of Kenya's policy rate elevated, suppressing domestic
+                credit growth and economic activity.
+              </p>
+              <p>
+                The spread compression trade across these three names is not a consensus call. The
+                market has been pricing geopolitical risk into EM high-yield spreads for months. As
+                that risk premium unwinds with oil, the spread tightening in oil-importing EM credit
+                is the second life of this thesis — and it is where the commodity analysis connects
+                directly to the sovereign credit research I'm building.
+              </p>
+            </div>
+
+            <div className={s.pullQuote}>
+              <p>
+                "The spread compression trade in oil-importing EM credit is the second life
+                of the oil short — the same analysis, applied one market further downstream."
+              </p>
+            </div>
+
           </section>
 
           {/* ── EM MACRO ──────────────────────────────────── */}
