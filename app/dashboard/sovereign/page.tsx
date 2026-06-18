@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   Plus, Globe, Loader2, TrendingUp, TrendingDown,
-  X, Upload, AlertCircle, ArrowRight,
+  X, AlertCircle, ArrowRight,
 } from "lucide-react";
 import { cn, formatDateShort } from "@/lib/utils";
 
@@ -76,203 +76,85 @@ function scoreColour(score: number) {
 
 function AddSovereignModal({ open, onClose, onSuccess }: { open: boolean; onClose: () => void; onSuccess: () => void }) {
   const router = useRouter();
-  const [mode,    setMode]    = useState<"url" | "upload">("upload");
-  const [name,    setName]    = useState("");
-  const [ticker,  setTicker]  = useState("");
-  const [region,  setRegion]  = useState("");
-  const [url,     setUrl]     = useState("");
-  const [file,    setFile]    = useState<File | null>(null);
-  const [docType, setDocType] = useState("imf_article_iv");
-  const [year,    setYear]    = useState(String(new Date().getFullYear()));
-  const [dragOver, setDragOver] = useState(false);
-  const [state,   setState]   = useState<"idle" | "submitting" | "error">("idle");
-  const [error,   setError]   = useState("");
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [name,   setName]   = useState("");
+  const [ticker, setTicker] = useState("");
+  const [region, setRegion] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error,  setError]  = useState("");
 
-  const urlValid = url.trim().startsWith("http") && url.trim().includes(".");
-  const canSubmit = name.trim() && state !== "submitting" && (mode === "url" ? urlValid : !!file);
+  const canSubmit = name.trim() && !saving;
 
   const handleClose = () => {
-    if (state === "submitting") return;
-    setName(""); setTicker(""); setRegion(""); setUrl(""); setFile(null);
-    setDocType("imf_article_iv"); setYear(String(new Date().getFullYear()));
-    setState("idle"); setError(""); setMode("upload");
+    if (saving) return;
+    setName(""); setTicker(""); setRegion(""); setError("");
     onClose();
-  };
-
-  const handleFile = (f: File | null) => {
-    if (!f) return;
-    if (f.type !== "application/pdf" && !f.name.endsWith(".pdf")) { setError("Please select a PDF file"); return; }
-    setError("");
-    setFile(f);
-    const m = f.name.match(/20(1[5-9]|2[0-9])/);
-    if (m) setYear(m[0]);
   };
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
-    setState("submitting");
+    setSaving(true);
     setError("");
-
-    let stockId: string;
-
-    if (mode === "url") {
-      // Create stock
-      const stockRes = await fetch("/api/stocks", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim(), ticker: ticker.trim() || null, sector: region.trim() || null, entity_type: "sovereign" }),
-      });
-      const stockData = await stockRes.json();
-      if (!stockRes.ok) { setError(stockData.error || "Failed to create sovereign"); setState("error"); return; }
-      stockId = stockData.id;
-
-      // Add document
-      const docRes = await fetch(`/api/stocks/${stockId}/documents`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: url.trim(), doc_type: docType, year }),
-      });
-      if (!docRes.ok) { const d = await docRes.json(); setError(d.error || "Failed to add document"); setState("error"); return; }
-    } else {
-      // Upload PDF flow
-      const fd = new FormData();
-      fd.append("name", name.trim());
-      if (ticker.trim()) fd.append("ticker", ticker.trim());
-      if (region.trim()) fd.append("sector", region.trim());
-      fd.append("doc_type", docType);
-      fd.append("year", year);
-      fd.append("entity_type", "sovereign");
-      fd.append("file", file!);
-
-      const res = await fetch("/api/initiate-coverage-upload", { method: "POST", body: fd });
-      const data = await res.json();
-      if (!res.ok) { setError(data.error || "Failed to upload"); setState("error"); return; }
-      stockId = data.stockId;
-    }
-
-    router.push(`/dashboard/stocks/${stockId}`);
-    fetch(`/api/stocks/${stockId}/analyse`, { method: "POST" }).catch(console.error);
-    setState("idle");
+    const res = await fetch("/api/stocks", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: name.trim(), ticker: ticker.trim() || null, sector: region.trim() || null, entity_type: "sovereign" }),
+    });
+    const data = await res.json();
+    if (!res.ok) { setError(data.error || "Failed to create sovereign"); setSaving(false); return; }
     onSuccess();
+    router.push(`/dashboard/stocks/${data.id}`);
   };
 
   if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1a0a2e]/60 backdrop-blur-sm p-4">
-      <div className="w-full max-w-lg rounded-sm border border-[#c8bedd] bg-[#ede8f5]" style={{ boxShadow: "0 32px 64px rgba(0,0,0,0.15)" }}>
+      <div className="w-full max-w-sm rounded-sm border border-[#c8bedd] bg-[#ede8f5]" style={{ boxShadow: "0 32px 64px rgba(0,0,0,0.15)" }}>
         <div className="flex items-center justify-between border-b border-[#d8cfe8] px-5 py-4">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-widest text-[#9a7cc0]">Sovereign Tracker</p>
             <h2 className="mt-0.5 text-[15px] font-semibold text-[#1a0a2e]">Add Sovereign</h2>
           </div>
-          <button onClick={handleClose} disabled={state === "submitting"}
+          <button onClick={handleClose} disabled={saving}
             className="flex h-7 w-7 items-center justify-center rounded-sm text-[#b09dcc] hover:bg-[#ddd6ec] hover:text-[#4a2980] disabled:opacity-40">
             <X className="h-3.5 w-3.5" />
           </button>
         </div>
 
         <div className="space-y-4 px-5 py-5">
-          {/* Mode toggle */}
-          <div className="flex rounded-sm border border-[#d0c6e0] bg-[#fafaf8] p-0.5">
-            {(["upload", "url"] as const).map(m => (
-              <button key={m} onClick={() => { setMode(m); setError(""); }} disabled={state === "submitting"}
-                className={cn(
-                  "flex flex-1 items-center justify-center gap-1.5 rounded-sm py-1.5 text-[11px] font-medium transition-colors",
-                  mode === m ? "bg-[#e0d8ee] text-[#2d1654]" : "text-[#9a7cc0] hover:text-[#7a5aaa]"
-                )}>
-                {m === "upload" ? <><Upload className="h-3 w-3" /> Upload PDF</> : <><Globe className="h-3 w-3" /> Paste URL</>}
-              </button>
-            ))}
-          </div>
+          <p className="text-[11px] text-[#9a7cc0] leading-relaxed">
+            Create the sovereign entry, then upload documents and hit Re-analyse on its page.
+          </p>
 
-          {mode === "url" && (
-            <div>
-              <label className="text-[10px] uppercase tracking-widest text-[#8b6bb5] mb-1.5 block">Document URL</label>
-              <input value={url} onChange={e => { setUrl(e.target.value); setError(""); }}
-                placeholder="https://imf.org/country-report.pdf"
-                disabled={state === "submitting"}
-                className="w-full rounded-sm border border-[#d0c6e0] bg-[#fafaf8] px-3 py-2 text-[13px] text-[#2d1654] placeholder-[#b09dcc] outline-none focus:border-[#5b21b6] disabled:opacity-50" />
-            </div>
-          )}
-
-          {mode === "upload" && (
-            <div>
-              <label className="text-[10px] uppercase tracking-widest text-[#8b6bb5] mb-1.5 block">PDF File</label>
-              <div onClick={() => fileInputRef.current?.click()}
-                onDragOver={e => { e.preventDefault(); setDragOver(true); }}
-                onDragLeave={() => setDragOver(false)}
-                onDrop={e => { e.preventDefault(); setDragOver(false); handleFile(e.dataTransfer.files[0] ?? null); }}
-                className={cn(
-                  "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-sm border-2 border-dashed px-4 py-6 transition-colors",
-                  dragOver ? "border-emerald-500/60 bg-emerald-500/5" : file ? "border-emerald-500/40 bg-emerald-500/5" : "border-[#d0c6e0] hover:border-[#5b21b6]/50"
-                )}>
-                <input ref={fileInputRef} type="file" accept=".pdf,application/pdf" className="hidden"
-                  disabled={state === "submitting"} onChange={e => handleFile(e.target.files?.[0] ?? null)} />
-                {file ? (
-                  <div className="text-center">
-                    <p className="text-[12px] font-medium text-[#2d1654]">{file.name}</p>
-                    <p className="text-[11px] text-[#9a7cc0]">{(file.size / 1024 / 1024).toFixed(1)} MB · click to change</p>
-                  </div>
-                ) : (
-                  <div className="text-center">
-                    <Upload className="h-4 w-4 text-[#9a7cc0] mx-auto mb-1" />
-                    <p className="text-[12px] text-[#7a5aaa]">Drop PDF here or click to browse</p>
-                    <p className="text-[11px] text-[#b09dcc]">Max 50MB</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Country name + ISO code */}
           <div className="grid grid-cols-3 gap-3">
             <div className="col-span-2">
               <label className="text-[10px] uppercase tracking-widest text-[#8b6bb5] mb-1.5 block">Country Name</label>
-              <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Kenya"
-                disabled={state === "submitting"}
+              <input autoFocus value={name} onChange={e => setName(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && handleSubmit()}
+                placeholder="e.g. United Arab Emirates"
+                disabled={saving}
                 className="w-full rounded-sm border border-[#d0c6e0] bg-[#fafaf8] px-3 py-2 text-[13px] text-[#2d1654] placeholder-[#b09dcc] outline-none focus:border-[#5b21b6] disabled:opacity-50" />
             </div>
             <div>
               <label className="text-[10px] uppercase tracking-widest text-[#8b6bb5] mb-1.5 block">ISO Code</label>
-              <input value={ticker} onChange={e => setTicker(e.target.value.toUpperCase())} placeholder="KE"
-                disabled={state === "submitting"}
+              <input value={ticker} onChange={e => setTicker(e.target.value.toUpperCase())}
+                onKeyDown={e => e.key === "Enter" && handleSubmit()}
+                placeholder="AE"
+                disabled={saving}
                 className="w-full rounded-sm border border-[#d0c6e0] bg-[#fafaf8] px-3 py-2 font-mono text-[13px] text-[#2d1654] placeholder-[#b09dcc] outline-none focus:border-[#5b21b6] disabled:opacity-50" />
             </div>
           </div>
 
-          {/* Region + doc type + year */}
-          <div className="grid grid-cols-3 gap-3">
-            <div>
-              <label className="text-[10px] uppercase tracking-widest text-[#8b6bb5] mb-1.5 block">Region</label>
-              <input value={region} onChange={e => setRegion(e.target.value)} placeholder="Sub-Saharan Africa"
-                disabled={state === "submitting"}
-                className="w-full rounded-sm border border-[#d0c6e0] bg-[#fafaf8] px-3 py-2 text-[13px] text-[#2d1654] placeholder-[#b09dcc] outline-none focus:border-[#5b21b6] disabled:opacity-50" />
-            </div>
-            <div>
-              <label className="text-[10px] uppercase tracking-widest text-[#8b6bb5] mb-1.5 block">Doc Type</label>
-              <select value={docType} onChange={e => setDocType(e.target.value)} disabled={state === "submitting"}
-                className="w-full rounded-sm border border-[#d0c6e0] bg-[#fafaf8] px-3 py-2 text-[13px] text-[#2d1654] outline-none focus:border-[#5b21b6] disabled:opacity-50">
-                {SOVEREIGN_DOC_TYPES.map(t => <option key={t.value} value={t.value} className="bg-[#ede8f5]">{t.label}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="text-[10px] uppercase tracking-widest text-[#8b6bb5] mb-1.5 block">Year</label>
-              <input value={year} onChange={e => setYear(e.target.value)} placeholder="2024"
-                disabled={state === "submitting"}
-                className="w-full rounded-sm border border-[#d0c6e0] bg-[#fafaf8] px-3 py-2 font-mono text-[13px] text-[#2d1654] placeholder-[#b09dcc] outline-none focus:border-[#5b21b6] disabled:opacity-50" />
-            </div>
+          <div>
+            <label className="text-[10px] uppercase tracking-widest text-[#8b6bb5] mb-1.5 block">Region</label>
+            <input value={region} onChange={e => setRegion(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && handleSubmit()}
+              placeholder="e.g. MENA"
+              disabled={saving}
+              className="w-full rounded-sm border border-[#d0c6e0] bg-[#fafaf8] px-3 py-2 text-[13px] text-[#2d1654] placeholder-[#b09dcc] outline-none focus:border-[#5b21b6] disabled:opacity-50" />
           </div>
 
-          {state === "submitting" && (
-            <div className="rounded-sm border border-[#d0c6e0] bg-[#fafaf8] px-4 py-3 flex items-center gap-2.5">
-              <Loader2 className="h-3.5 w-3.5 animate-spin text-emerald-500 shrink-0" />
-              <span className="text-[12px] text-[#6b4fa0]">Processing document...</span>
-            </div>
-          )}
-
-          {state === "error" && error && (
+          {error && (
             <div className="flex items-start gap-2.5 rounded-sm border border-red-200 bg-red-50 px-4 py-3">
               <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-red-600" />
               <p className="text-[12px] text-red-600">{error}</p>
@@ -281,15 +163,15 @@ function AddSovereignModal({ open, onClose, onSuccess }: { open: boolean; onClos
         </div>
 
         <div className="flex items-center gap-2.5 border-t border-[#ddd6ec] px-5 py-4">
-          <button onClick={handleClose} disabled={state === "submitting"}
+          <button onClick={handleClose} disabled={saving}
             className="flex-none rounded-sm border border-[#d0c6e0] px-4 py-2 text-[12px] text-[#8b6bb5] hover:border-[#5b21b6]/50 hover:text-[#4a2980] disabled:opacity-40">
             Cancel
           </button>
           <button onClick={handleSubmit} disabled={!canSubmit}
             className="flex flex-1 items-center justify-center gap-2 rounded-sm bg-[#5b21b6] px-4 py-2 text-[12px] font-semibold text-white hover:bg-[#5b21b6]/90 disabled:cursor-not-allowed disabled:opacity-30">
-            {state === "submitting"
-              ? <><Loader2 className="h-3.5 w-3.5 animate-spin" />Adding sovereign...</>
-              : <>Add &amp; Analyse <ArrowRight className="h-3.5 w-3.5" /></>}
+            {saving
+              ? <><Loader2 className="h-3.5 w-3.5 animate-spin" />Creating...</>
+              : <>Create Sovereign <ArrowRight className="h-3.5 w-3.5" /></>}
           </button>
         </div>
       </div>
