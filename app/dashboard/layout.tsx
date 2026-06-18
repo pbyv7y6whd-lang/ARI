@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
-import { Globe, Building2, LogOut, Settings } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Globe, Building2, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV = [
@@ -16,13 +16,7 @@ const NAV = [
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const router   = useRouter();
   const pathname = usePathname();
-
-  async function logout() {
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/login");
-  }
 
   return (
     <div className="min-h-screen bg-[#fafaf8] flex">
@@ -87,11 +81,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <Settings className="w-3.5 h-3.5" />
             Settings
           </Link>
-          <button onClick={logout}
-            className="w-full flex items-center gap-2.5 px-2 py-2 text-[12px] text-[#b09dcc] hover:text-[#4a2980] transition-all rounded-sm">
-            <LogOut className="w-3.5 h-3.5" />
-            Sign out
-          </button>
         </div>
 
       </aside>
