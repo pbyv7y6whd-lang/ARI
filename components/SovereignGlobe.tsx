@@ -1,210 +1,285 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import createGlobe from "cobe";
+import { useState } from "react";
+import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup } from "react-simple-maps";
 import { cn } from "@/lib/utils";
 
-// ── Country coordinate lookup ─────────────────────────────────────────────────
-const COUNTRY_COORDS: Record<string, [number, number]> = {
+// Natural Earth topojson hosted by react-simple-maps
+const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
+
+// ISO-3 numeric → country name lookup (for matching tracked countries)
+// Maps lowercase country name → ISO-3 numeric code used in the topojson
+const NAME_TO_ISO3: Record<string, string> = {
   // MENA
-  egypt:              [26.82,  30.80],
-  jordan:             [30.59,  36.24],
-  morocco:            [31.79,  -7.09],
-  tunisia:            [33.89,   9.54],
-  "saudi arabia":     [23.89,  45.08],
-  uae:                [23.42,  53.85],
-  qatar:              [25.35,  51.18],
-  bahrain:            [26.07,  50.55],
-  oman:               [21.51,  55.92],
-  kuwait:             [29.31,  47.48],
-  iraq:               [33.22,  43.68],
-  lebanon:            [33.85,  35.86],
+  "egypt":                  "818",
+  "jordan":                 "400",
+  "morocco":                "504",
+  "tunisia":                "788",
+  "saudi arabia":           "682",
+  "uae":                    "784",
+  "united arab emirates":   "784",
+  "qatar":                  "634",
+  "bahrain":                "048",
+  "oman":                   "512",
+  "kuwait":                 "414",
+  "iraq":                   "368",
+  "lebanon":                "422",
+  "israel":                 "376",
+  "iran":                   "364",
   // Sub-Saharan Africa
-  nigeria:            [ 9.08,   8.68],
-  kenya:              [ 0.02,  37.91],
-  ghana:              [ 7.95,  -1.02],
-  "ivory coast":      [ 7.54,  -5.55],
-  "cote d'ivoire":    [ 7.54,  -5.55],
-  senegal:            [14.50, -14.45],
-  zambia:             [-13.13, 27.85],
-  ethiopia:           [ 9.15,  40.49],
-  angola:             [-11.20, 17.87],
-  mozambique:         [-18.67, 35.53],
-  tanzania:           [ -6.37, 34.89],
-  "south africa":     [-30.56, 22.94],
-  cameroon:           [ 3.85,  11.50],
-  rwanda:             [ -1.94, 29.87],
+  "nigeria":                "566",
+  "kenya":                  "404",
+  "ghana":                  "288",
+  "ivory coast":            "384",
+  "cote d'ivoire":          "384",
+  "senegal":                "686",
+  "zambia":                 "894",
+  "ethiopia":               "231",
+  "angola":                 "024",
+  "mozambique":             "508",
+  "tanzania":               "834",
+  "south africa":           "710",
+  "cameroon":               "120",
+  "rwanda":                 "646",
+  "uganda":                 "800",
+  "zimbabwe":               "716",
+  "namibia":                "516",
   // Eastern Europe / CIS
-  ukraine:            [48.38,  31.17],
-  romania:            [45.94,  24.97],
-  hungary:            [47.16,  19.50],
-  poland:             [51.92,  19.14],
-  serbia:             [44.02,  21.01],
-  croatia:            [45.10,  15.20],
-  bulgaria:           [42.73,  25.48],
-  georgia:            [42.32,  43.36],
-  armenia:            [40.07,  45.04],
-  azerbaijan:         [40.14,  47.58],
-  kazakhstan:         [48.02,  66.92],
-  uzbekistan:         [41.38,  64.59],
+  "ukraine":                "804",
+  "romania":                "642",
+  "hungary":                "348",
+  "poland":                 "616",
+  "serbia":                 "688",
+  "croatia":                "191",
+  "bulgaria":               "100",
+  "georgia":                "268",
+  "armenia":                "051",
+  "azerbaijan":             "031",
+  "kazakhstan":             "398",
+  "uzbekistan":             "860",
+  "turkey":                 "792",
+  "turkiye":                "792",
   // Asia
-  pakistan:           [30.38,  69.35],
-  bangladesh:         [23.68,  90.36],
-  vietnam:            [14.06, 108.28],
-  indonesia:          [-0.79, 113.92],
-  mongolia:           [46.86, 103.85],
-  "sri lanka":        [ 7.87,  80.77],
-  india:              [20.59,  78.96],
-  china:              [35.86, 104.20],
+  "pakistan":               "586",
+  "bangladesh":             "050",
+  "vietnam":                "704",
+  "indonesia":              "360",
+  "mongolia":               "496",
+  "sri lanka":              "144",
+  "india":                  "356",
+  "china":                  "156",
   // LatAm
-  brazil:             [-14.24, -51.93],
-  argentina:          [-38.42, -63.62],
-  mexico:             [23.63, -102.55],
-  colombia:           [ 4.57,  -74.30],
-  peru:               [-9.19,  -75.02],
-  chile:              [-35.68,  -71.54],
-  ecuador:            [-1.83,  -78.18],
-  panama:             [ 8.54,  -80.78],
-  "costa rica":       [ 9.75,  -83.75],
-  uruguay:            [-32.52,  -55.77],
-  venezuela:          [ 6.42,  -66.59],
-  "dominican republic":[18.74, -70.16],
-  jamaica:            [18.11,  -77.30],
+  "brazil":                 "076",
+  "argentina":              "032",
+  "mexico":                 "484",
+  "colombia":               "170",
+  "peru":                   "604",
+  "chile":                  "152",
+  "ecuador":                "218",
+  "panama":                 "591",
+  "costa rica":             "188",
+  "uruguay":                "858",
+  "venezuela":              "862",
+  "dominican republic":     "214",
+  "jamaica":                "388",
+  "bolivia":                "068",
+  "paraguay":               "600",
+  "el salvador":            "222",
+  "guatemala":              "320",
+  "honduras":               "340",
 };
 
-function getCoords(name: string): [number, number] | null {
+// Country capitals / key city coordinates for markers
+const COUNTRY_MARKER: Record<string, [number, number]> = {
+  "818": [31.2, 30.1],   // Egypt - Cairo
+  "400": [35.9, 31.9],   // Jordan - Amman
+  "504": [-6.8, 34.0],   // Morocco - Rabat
+  "788": [10.2, 36.8],   // Tunisia - Tunis
+  "682": [46.7, 24.7],   // Saudi Arabia - Riyadh
+  "784": [54.4, 24.5],   // UAE - Abu Dhabi
+  "634": [51.5, 25.3],   // Qatar - Doha
+  "048": [50.6, 26.2],   // Bahrain - Manama
+  "512": [58.4, 23.6],   // Oman - Muscat
+  "414": [47.5, 29.4],   // Kuwait - Kuwait City
+  "368": [44.4, 33.3],   // Iraq - Baghdad
+  "422": [35.5, 33.9],   // Lebanon - Beirut
+  "566": [7.5, 9.1],     // Nigeria - Abuja
+  "404": [36.8, -1.3],   // Kenya - Nairobi
+  "288": [-0.2, 5.6],    // Ghana - Accra
+  "384": [-5.3, 6.4],    // Ivory Coast - Abidjan
+  "686": [-17.4, 14.7],  // Senegal - Dakar
+  "894": [28.3, -15.4],  // Zambia - Lusaka
+  "231": [38.7, 9.0],    // Ethiopia - Addis Ababa
+  "710": [28.2, -25.7],  // South Africa - Pretoria
+  "804": [30.5, 50.4],   // Ukraine - Kyiv
+  "642": [26.1, 44.4],   // Romania - Bucharest
+  "398": [71.4, 51.2],   // Kazakhstan - Astana
+  "792": [32.9, 39.9],   // Turkey - Ankara
+  "586": [73.1, 33.7],   // Pakistan - Islamabad
+  "356": [77.2, 28.6],   // India - New Delhi
+  "076": [-47.9, -15.8], // Brazil - Brasilia
+  "032": [-58.4, -34.6], // Argentina - Buenos Aires
+  "484": [-99.1, 19.4],  // Mexico - Mexico City
+  "170": [-74.1, 4.7],   // Colombia - Bogota
+  "604": [-77.0, -12.0], // Peru - Lima
+};
+
+function getIso3(name: string): string | null {
   const key = name.toLowerCase().trim();
-  if (COUNTRY_COORDS[key]) return COUNTRY_COORDS[key];
-  for (const [k, v] of Object.entries(COUNTRY_COORDS)) {
+  if (NAME_TO_ISO3[key]) return NAME_TO_ISO3[key];
+  for (const [k, v] of Object.entries(NAME_TO_ISO3)) {
     if (key.includes(k) || k.includes(key)) return v;
   }
   return null;
 }
 
-// Marker colours by credit view (RGB 0-1)
-function markerRgb(view?: string): [number, number, number] {
-  if (view === "Positive") return [0.27, 0.87, 0.47];  // emerald
-  if (view === "Negative") return [0.96, 0.42, 0.42];  // red
-  return [0.98, 0.75, 0.15];                            // amber
+function creditColour(view?: string) {
+  if (view === "Positive") return "#22c55e";
+  if (view === "Negative") return "#ef4444";
+  return "#f59e0b";
 }
 
-// ── Types ─────────────────────────────────────────────────────────────────────
 export type GlobeCountry = {
-  id:   string;
+  id: string;
   name: string;
-  creditView?:     "Positive" | "Neutral" | "Negative";
+  creditView?: "Positive" | "Neutral" | "Negative";
   recommendation?: "Overweight" | "Neutral" | "Underweight";
-  score?:  number;
+  score?: number;
   region?: string;
 };
 
-// ── Component ─────────────────────────────────────────────────────────────────
 export default function SovereignGlobe({ countries }: { countries: GlobeCountry[] }) {
-  const canvasRef  = useRef<HTMLCanvasElement>(null);
-  const phiRef     = useRef(0.4);
-  const isDragging = useRef(false);
-  const lastX      = useRef(0);
+  const [tooltip, setTooltip] = useState<{ name: string; view?: string; score?: number; x: number; y: number } | null>(null);
 
-  const markers = countries
-    .map(c => ({ country: c, coords: getCoords(c.name) }))
-    .filter((m): m is { country: GlobeCountry; coords: [number, number] } => m.coords !== null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    let animId: number;
-    const size = canvas.offsetWidth || 340;
-
-    const globe = createGlobe(canvas, {
-      devicePixelRatio: 2,
-      width:  size * 2,
-      height: size * 2,
-      phi:    phiRef.current,
-      theta:  0.2,
-      dark:   1,
-      diffuse:       1.2,
-      scale:         1,
-      mapSamples:    20000,
-      mapBrightness: 3,                   // dim land — just a faint outline
-      baseColor:   [0.04, 0.09, 0.18],   // deep navy ocean
-      markerColor: [1,    1,    1   ],    // white base so per-marker hues show true
-      glowColor:   [0.07, 0.18, 0.40],   // navy-blue edge glow
-      markers: markers.map(m => ({
-        location: m.coords,
-        size:  0.08,                      // bigger markers so they pop
-        color: markerRgb(m.country.creditView),
-      })),
-    });
-
-    function animate() {
-      if (!isDragging.current) phiRef.current += 0.003;
-      globe.update({ phi: phiRef.current });
-      animId = requestAnimationFrame(animate);
-    }
-    animId = requestAnimationFrame(animate);
-
-    const ro = new ResizeObserver(entries => {
-      const w = entries[0].contentRect.width;
-      globe.update({ width: w * 2, height: w * 2 });
-    });
-    ro.observe(canvas);
-
-    return () => {
-      cancelAnimationFrame(animId);
-      globe.destroy();
-      ro.disconnect();
-    };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [markers.length]);
-
-  const onMouseDown = (e: React.MouseEvent) => { isDragging.current = true; lastX.current = e.clientX; };
-  const onMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging.current) return;
-    phiRef.current -= (e.clientX - lastX.current) * 0.005;
-    lastX.current = e.clientX;
-  };
-  const onMouseUp = () => { isDragging.current = false; };
+  // Build a lookup of ISO3 → country data for fast access
+  const tracked = new Map<string, GlobeCountry>();
+  for (const c of countries) {
+    const iso = getIso3(c.name);
+    if (iso) tracked.set(iso, c);
+  }
 
   return (
-    <div className="w-full" style={{ paddingBottom: markers.length > 0 ? "3.5rem" : 0 }}>
-      <div className="relative w-full aspect-square max-w-[340px] mx-auto select-none">
-        <canvas
-          ref={canvasRef}
-          className="w-full h-full cursor-grab active:cursor-grabbing"
-          style={{ borderRadius: "50%" }}
-          onMouseDown={onMouseDown}
-          onMouseMove={onMouseMove}
-          onMouseUp={onMouseUp}
-          onMouseLeave={onMouseUp}
-        />
-      </div>
+    <div className="relative w-full">
+      <ComposableMap
+        projection="geoNaturalEarth1"
+        projectionConfig={{ scale: 147 }}
+        style={{ width: "100%", height: "auto" }}
+      >
+        <ZoomableGroup center={[20, 10]} zoom={1} minZoom={1} maxZoom={6}>
+          <Geographies geography={GEO_URL}>
+            {({ geographies }) =>
+              geographies.map(geo => {
+                const iso = geo.id as string;
+                const country = tracked.get(iso);
+                const isTracked = !!country;
 
-      {/* Country pills beneath the globe */}
-      {markers.length > 0 && (
-        <div className="flex flex-wrap justify-center gap-2 mt-3">
-          {markers.map(({ country }) => {
-            const v = country.creditView;
+                return (
+                  <Geography
+                    key={geo.rsmKey}
+                    geography={geo}
+                    onMouseEnter={e => {
+                      if (!isTracked) return;
+                      setTooltip({
+                        name:  country!.name,
+                        view:  country!.creditView,
+                        score: country!.score,
+                        x: e.clientX,
+                        y: e.clientY,
+                      });
+                    }}
+                    onMouseLeave={() => setTooltip(null)}
+                    style={{
+                      default: {
+                        fill:   isTracked ? creditColour(country!.creditView) : "#1e293b",
+                        stroke: "#0f172a",
+                        strokeWidth: 0.5,
+                        outline: "none",
+                      },
+                      hover: {
+                        fill:   isTracked ? creditColour(country!.creditView) : "#334155",
+                        stroke: "#0f172a",
+                        strokeWidth: 0.5,
+                        outline: "none",
+                        filter: isTracked ? "brightness(1.2)" : "none",
+                        cursor: isTracked ? "pointer" : "default",
+                      },
+                      pressed: {
+                        fill:   isTracked ? creditColour(country!.creditView) : "#1e293b",
+                        outline: "none",
+                      },
+                    }}
+                  />
+                );
+              })
+            }
+          </Geographies>
+
+          {/* Score markers on tracked countries */}
+          {countries.map(c => {
+            const iso = getIso3(c.name);
+            if (!iso) return null;
+            const coords = COUNTRY_MARKER[iso];
+            if (!coords) return null;
+            const colour = creditColour(c.creditView);
             return (
-              <div key={country.id}
-                className={cn(
-                  "flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[10px] font-medium",
-                  v === "Positive" ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
-                  : v === "Negative" ? "border-red-400/30 bg-red-400/10 text-red-400"
-                  : "border-amber-400/30 bg-amber-400/10 text-amber-400"
-                )}>
-                <span className={cn("w-1.5 h-1.5 rounded-full shrink-0",
-                  v === "Positive" ? "bg-emerald-400"
-                  : v === "Negative" ? "bg-red-400"
-                  : "bg-amber-400"
-                )} />
-                {country.name}
-                {country.score !== undefined && (
-                  <span className="opacity-60 font-mono ml-0.5">{country.score}</span>
+              <Marker key={c.id} coordinates={coords}>
+                <circle r={5} fill={colour} stroke="#0f172a" strokeWidth={1.5} opacity={0.95} />
+                {c.score !== undefined && (
+                  <text
+                    textAnchor="middle"
+                    y={-9}
+                    style={{ fontFamily: "ui-monospace,monospace", fontSize: "7px", fontWeight: 700, fill: colour }}
+                  >
+                    {c.score}
+                  </text>
                 )}
-              </div>
+              </Marker>
             );
           })}
+        </ZoomableGroup>
+      </ComposableMap>
+
+      {/* Tooltip */}
+      {tooltip && (
+        <div
+          className="fixed z-50 pointer-events-none rounded-sm border border-[#334155] bg-[#0f172a] px-3 py-2 shadow-xl"
+          style={{ left: tooltip.x + 12, top: tooltip.y - 10 }}
+        >
+          <p className="text-[12px] font-semibold text-white">{tooltip.name}</p>
+          <div className="flex items-center gap-2 mt-0.5">
+            {tooltip.view && (
+              <span className={cn("text-[10px] font-bold uppercase tracking-wider",
+                tooltip.view === "Positive" ? "text-emerald-400"
+                : tooltip.view === "Negative" ? "text-red-400"
+                : "text-amber-400"
+              )}>{tooltip.view}</span>
+            )}
+            {tooltip.score !== undefined && (
+              <span className="text-[10px] font-mono text-slate-400">{tooltip.score}/100</span>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Legend */}
+      {countries.length > 0 && (
+        <div className="flex flex-wrap gap-2 mt-3">
+          {countries.map(c => (
+            <div key={c.id} className={cn(
+              "flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[10px] font-medium",
+              c.creditView === "Positive" ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
+              : c.creditView === "Negative" ? "border-red-400/30 bg-red-400/10 text-red-400"
+              : "border-amber-400/30 bg-amber-400/10 text-amber-400"
+            )}>
+              <span className={cn("w-1.5 h-1.5 rounded-full shrink-0",
+                c.creditView === "Positive" ? "bg-emerald-400"
+                : c.creditView === "Negative" ? "bg-red-400"
+                : "bg-amber-400"
+              )} />
+              {c.name}
+              {c.score !== undefined && <span className="opacity-60 font-mono">{c.score}</span>}
+            </div>
+          ))}
         </div>
       )}
     </div>

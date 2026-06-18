@@ -7,7 +7,7 @@ import { Globe, Building2, ChevronRight, FileText, TrendingUp, TrendingDown } fr
 import { cn } from "@/lib/utils";
 import type { GlobeCountry } from "@/components/SovereignGlobe";
 
-// Load globe client-side only (WebGL)
+// Load map client-side only (fetches remote topojson)
 const SovereignGlobe = dynamic(() => import("@/components/SovereignGlobe"), { ssr: false });
 
 type StatsData  = { sovereigns: number; corporates: number; totalDocs: number };
@@ -76,20 +76,20 @@ export default function DashboardPage() {
 
       {/* ── Hero: globe + sovereign list ────────────────────────────────────── */}
       <div className="bg-[#060e1a] border-b border-[#0d1f38]">
-        <div className="max-w-5xl mx-auto px-6 py-10 flex flex-col md:flex-row items-center gap-8 md:gap-12">
+        <div className="max-w-6xl mx-auto px-6 py-10 flex flex-col gap-8">
 
-          {/* Globe */}
-          <div className="w-full md:w-[340px] shrink-0 pb-14 md:pb-12">
+          {/* World map — full width */}
+          <div className="w-full">
             {!loading && (
               <SovereignGlobe countries={globeCountries} />
             )}
             {loading && (
-              <div className="aspect-square max-w-[340px] mx-auto rounded-full bg-[#060e1a] border border-[#0d1f38] animate-pulse" />
+              <div className="h-[220px] rounded-sm bg-[#0b1728] border border-[#0d1f38] animate-pulse" />
             )}
           </div>
 
           {/* Sovereign list */}
-          <div className="flex-1 w-full">
+          <div className="w-full">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-[#4a7aaa] mb-4">
               Sovereign Coverage
             </p>
