@@ -120,7 +120,7 @@ export default function HomePage() {
 
           {/* Stats */}
           <div style={{ display:"flex", gap:36, marginBottom:44, paddingBottom:44, borderBottom:`1px solid ${RULE}` }}>
-            {[{to:8,sfx:"",label:"Sovereigns Tracked"},{to:480,sfx:"bps",label:"Egypt EMBI Spread"},{to:20,sfx:"+",label:"Months Live Trading"}].map(s => (
+            {[{to:2,sfx:"",label:"Sovereigns Tracked"},{to:480,sfx:"bps",label:"Egypt EMBI Spread"},{to:0,sfx:"",label:"Corporates Tracked"}].map(s => (
               <div key={s.label}>
                 <div style={{ fontFamily:"'Playfair Display',serif", fontSize:32, fontWeight:700, color:ACCENT, lineHeight:1, letterSpacing:"-0.02em" }}>
                   <Counter to={s.to} suffix={s.sfx} />
