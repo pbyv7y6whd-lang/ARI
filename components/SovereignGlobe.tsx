@@ -167,7 +167,7 @@ export default function SovereignGlobe({ countries }: { countries: GlobeCountry[
       >
         <ZoomableGroup center={[20, 10]} zoom={1} minZoom={1} maxZoom={6}>
           <Geographies geography={GEO_URL}>
-            {({ geographies }) =>
+            {({ geographies }: { geographies: { rsmKey: string; id: string; [key: string]: unknown }[] }) =>
               geographies.map(geo => {
                 const iso = geo.id as string;
                 const country = tracked.get(iso);
