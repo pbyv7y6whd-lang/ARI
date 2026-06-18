@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup } from "react-simple-maps";
 import { cn } from "@/lib/utils";
 
@@ -177,7 +177,7 @@ export default function SovereignGlobe({ countries }: { countries: GlobeCountry[
                   <Geography
                     key={geo.rsmKey}
                     geography={geo}
-                    onMouseEnter={e => {
+                    onMouseEnter={(e: React.MouseEvent) => {
                       if (!isTracked) return;
                       setTooltip({
                         name:  country!.name,
