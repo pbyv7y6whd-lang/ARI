@@ -76,20 +76,20 @@ export default function DashboardPage() {
 
       {/* ── Hero: globe + sovereign list ────────────────────────────────────── */}
       <div className="bg-[#060e1a] border-b border-[#0d1f38]">
-        <div className="max-w-6xl mx-auto px-6 py-10 flex flex-col gap-8">
+        <div className="max-w-5xl mx-auto px-6 py-10 flex flex-col md:flex-row items-center gap-8 md:gap-12">
 
-          {/* World map — full width */}
-          <div className="w-full">
+          {/* Globe */}
+          <div className="w-full md:w-[200px] shrink-0">
             {!loading && (
               <SovereignGlobe countries={globeCountries} />
             )}
             {loading && (
-              <div className="h-[220px] rounded-sm bg-[#0b1728] border border-[#0d1f38] animate-pulse" />
+              <div className="w-[170px] h-[170px] mx-auto rounded-full bg-[#1a0a2e] animate-pulse" />
             )}
           </div>
 
           {/* Sovereign list */}
-          <div className="w-full">
+          <div className="flex-1 w-full">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-[#4a7aaa] mb-4">
               Sovereign Coverage
             </p>
