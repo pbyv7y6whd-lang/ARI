@@ -134,9 +134,9 @@ export default function HomePage() {
             <Link href="/research" style={{ display:"inline-flex", alignItems:"center", gap:8, background:INK, color:PAPER, padding:"11px 24px", fontSize:12, fontWeight:600, letterSpacing:"0.06em", textTransform:"uppercase", textDecoration:"none" }}>
               View Research →
             </Link>
-            <a href="#coverage" style={{ display:"inline-flex", alignItems:"center", border:`1px solid ${RULE}`, color:MUTED, padding:"11px 24px", fontSize:12, fontWeight:600, letterSpacing:"0.06em", textTransform:"uppercase", textDecoration:"none" }}>
-              Country Coverage
-            </a>
+            <Link href="/dashboard" style={{ display:"inline-flex", alignItems:"center", border:`1px solid ${RULE}`, color:MUTED, padding:"11px 24px", fontSize:12, fontWeight:600, letterSpacing:"0.06em", textTransform:"uppercase", textDecoration:"none" }}>
+              AI EMI Platform →
+            </Link>
           </div>
         </div>
 
