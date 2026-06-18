@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Globe, Building2, Settings } from "lucide-react";
+import { Globe, Building2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV = [
@@ -70,16 +70,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             className="flex items-center gap-2.5 px-2 py-2 text-[12px] text-[#9a7cc0] hover:text-[#4a2980] transition-all rounded-sm">
             <Globe className="w-3.5 h-3.5" />
             Public Site
-          </Link>
-          <Link href="/dashboard/settings"
-            className={cn(
-              "flex items-center gap-2.5 px-2 py-2 text-[12px] transition-all rounded-sm",
-              pathname === "/dashboard/settings"
-                ? "bg-[#5b21b6]/10 text-[#5b21b6]"
-                : "text-[#9a7cc0] hover:text-[#4a2980] hover:bg-[#5b21b6]/[0.06]"
-            )}>
-            <Settings className="w-3.5 h-3.5" />
-            Settings
           </Link>
         </div>
 
