@@ -214,12 +214,6 @@ export default function ResearchPage() {
               </p>
             </div>
 
-            <div className={s.pullQuote}>
-              <p>
-                "A regime rooted in 2,500 years of civilisational resilience, facing US-Israeli
-                military pressure, was structurally unlikely to back down quickly."
-              </p>
-            </div>
 
             <div className={s.prose}>
               <h3>Act One: The Long — And How I Left Over £50,000 on the Table</h3>
@@ -423,12 +417,6 @@ export default function ResearchPage() {
               </p>
             </div>
 
-            <div className={s.pullQuote}>
-              <p>
-                "The spread compression trade in oil-importing EM credit is the second life
-                of the oil short — the same analysis, applied one market further downstream."
-              </p>
-            </div>
 
           </section>
 
