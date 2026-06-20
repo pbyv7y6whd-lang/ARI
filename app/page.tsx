@@ -112,7 +112,7 @@ export default function HomePage() {
             EM Credit &amp; Macro Research · LSE MSc Finance
           </div>
           <h1 style={{ fontFamily:"'Playfair Display',Georgia,serif", fontSize:"clamp(36px,4vw,56px)", fontWeight:700, lineHeight:1.07, letterSpacing:"-0.025em", marginBottom:28 }}>
-            Emerging Markets<br /><span style={{ color:ACCENT }}>Credit Research.</span>
+            EM Credit<br /><span style={{ color:ACCENT }}>Research.</span>
           </h1>
           <p style={{ fontSize:16, lineHeight:1.8, color:MUTED, maxWidth:440, marginBottom:40, borderLeft:`3px solid ${ACCENT}`, paddingLeft:20, fontFamily:"'Playfair Display',Georgia,serif", fontStyle:"italic" }}>
             Tracking sovereign risk, external financing conditions, and commodity price transmission into EM fiscal dynamics — with first-hand market experience.
