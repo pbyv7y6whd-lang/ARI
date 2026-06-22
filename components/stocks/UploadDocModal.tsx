@@ -109,7 +109,7 @@ export default function UploadDocModal({ stockId, entityType = "corporate", open
             </p>
             <h2 className="mt-0.5 text-[15px] font-semibold text-[#1a0a2e]">Add Document</h2>
           </div>
-          <button onClick={handleClose} disabled={loading}
+          <button onClick={() => handleClose()} disabled={loading}
             className="flex h-7 w-7 items-center justify-center rounded-sm text-[#b09dcc] hover:bg-[#ede8f5] hover:text-[#4a2980] disabled:opacity-40 transition-colors">
             <X className="h-3.5 w-3.5" />
           </button>
@@ -231,7 +231,7 @@ export default function UploadDocModal({ stockId, entityType = "corporate", open
 
         {/* Footer */}
         <div className="flex gap-2.5 border-t border-[#e0d8ee] px-5 py-4">
-          <button onClick={handleClose} disabled={loading}
+          <button onClick={() => handleClose()} disabled={loading}
             className="flex-none rounded-sm border border-[#d0c6e0] px-4 py-2 text-[12px] text-[#8b6bb5] hover:border-[#5b21b6]/40 hover:text-[#4a2980] disabled:opacity-40 transition-colors">
             Cancel
           </button>
