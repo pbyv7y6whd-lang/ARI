@@ -20,11 +20,6 @@ export const EM_COUNTRIES = [
   { name:"Egypt",    iso:"EGY", spread:480,  rating:"B−",   stance:"bull", lat:26.8,  lng:30.8, active:true  },
   { name:"UAE",      iso:"ARE", spread:65,   rating:"AA−",  stance:"neut", lat:23.4,  lng:53.8, active:true  },
   { name:"Pakistan", iso:"PAK", spread:1100, rating:"CCC+", stance:"neut", lat:30.4,  lng:69.3, active:true  },
-  { name:"Nigeria",  iso:"NGA", spread:700,  rating:"B−",   stance:"neut", lat:9.1,   lng:8.7,  active:false },
-  { name:"Kenya",    iso:"KEN", spread:560,  rating:"B",    stance:"neut", lat:-0.0,  lng:37.9, active:false },
-  { name:"Iraq",     iso:"IRQ", spread:750,  rating:"B−",   stance:"bear", lat:33.2,  lng:43.7, active:false },
-  { name:"Ghana",    iso:"GHA", spread:900,  rating:"SD",   stance:"bear", lat:7.9,   lng:-1.0, active:false },
-  { name:"Angola",   iso:"AGO", spread:580,  rating:"B−",   stance:"neut", lat:-11.2, lng:17.9, active:false },
 ];
 
 const ARTICLES = [
@@ -289,7 +284,7 @@ export default function HomePage() {
             </div>
           </div>
           <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:1, background:RULE }}>
-            {[["MSc Finance","London School of Economics · 2026"],["BSc Finance","Bayes Business School · First Class · 2025"],["Focus","EM Sovereign Credit · Macro / FX / Credit"],["Experience","UK Small & Mid-Cap Public Equity Markets"]].map(([label,val]) => (
+            {[["MSc Finance","London School of Economics · 2026"],["BSc Finance","Bayes Business School · First Class · 2025"],["Focus","EM Sovereign Credit · Macro / FX / Credit"],["Based","London · Available July 2026"]].map(([label,val]) => (
               <div key={label} style={{ background:PAPER2, padding:"20px 18px" }}>
                 <div style={{ fontSize:9, fontWeight:700, letterSpacing:"0.16em", textTransform:"uppercase", color:MUTED, marginBottom:8 }}>{label}</div>
                 <div style={{ fontSize:12, color:INK, lineHeight:1.6 }}>{val}</div>
