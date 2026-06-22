@@ -91,7 +91,7 @@ export default function HomePage() {
             <span style={{ fontSize:12, color:MUTED }}>EM Credit &amp; Macro</span>
           </div>
           <div style={{ display:"flex", alignItems:"center", gap:28 }}>
-            {[["#research","Research"],["#coverage","Coverage"],["#trades","Trade Log"]].map(([h,l]) => (
+            {[["#research","Research"],["#coverage","Coverage"]].map(([h,l]) => (
               <a key={l} href={h} style={{ fontSize:12, color:MUTED, textDecoration:"none" }}>{l}</a>
             ))}
             <Link href="/research" style={{ fontSize:12, color:MUTED, textDecoration:"none" }}>Portfolio</Link>
@@ -270,58 +270,21 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── TRADE LOG ────────────────────────────────────── */}
-      <section id="trades" style={{ padding:"96px 48px", borderBottom:`1px solid ${RULE}` }}>
-        <div style={{ maxWidth:1200, margin:"0 auto" }}>
-          <div style={{ marginBottom:48 }}>
-            <div style={{ fontSize:10, fontWeight:700, letterSpacing:"0.2em", textTransform:"uppercase", color:ACCENT, marginBottom:12 }}>Trade Log</div>
-            <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:32, fontWeight:700, letterSpacing:"-0.02em" }}>Live Position Journal</h2>
-          </div>
-          <table style={{ width:"100%", borderCollapse:"collapse", fontSize:13 }}>
-            <thead>
-              <tr style={{ borderBottom:`2px solid ${INK}` }}>
-                {["Instrument","Direction","Entry","Current","P&L","Status","Thesis"].map(h => (
-                  <th key={h} style={{ padding:"10px 16px", textAlign:"left", fontWeight:600, fontSize:11, letterSpacing:"0.1em", textTransform:"uppercase", color:MUTED, paddingBottom:14 }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {[
-                { inst:"3BRL (3x Brent Long)", dir:"LONG",  dc:GREEN, entry:"~$16.50", cur:"Exited Dec '25", pnl:"~Breakeven", plc:MUTED,  status:"Closed", thesis:"Conflict premium underpriced at $73 oil" },
-                { inst:"SBRT (1x Brent Short)",dir:"SHORT", dc:RED,   entry:"~$9.13",  cur:"$9.58",         pnl:"+4.71%",    plc:GREEN,  status:"Open",   thesis:"$100 structural ceiling · IEA 3.7m b/d surplus" },
-              ].map((r,i) => (
-                <tr key={i} style={{ borderBottom:`1px solid ${RULE}` }}>
-                  <td style={{ padding:"14px 16px", fontWeight:500 }}>{r.inst}</td>
-                  <td style={{ padding:"14px 16px", fontWeight:700, color:r.dc }}>{r.dir}</td>
-                  <td style={{ padding:"14px 16px", color:MUTED, fontFamily:"monospace" }}>{r.entry}</td>
-                  <td style={{ padding:"14px 16px", color:MUTED, fontFamily:"monospace" }}>{r.cur}</td>
-                  <td style={{ padding:"14px 16px", fontWeight:600, color:r.plc }}>{r.pnl}</td>
-                  <td style={{ padding:"14px 16px" }}>
-                    <span style={{ fontSize:10, fontWeight:700, letterSpacing:"0.08em", textTransform:"uppercase", padding:"3px 8px", background:r.status==="Open"?"rgba(200,135,58,0.12)":"rgba(0,0,0,0.05)", color:r.status==="Open"?ACCENT:MUTED }}>{r.status}</span>
-                  </td>
-                  <td style={{ padding:"14px 16px", color:MUTED, fontSize:12 }}>{r.thesis}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
       {/* ── ABOUT ────────────────────────────────────────── */}
       <section style={{ padding:"96px 48px", borderBottom:`1px solid ${RULE}`, background:PAPER2 }}>
         <div style={{ maxWidth:1200, margin:"0 auto", display:"grid", gridTemplateColumns:"1fr 1fr", gap:80, alignItems:"center" }}>
           <div>
             <div style={{ fontSize:10, fontWeight:700, letterSpacing:"0.2em", textTransform:"uppercase", color:ACCENT, marginBottom:16 }}>About</div>
             <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:28, fontWeight:700, letterSpacing:"-0.02em", marginBottom:20 }}>Suleiman Ashraf</h2>
-            <p style={{ fontSize:14, color:MUTED, lineHeight:1.85, marginBottom:14 }}>MSc Finance student at the London School of Economics, with prior experience in UK public markets and governance research.</p>
-            <p style={{ fontSize:14, color:MUTED, lineHeight:1.85, marginBottom:32 }}>Primary research focus: EM sovereign credit — the intersection of sovereign risk, external financing conditions, and commodity price transmission into EM fiscal dynamics.</p>
+            <p style={{ fontSize:14, color:MUTED, lineHeight:1.85, marginBottom:14 }}>MSc Finance at the London School of Economics. First Class BSc Finance from Bayes Business School. Modules in Fixed Income Portfolio Management, Fixed Income &amp; Credit Markets, and Financial Statement Analysis.</p>
+            <p style={{ fontSize:14, color:MUTED, lineHeight:1.85, marginBottom:32 }}>Research focus: EM sovereign credit and the intersection of macro, FX, and credit — sovereign risk transmission, external financing conditions, and the dynamics of EM debt markets.</p>
             <div style={{ display:"flex", gap:10 }}>
               <a href="https://www.linkedin.com/in/suleiman-ashraf/" target="_blank" rel="noopener" style={{ fontSize:11, fontWeight:600, letterSpacing:"0.06em", textTransform:"uppercase", border:`1px solid ${RULE}`, padding:"9px 18px", color:INK, textDecoration:"none" }}>LinkedIn ↗</a>
               <a href="mailto:suleimanashraf@outlook.com" style={{ fontSize:11, fontWeight:600, letterSpacing:"0.06em", textTransform:"uppercase", border:`1px solid ${RULE}`, padding:"9px 18px", color:INK, textDecoration:"none" }}>Email</a>
             </div>
           </div>
           <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:1, background:RULE }}>
-            {[["Focus","EM Sovereign Credit · Macro Strategy"],["Education","MSc Finance · LSE"],["Background","UK Public Markets · Governance"],["Trading","Oil · ETP Mechanics · Live Positions"]].map(([label,val]) => (
+            {[["Education","MSc Finance · LSE · First Class BSc Finance · Bayes"],["Modules","Fixed Income PM · Fixed Income & Credit Markets"],["Focus","EM Sovereign Credit · Macro / FX / Credit Intersection"],["Background","UK Public Markets · Governance Research"]].map(([label,val]) => (
               <div key={label} style={{ background:PAPER2, padding:"20px 18px" }}>
                 <div style={{ fontSize:9, fontWeight:700, letterSpacing:"0.16em", textTransform:"uppercase", color:MUTED, marginBottom:8 }}>{label}</div>
                 <div style={{ fontSize:12, color:INK, lineHeight:1.6 }}>{val}</div>
