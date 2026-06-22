@@ -1059,8 +1059,8 @@ export default function StockPage({ params }: { params: Promise<{ id: string }> 
 
   const handleReanalyse = async () => {
     setReanalysing(true);
-    await fetch(`/api/stocks/${id}/analyse`, { method: "POST" });
-    await fetchStock();
+    setStock(prev => prev ? { ...prev, status: "processing", progress: 0, progress_message: "Starting analysis..." } : prev);
+    fetch(`/api/stocks/${id}/analyse`, { method: "POST" }).catch(console.error);
     setReanalysing(false);
   };
 
