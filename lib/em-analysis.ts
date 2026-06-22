@@ -248,12 +248,31 @@ Analyst standards:
 - Output ONLY valid JSON. No preamble, no markdown, no text outside the JSON.
 - Ensure the JSON is complete and properly closed — never truncate mid-response.`;
 
-function buildCorporatePrompt(issuerName: string, docs: { file_name: string; doc_type: string; year: string | null; text: string }[]): string {
+function buildCorporatePrompt(issuerName: string, docs: { file_name: string; doc_type: string; year: string | null; text: string }[], sector?: string): string {
   const content = formatDocsForPrompt(docs);
-  return `Produce a senior-analyst-ready EM corporate credit note for ${issuerName}. This is for Mesarete Capital, an EM credit HF. Cover: three-statement fundamentals, financing sources and uses, debt repayment schedule, quasi-sovereign support (if applicable), FX stress test, relative value vs peers, and portfolio sizing.
+  const isBank = sector?.toLowerCase().includes("financ") || sector?.toLowerCase().includes("bank");
+
+  const bankMetricsSchema = isBank ? `
+  "bankMetrics": {
+    "cet1Ratio": "e.g. 23.6% end-1H25 vs 20.1% end-2024 — trend and regulatory minimum",
+    "nim": "e.g. 9.4% 1H25 (FY2024: 9.9%) — vs peer average, direction of travel",
+    "roae": "e.g. 41% annualised 1H25 (FY2024: 46%) — note if FX gains are inflating returns",
+    "stage3Ratio": "e.g. 2.9% end-1H25 (end-2024: 3.4%) — NPL equivalent, trajectory",
+    "stage2Ratio": "e.g. 25% end-1H25 — elevated vs peers, flag if government exposure driven",
+    "loansToDeposits": "e.g. 45% vs sector 63% — below sector implies conservative deployment or sovereign securities preference",
+    "casaRatio": "e.g. 58% — structural low-cost funding advantage vs peers",
+    "sovereignExposure": "e.g. 51% of total assets (4x CET1) — government securities + CBE + public sector loans",
+    "liquidityCoverage": "e.g. Cash/net interbank covers 34% of customer deposits and 52% of FCY deposits+borrowings",
+    "operatingProfitRwa": "e.g. 12.7% annualised 1H25 — highest among rated Egyptian banks; Fitch forecasts 10% FY2026",
+    "sovereignCeiling": "e.g. IDR capped at sovereign 'B' — VR at 'b' would support higher rating without ceiling",
+    "fxStressBank": "e.g. 25% EGP depreciation: CET1 buffer of 16.35pp above 7.25% minimum provides headroom; FCY deposit coverage at 52% adequate but monitor; prior devaluations (2016, 2022-23) navigated without capital breach"
+  },` : "";
+
+  return `Produce a senior-analyst-ready EM ${isBank ? "bank" : "corporate"} credit note for ${issuerName}. This is for Mesarete Capital, an EM credit HF. Cover: ${isBank ? "bank-specific credit metrics (CET1, NIM, NPL, loans/deposits, sovereign exposure), funding profile, FX stress test," : "three-statement fundamentals, financing sources and uses, debt repayment schedule,"} quasi-sovereign support (if applicable), relative value vs peers, and portfolio sizing.
 ${content}
 
-Return ONLY this JSON — all fields required. For every field: first try to calculate the metric from numbers in the documents (show working in parentheses). Only use "N/A — not in documents" if the input data is genuinely absent:
+Return ONLY this JSON — all fields required. For every field: first try to calculate the metric from numbers in the documents (show working in parentheses). Only use "N/A — not in documents" if the input data is genuinely absent.
+${isBank ? `\nIMPORTANT: This is a BANK. Traditional corporate metrics (EBITDA, net debt/EBITDA, FCF) do NOT apply. Use bank-specific metrics in the bankMetrics section. For threeStatementSummary, use bank P&L equivalents: NII for revenue, pre-provision profit for EBITDA, total deposits for funding base. Skip capex and working capital — use regulatory capital consumption instead.` : ""}
 
 {
   "snapshot": {
@@ -264,24 +283,38 @@ Return ONLY this JSON — all fields required. For every field: first try to cal
     "sovereignOwnership": "e.g. 70% state-owned via Ministry of Finance — classify as quasi-sovereign",
     "creditView": "Positive|Neutral|Negative",
     "creditRationale": "2 sentences max. Lead with the dominant driver — leverage, liquidity, FX mismatch, or sovereign ceiling."
-  },
+  },${bankMetricsSchema}
   "threeStatementSummary": {
-    "revenue": "e.g. $4.2bn FY2024 (+8% YoY) — growth driver and sustainability",
-    "ebitda": "e.g. $1.4bn, margin 33% (FY23: 29%) — note if margin expansion is structural or one-off",
-    "interestExpense": "e.g. $280m — rising due to higher USD rates on floating bank debt",
+    "revenue": "${isBank ? "e.g. Net interest income EGP 45bn FY2024 (+38% YoY) + fee income EGP 8bn — NIM 9.4% on EGP-dominated balance sheet" : "e.g. $4.2bn FY2024 (+8% YoY) — growth driver and sustainability"}",
+    "ebitda": "${isBank ? "e.g. Pre-provision profit EGP 52bn FY2024 — equivalent to 22% of gross loans; provides first-loss buffer before impairments" : "e.g. $1.4bn, margin 33% (FY23: 29%) — note if margin expansion is structural or one-off"}",
+    "interestExpense": "${isBank ? "e.g. Cost of deposits declining as CASA ratio 58% limits repricing — NIM compression expected as CBE cuts 6.25pp in 2025" : "e.g. $280m — rising due to higher USD rates on floating bank debt"}",
     "netIncome": "e.g. $620m — but note $200m non-cash FX gain inflating reported earnings",
-    "capex": "e.g. $380m maintenance + $150m growth — flag if maintenance capex is being deferred",
-    "freeCashFlow": "e.g. $680m after interest and tax, $320m after capex — state if FCF covers debt service",
-    "workingCapital": "e.g. Receivables up $340m YoY — flag if related-party or government receivables",
+    "capex": "${isBank ? "e.g. Not applicable — regulatory capital consumption from RWA growth is the relevant metric; RWA grew X% in period" : "e.g. $380m maintenance + $150m growth — flag if maintenance capex is being deferred"}",
+    "freeCashFlow": "${isBank ? "e.g. Not applicable in bank context — relevant metric is internal capital generation: ROAE 41% less dividend payout supports CET1 build" : "e.g. $680m after interest and tax, $320m after capex — state if FCF covers debt service"}",
+    "workingCapital": "${isBank ? "e.g. Loan growth 20% in period to 1H25 — funded by deposit growth; loans/deposits 45% vs sector 63% reflects conservative deployment" : "e.g. Receivables up $340m YoY — flag if related-party or government receivables"}",
     "cashAndEquivalents": "e.g. $920m — assess accessibility (any trapped cash in restricted subsidiaries?)"
   },
   "creditMetrics": {
-    "netDebtToEbitda": "e.g. 3.8x FY2024 vs 4.2x FY2023 — trajectory matters",
-    "ebitdaToInterest": "e.g. 3.1x — flag if <2.5x, distress if <1.5x",
-    "fcfDebtServiceCoverage": "e.g. 1.8x — FCF / (interest + scheduled amortisation)",
+    "netDebtToEbitda": "${isBank ? "e.g. Not applicable — bank leverage measured by CET1 ratio: 23.6% end-1H25 (sector avg 13.2%, regulatory min 7.25%)" : "e.g. 3.8x FY2024 vs 4.2x FY2023 — trajectory matters"}",
+    "ebitdaToInterest": "${isBank ? "e.g. Not applicable as defined — NIM equivalent: 9.4% 1H25 vs peer avg 6.8%; 260bps structural funding advantage" : "e.g. 3.1x — flag if <2.5x, distress if <1.5x"}",
+    "fcfDebtServiceCoverage": "${isBank ? "e.g. Not applicable — liquidity metric: gross loans/deposits 45% (sector 63%); cash covers 52% of FCY deposits+borrowings" : "e.g. 1.8x — FCF / (interest + scheduled amortisation)"}",
     "liquidityRunway": "e.g. $920m cash + $300m undrawn RCF vs $450m due in 12m — 2.7x coverage",
     "trend": "improving|stable|deteriorating",
     "keyWeakness": "The metric that most concerns a credit investor, with specific numbers"
+  },
+  "financingSourcesAndUses": {
+    "annualDebtService": "${isBank ? "e.g. Deposit-funded — no bond amortisation identified; FCY deposit and interbank borrowings covered at 52% by liquid FCY assets" : "e.g. $280m interest + $400m scheduled amortisation = $680m FY2026"}",
+    "fundingSources": "e.g. Operating FCF $680m, RCF drawdown $200m, new bond issuance planned $500m",
+    "fundingGap": "e.g. Fully funded if new bond executes — execution risk is the key variable",
+    "accessToMarkets": "e.g. Last accessed market Nov 2023 at 7.5% — current all-in cost estimated 9%+",
+    "parentOrSovereignSupport": "e.g. Government has provided $400m liquidity facility in past two crises — implicit but not contractual"
+  },
+  "debtRepaymentSchedule": {
+    "next12Months": "e.g. $400m 5.875% Notes due Jun 2026 + $150m local bank amortisation",
+    "next24Months": "e.g. $600m 6.25% Notes due Nov 2027 — largest single maturity",
+    "beyondTwoYears": "e.g. $850m 2029+ — manageable if near-term maturities addressed",
+    "refinancingStrategy": "Stated plan and credibility assessment",
+    "refinancingRisk": "High|Medium|Low"
   },
   "financingSourcesAndUses": {
     "annualDebtService": "e.g. $280m interest + $400m scheduled amortisation = $680m FY2026",
@@ -376,7 +409,8 @@ Return ONLY this JSON — all fields required. For every field: first try to cal
 export async function analyseCorporate(
   issuerName: string,
   documents: { file_name: string; doc_type: string; year: string | null; parsed: ParsedPDF }[],
-  onProgress?: (msg: string) => void
+  onProgress?: (msg: string) => void,
+  sector?: string
 ): Promise<object> {
   onProgress?.("Building corporate credit context...");
   const { texts, totalChars } = buildDocContext(documents);
@@ -384,7 +418,7 @@ export async function analyseCorporate(
   onProgress?.(`Running corporate analysis across ${texts.length} document(s)...`);
 
   const t0 = Date.now();
-  const raw = await callClaude(CORPORATE_SYSTEM, buildCorporatePrompt(issuerName, texts));
+  const raw = await callClaude(CORPORATE_SYSTEM, buildCorporatePrompt(issuerName, texts, sector));
   console.log(`[corporate] Claude responded in ${Date.now() - t0}ms`);
 
   onProgress?.("Parsing credit assessment...");

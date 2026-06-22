@@ -58,6 +58,7 @@ type SovereignAnalysis = {
 
 type CorporateAnalysis = {
   snapshot?: { issuer?: string; country?: string; sector?: string; isQuasiSovereign?: boolean; sovereignOwnership?: string; creditView?: string; creditRationale?: string };
+  bankMetrics?: { cet1Ratio?: string; nim?: string; roae?: string; stage3Ratio?: string; stage2Ratio?: string; loansToDeposits?: string; casaRatio?: string; sovereignExposure?: string; liquidityCoverage?: string; operatingProfitRwa?: string; sovereignCeiling?: string; fxStressBank?: string };
   threeStatementSummary?: { revenue?: string; ebitda?: string; interestExpense?: string; netIncome?: string; capex?: string; freeCashFlow?: string; workingCapital?: string; cashAndEquivalents?: string };
   creditMetrics?: { netDebtToEbitda?: string; interestCoverage?: string; ebitdaToInterest?: string; fcfDebtServiceCoverage?: string; fcfYield?: string; debtToEquity?: string; fcfConversion?: string; liquidityRatio?: string; liquidityRunway?: string; trend?: string; keyWeakness?: string };
   financingSourcesAndUses?: { annualDebtService?: string; fundingSources?: string; fundingGap?: string; accessToMarkets?: string; parentOrSovereignSupport?: string };
@@ -472,6 +473,34 @@ function DebtScheduleSection({ data }: { data?: { next12Months?: string; next24M
 
 // ── Three-Statement Summary ───────────────────────────────────────────────────
 
+function BankMetricsSection({ data }: { data?: CorporateAnalysis["bankMetrics"] }) {
+  if (!data) return null;
+  const items = [
+    { label: "CET1 Ratio",           value: data.cet1Ratio },
+    { label: "NIM",                  value: data.nim },
+    { label: "ROAE",                 value: data.roae },
+    { label: "Stage 3 (NPL)",        value: data.stage3Ratio },
+    { label: "Stage 2",              value: data.stage2Ratio },
+    { label: "Loans / Deposits",     value: data.loansToDeposits },
+    { label: "CASA Ratio",           value: data.casaRatio },
+    { label: "Operating Profit/RWA", value: data.operatingProfitRwa },
+    { label: "Sovereign Exposure",   value: data.sovereignExposure },
+    { label: "Liquidity Coverage",   value: data.liquidityCoverage },
+    { label: "Sovereign Ceiling",    value: data.sovereignCeiling },
+  ];
+  return (
+    <Section title="Bank Credit Metrics">
+      <MetricGrid items={items} />
+      {data.fxStressBank && (
+        <div className="mt-3 pt-3 border-t border-[#f0edf6]">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#9a7cc0] mb-1">FX Stress Test</p>
+          <Commentary text={data.fxStressBank} />
+        </div>
+      )}
+    </Section>
+  );
+}
+
 function ThreeStatementSection({ data }: { data?: CorporateAnalysis["threeStatementSummary"] }) {
   if (!data) return null;
   const items = [
@@ -820,6 +849,9 @@ function CorporateView({ a }: { a: CorporateAnalysis }) {
         </div>
         {score !== undefined && <ScoreGauge score={score} />}
       </div>
+
+      {/* Bank Credit Metrics (Financials sector only) */}
+      <BankMetricsSection data={a.bankMetrics} />
 
       {/* Three-Statement Summary */}
       <ThreeStatementSection data={a.threeStatementSummary} />

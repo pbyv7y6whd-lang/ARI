@@ -111,7 +111,7 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
         analysis,
       });
     } else if (entityType === "corporate") {
-      analysis = await analyseCorporate(stock.name, parsedDocs, onProgress);
+      analysis = await analyseCorporate(stock.name, parsedDocs, onProgress, stock.sector ?? undefined);
       // Extract sector from analysis snapshot if available
       const snap = (analysis as { snapshot?: { sector?: string } }).snapshot;
       await updateStock(stockId, {
