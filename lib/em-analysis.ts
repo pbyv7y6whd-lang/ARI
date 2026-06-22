@@ -34,7 +34,7 @@ async function callClaude(system: string, user: string): Promise<string> {
   const message = await Promise.race([
     client.messages.create({
       model: "claude-sonnet-4-6",
-      max_tokens: 8192,
+      max_tokens: 16000,
       system,
       messages: [{ role: "user", content: user }],
     }),
