@@ -281,7 +281,7 @@ export default function HomePage() {
               <li><span style={{ color:INK, fontWeight:600 }}>MSc Finance</span> — London School of Economics (2026)</li>
               <li><span style={{ color:INK, fontWeight:600 }}>BSc Finance, First Class</span> — Bayes Business School (2025)</li>
             </ul>
-            <p style={{ fontSize:14, color:MUTED, lineHeight:1.85, marginBottom:14 }}>Prior experience working across UK small and mid-cap public equity markets, collaborating with fund managers, market makers and listed company executives.</p>
+            <p style={{ fontSize:14, color:MUTED, lineHeight:1.85, marginBottom:14 }}>Prior experience as a Research &amp; Policy Analyst at the Quoted Companies Alliance, working across UK small and mid-cap public equity markets alongside fund managers, market makers and listed company executives.</p>
             <p style={{ fontSize:14, color:MUTED, lineHeight:1.85, marginBottom:32 }}>Research focus: EM sovereign credit and the intersection of macro, FX, and credit. This platform — built since May 2026 — is a working attempt to apply that framework systematically across sovereigns and corporates.</p>
             <div style={{ display:"flex", gap:10 }}>
               <a href="https://www.linkedin.com/in/suleiman-ashraf/" target="_blank" rel="noopener" style={{ fontSize:11, fontWeight:600, letterSpacing:"0.06em", textTransform:"uppercase", border:`1px solid ${RULE}`, padding:"9px 18px", color:INK, textDecoration:"none" }}>LinkedIn ↗</a>
