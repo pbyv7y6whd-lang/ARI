@@ -276,8 +276,11 @@ export default function HomePage() {
           <div>
             <div style={{ fontSize:10, fontWeight:700, letterSpacing:"0.2em", textTransform:"uppercase", color:ACCENT, marginBottom:16 }}>About</div>
             <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:28, fontWeight:700, letterSpacing:"-0.02em", marginBottom:20 }}>Suleiman Ashraf</h2>
-            <p style={{ fontSize:14, color:MUTED, lineHeight:1.85, marginBottom:14 }}>MSc Finance at the London School of Economics (graduating Jun 2026). First Class BSc Finance from Bayes Business School. Modules include Fixed Income Portfolio Management, Fixed Income Securities &amp; Credit Markets, and Emerging Markets.</p>
-            <p style={{ fontSize:14, color:MUTED, lineHeight:1.85, marginBottom:14 }}>Prior experience working across UK small and mid-cap public equity markets, collaborating with fund managers, market makers and listed company executives at institutions including the London Stock Exchange, Liontrust Asset Management and Deutsche Bank.</p>
+            <ul style={{ fontSize:14, color:MUTED, lineHeight:2, marginBottom:20, listStyle:"none", padding:0 }}>
+              <li><span style={{ color:INK, fontWeight:600 }}>MSc Finance</span> — London School of Economics (2026)</li>
+              <li><span style={{ color:INK, fontWeight:600 }}>BSc Finance, First Class</span> — Bayes Business School (2025)</li>
+              <li><span style={{ color:INK, fontWeight:600 }}>Experience</span> — UK small &amp; mid-cap public equity markets, working alongside fund managers, market makers and listed company executives</li>
+            </ul>
             <p style={{ fontSize:14, color:MUTED, lineHeight:1.85, marginBottom:32 }}>Research focus: EM sovereign credit and the intersection of macro, FX, and credit. This platform — built since May 2026 — is a working attempt to apply that framework systematically across sovereigns and corporates.</p>
             <div style={{ display:"flex", gap:10 }}>
               <a href="https://www.linkedin.com/in/suleiman-ashraf/" target="_blank" rel="noopener" style={{ fontSize:11, fontWeight:600, letterSpacing:"0.06em", textTransform:"uppercase", border:`1px solid ${RULE}`, padding:"9px 18px", color:INK, textDecoration:"none" }}>LinkedIn ↗</a>
@@ -285,7 +288,7 @@ export default function HomePage() {
             </div>
           </div>
           <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:1, background:RULE }}>
-            {[["Education","MSc Finance · LSE · First Class BSc Finance · Bayes"],["Modules","Fixed Income PM · Fixed Income Securities & Credit Markets · Emerging Markets"],["Focus","EM Sovereign Credit · Macro / FX / Credit Intersection"],["Experience","UK Small & Mid-Cap Equities · LSE · Liontrust · Deutsche Bank"]].map(([label,val]) => (
+            {[["MSc Finance","London School of Economics · 2026"],["BSc Finance","Bayes Business School · First Class · 2025"],["Focus","EM Sovereign Credit · Macro / FX / Credit"],["Experience","UK Small & Mid-Cap Public Equity Markets"]].map(([label,val]) => (
               <div key={label} style={{ background:PAPER2, padding:"20px 18px" }}>
                 <div style={{ fontSize:9, fontWeight:700, letterSpacing:"0.16em", textTransform:"uppercase", color:MUTED, marginBottom:8 }}>{label}</div>
                 <div style={{ fontSize:12, color:INK, lineHeight:1.6 }}>{val}</div>
