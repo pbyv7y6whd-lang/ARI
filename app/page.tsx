@@ -89,7 +89,6 @@ export default function HomePage() {
             {[["#research","Research"],["#coverage","Coverage"]].map(([h,l]) => (
               <a key={l} href={h} style={{ fontSize:12, color:MUTED, textDecoration:"none" }}>{l}</a>
             ))}
-            <Link href="/research" style={{ fontSize:12, color:MUTED, textDecoration:"none" }}>Portfolio</Link>
             <Link href="/about"    style={{ fontSize:12, color:MUTED, textDecoration:"none" }}>About</Link>
             <Link href="/dashboard" style={{ fontSize:11, fontWeight:600, letterSpacing:"0.06em", textTransform:"uppercase", color:ACCENT, border:`1px solid ${ACCENT}`, padding:"6px 14px", textDecoration:"none" }}>
               EMI Platform ↗
