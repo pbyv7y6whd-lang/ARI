@@ -1108,15 +1108,23 @@ export default function StockPage({ params }: { params: Promise<{ id: string }> 
 
   useEffect(() => {
     fetchStock();
-    const iv = setInterval(() => {
-      setStock(prev => { if (prev?.status === "processing") fetchStock(); return prev; });
-    }, 4000);
+    const iv = setInterval(async () => {
+      const res = await fetch(`/api/stocks/${id}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      setStock(data);
+      setDisplayProgress(prev => Math.max(prev, data.progress));
+      if (data.status !== "processing") clearInterval(iv);
+    }, 3000);
     return () => clearInterval(iv);
   }, [id]);
 
   const handleReanalyse = async () => {
     setReanalysing(true);
+    // Reset status in DB first so polling sees "processing" immediately
+    await fetch(`/api/stocks/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: "processing", progress: 0, progress_message: "Starting analysis..." }) });
     setStock(prev => prev ? { ...prev, status: "processing", progress: 0, progress_message: "Starting analysis..." } : prev);
+    setDisplayProgress(0);
     fetch(`/api/stocks/${id}/analyse`, { method: "POST" }).catch(console.error);
     setReanalysing(false);
   };
