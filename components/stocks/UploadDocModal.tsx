@@ -52,10 +52,11 @@ export default function UploadDocModal({ stockId, entityType = "corporate", open
   const urlValid = url.trim().startsWith("http") && url.trim().includes(".");
   const canSubmit = !loading && (mode === "url" ? urlValid : !!file);
 
-  const handleClose = () => {
-    if (loading) return;
+  const handleClose = (force = false) => {
+    if (loading && !force) return;
     setUrl(""); setFile(null); setError(""); setTouched(false); setMode("upload");
     setDocType(DOC_TYPES[0].value); setYear(String(new Date().getFullYear())); setDisplayName("");
+    setLoading(false);
     onClose();
   };
 
@@ -90,6 +91,7 @@ export default function UploadDocModal({ stockId, entityType = "corporate", open
     }
 
     onSuccess();
+    handleClose(true);
   };
 
   if (!open) return null;
