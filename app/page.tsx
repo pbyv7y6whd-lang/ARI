@@ -277,7 +277,7 @@ export default function HomePage() {
             <div style={{ fontSize:10, fontWeight:700, letterSpacing:"0.2em", textTransform:"uppercase", color:ACCENT, marginBottom:16 }}>About</div>
             <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:28, fontWeight:700, letterSpacing:"-0.02em", marginBottom:20 }}>Suleiman Ashraf</h2>
             <ul style={{ fontSize:14, color:MUTED, lineHeight:2, marginBottom:20, listStyle:"none", padding:0 }}>
-              <li><span style={{ color:INK, fontWeight:600 }}>22 years old</span> — London-based, available from July 2026</li>
+              <li><span style={{ color:INK, fontWeight:600 }}>22 · London</span></li>
               <li><span style={{ color:INK, fontWeight:600 }}>MSc Finance</span> — London School of Economics (2026)</li>
               <li><span style={{ color:INK, fontWeight:600 }}>BSc Finance, First Class</span> — Bayes Business School (2025)</li>
               <li><span style={{ color:INK, fontWeight:600 }}>Experience</span> — UK small &amp; mid-cap public equity markets, working alongside fund managers, market makers and listed company executives</li>
