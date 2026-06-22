@@ -87,22 +87,53 @@ function scoreColour(score: number) {
 
 // ── Score Gauge (semi-circle arc) ─────────────────────────────────────────────
 
-function ScoreGauge({ score }: { score: number }) {
+function ScoreGauge({ score, breakdown }: { score: number; breakdown?: Record<string, string | undefined> }) {
   const cx = 50, cy = 44, r = 34;
   const arcLen = Math.PI * r;
   const filled = (score / 100) * arcLen;
   const color = scoreColour(score);
   const path = `M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`;
+
+  const pillars = breakdown
+    ? Object.entries(breakdown).map(([k, v]) => ({
+        label: k.replace(/([A-Z])/g, " $1").replace(/^./, s => s.toUpperCase()),
+        score: v ? parseInt(v.match(/\d+/)?.[0] ?? "0") : 0,
+        max: 25,
+        detail: v,
+      }))
+    : [];
+
   return (
-    <svg viewBox="0 0 100 68" width="90" height="60" aria-label={`${score}/100`}>
-      <path d={path} fill="none" stroke="#e8e2f0" strokeWidth="7" strokeLinecap="round" />
-      <path d={path} fill="none" stroke={color} strokeWidth="7" strokeLinecap="round"
-        strokeDasharray={arcLen} strokeDashoffset={arcLen - filled} />
-      <text x={cx} y={cy + 10} textAnchor="middle" fill={color}
-        fontFamily="ui-monospace,monospace" fontWeight="800" fontSize="22">{score}</text>
-      <text x={cx} y={cy + 24} textAnchor="middle" fill="#b09dcc"
-        fontFamily="ui-monospace,monospace" fontSize="9">/100</text>
-    </svg>
+    <div className="relative group">
+      <svg viewBox="0 0 100 68" width="90" height="60" aria-label={`${score}/100`} className="cursor-help">
+        <path d={path} fill="none" stroke="#e8e2f0" strokeWidth="7" strokeLinecap="round" />
+        <path d={path} fill="none" stroke={color} strokeWidth="7" strokeLinecap="round"
+          strokeDasharray={arcLen} strokeDashoffset={arcLen - filled} />
+        <text x={cx} y={cy + 10} textAnchor="middle" fill={color}
+          fontFamily="ui-monospace,monospace" fontWeight="800" fontSize="22">{score}</text>
+        <text x={cx} y={cy + 24} textAnchor="middle" fill="#b09dcc"
+          fontFamily="ui-monospace,monospace" fontSize="9">/100</text>
+      </svg>
+      {pillars.length > 0 && (
+        <div className="absolute right-0 top-full mt-2 z-50 hidden group-hover:block w-64 rounded-sm border border-[#d0c6e0] bg-white shadow-lg p-3"
+             style={{ boxShadow: "0 8px 24px rgba(91,33,182,0.12)" }}>
+          <p className="text-[9px] font-bold uppercase tracking-widest text-[#9a7cc0] mb-2">Score Breakdown</p>
+          {pillars.map(p => (
+            <div key={p.label} className="mb-2">
+              <div className="flex justify-between items-center mb-0.5">
+                <span className="text-[10px] font-medium text-[#2d1654]">{p.label}</span>
+                <span className="text-[10px] font-mono font-bold text-[#5b21b6]">{p.score}/{p.max}</span>
+              </div>
+              <div className="w-full h-1 bg-[#f0edf6] rounded-full">
+                <div className="h-1 rounded-full" style={{ width: `${(p.score / p.max) * 100}%`, background: scoreColour((p.score / p.max) * 100) }} />
+              </div>
+              {p.detail && <p className="text-[10px] text-[#7a6a8a] mt-0.5 leading-relaxed">{p.detail}</p>}
+            </div>
+          ))}
+          <p className="text-[9px] text-[#b09dcc] mt-2 pt-2 border-t border-[#f0edf6]">Total: {score}/100</p>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -641,7 +672,7 @@ function SovereignView({ a }: { a: SovereignAnalysis }) {
             <p className="text-[13px] text-[#2d1654] leading-relaxed">{a.snapshot.creditRationale}</p>
           )}
         </div>
-        {score !== undefined && <ScoreGauge score={score} />}
+        {score !== undefined && <ScoreGauge score={score} breakdown={a.overallScore?.breakdown as Record<string, string | undefined>} />}
       </div>
 
       {/* Fiscal Profile */}
@@ -869,7 +900,7 @@ function CorporateView({ a }: { a: CorporateAnalysis }) {
             <p className="text-[13px] text-[#2d1654] leading-relaxed">{a.snapshot.creditRationale}</p>
           )}
         </div>
-        {score !== undefined && <ScoreGauge score={score} />}
+        {score !== undefined && <ScoreGauge score={score} breakdown={a.overallScore?.breakdown as Record<string, string | undefined>} />}
       </div>
 
       {/* Bank Credit Metrics (Financials sector only) */}
