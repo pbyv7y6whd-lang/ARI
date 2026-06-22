@@ -4,17 +4,31 @@ import type { ParsedPDF } from "./pdf";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
 
-const PER_DOC_LIMIT = 25000;  // more pages parsed means more content per doc
-const TOTAL_LIMIT   = 40000;  // raised to accommodate 4-doc Egypt analysis
+const ANNUAL_REPORT_LIMIT = 50000; // annual reports get more space — financials are near the back
+const PER_DOC_LIMIT       = 20000;
+const TOTAL_LIMIT         = 90000;
+
+const PRIORITY_DOC_TYPES = ["annual_report", "bond_prospectus", "imf_article_iv", "central_bank_report"];
 
 function buildDocContext(
   docs: { file_name: string; doc_type: string; year: string | null; parsed: ParsedPDF }[]
 ): { texts: { file_name: string; doc_type: string; year: string | null; text: string }[]; totalChars: number } {
+  // Sort: priority doc types first, then others
+  const sorted = [...docs].sort((a, b) => {
+    const ai = PRIORITY_DOC_TYPES.indexOf(a.doc_type);
+    const bi = PRIORITY_DOC_TYPES.indexOf(b.doc_type);
+    if (ai === -1 && bi === -1) return 0;
+    if (ai === -1) return 1;
+    if (bi === -1) return -1;
+    return ai - bi;
+  });
+
   const texts: { file_name: string; doc_type: string; year: string | null; text: string }[] = [];
   let totalChars = 0;
-  for (const doc of docs) {
+  for (const doc of sorted) {
     if (totalChars >= TOTAL_LIMIT) break;
-    const remaining = Math.min(PER_DOC_LIMIT, TOTAL_LIMIT - totalChars);
+    const perLimit = doc.doc_type === "annual_report" ? ANNUAL_REPORT_LIMIT : PER_DOC_LIMIT;
+    const remaining = Math.min(perLimit, TOTAL_LIMIT - totalChars);
     const text = buildAnalysisText(doc.parsed, remaining);
     texts.push({ file_name: doc.file_name, doc_type: doc.doc_type, year: doc.year, text });
     totalChars += text.length;
