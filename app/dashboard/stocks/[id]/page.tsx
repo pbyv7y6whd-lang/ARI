@@ -73,6 +73,7 @@ type CorporateAnalysis = {
   tradeIdeas?: TradeIdea[];
   portfolioSizing?: { recommendation?: string; convictionLevel?: string; sizingRationale?: string; addLevels?: string; exitStrategy?: string };
   creditVerdict?: { recommendation?: string; spreadView?: string; currentSpreadContext?: string; keyRisks?: string[]; summary?: string };
+  managementQuestions?: { question?: string; context?: string }[];
   overallScore?: { total?: number; breakdown?: { leverage?: string; liquidity?: string; businessQuality?: string; fxAndCountryRisk?: string }; rationale?: string };
 };
 
@@ -341,6 +342,24 @@ function CatalystsRisksSection({ data }: { data?: { positiveCatalysts?: Catalyst
 }
 
 // ── Portfolio Sizing card ─────────────────────────────────────────────────────
+
+function ManagementQuestionsSection({ questions }: { questions?: CorporateAnalysis["managementQuestions"] }) {
+  if (!questions?.length) return null;
+  return (
+    <Section title="Key Questions for Management">
+      <div className="space-y-3">
+        {questions.map((q, i) => (
+          <div key={i} className="border border-[#e0d8ee] rounded-sm p-3">
+            <p className="text-[12px] font-semibold text-[#1a0a2e] mb-1">
+              <span className="text-[#9a7cc0] mr-2">{i + 1}.</span>{q.question}
+            </p>
+            {q.context && <p className="text-[11px] text-[#7a6a8a] leading-relaxed">{q.context}</p>}
+          </div>
+        ))}
+      </div>
+    </Section>
+  );
+}
 
 function PortfolioSizingSection({ ps }: { ps?: SovereignAnalysis["portfolioSizing"] | CorporateAnalysis["portfolioSizing"] }) {
   if (!ps) return null;
@@ -761,6 +780,9 @@ function SovereignView({ a }: { a: SovereignAnalysis }) {
       {/* Trade Ideas */}
       {a.tradeIdeas && a.tradeIdeas.length > 0 && <TradeIdeasSection ideas={a.tradeIdeas} />}
 
+      {/* Management Questions */}
+      {"managementQuestions" in a && <ManagementQuestionsSection questions={(a as CorporateAnalysis).managementQuestions} />}
+
       {/* Portfolio Sizing */}
       <PortfolioSizingSection ps={a.portfolioSizing} />
 
@@ -964,6 +986,9 @@ function CorporateView({ a }: { a: CorporateAnalysis }) {
 
       {/* Trade Ideas */}
       {a.tradeIdeas && a.tradeIdeas.length > 0 && <TradeIdeasSection ideas={a.tradeIdeas} />}
+
+      {/* Management Questions */}
+      {"managementQuestions" in a && <ManagementQuestionsSection questions={(a as CorporateAnalysis).managementQuestions} />}
 
       {/* Portfolio Sizing */}
       <PortfolioSizingSection ps={a.portfolioSizing} />
