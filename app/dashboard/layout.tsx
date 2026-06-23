@@ -66,7 +66,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         {/* Bottom */}
         <div className="border-t border-[#e0d8ee] px-2 py-2 space-y-px">
-          <Link href="/" target="_blank"
+          <Link href="/"
             className="flex items-center gap-2.5 px-2 py-2 text-[12px] text-[#9a7cc0] hover:text-[#4a2980] transition-all rounded-sm">
             <Globe className="w-3.5 h-3.5" />
             Public Site
