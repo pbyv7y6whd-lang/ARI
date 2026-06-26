@@ -114,7 +114,7 @@ export default function HomePage() {
 
           {/* Stats */}
           <div style={{ display:"flex", gap:36, marginBottom:44, paddingBottom:44, borderBottom:`1px solid ${RULE}` }}>
-            {[{to:2,sfx:"",label:"Sovereigns Tracked"},{to:281,sfx:"bps",label:"Egypt 5Y CDS"},{to:1,sfx:"",label:"Corporates Tracked"}].map(s => (
+            {[{to:1,sfx:"",label:"Sovereign Tracked"},{to:281,sfx:"bps",label:"Egypt 5Y CDS"},{to:1,sfx:"",label:"Corporate Tracked"}].map(s => (
               <div key={s.label}>
                 <div style={{ fontFamily:"'Playfair Display',serif", fontSize:32, fontWeight:700, color:ACCENT, lineHeight:1, letterSpacing:"-0.02em" }}>
                   <Counter to={s.to} suffix={s.sfx} />
