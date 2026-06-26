@@ -84,6 +84,10 @@ export default function ResearchPage() {
           ))}
         </nav>
 
+        <div style={{ padding: "12px 16px", fontSize: 11, color: "var(--dim, #aaa)", fontStyle: "italic" }}>
+          More coming soon.
+        </div>
+
         <div className={s.sidebarBottom}>
           <Link href="/" className={s.sidebarBackLink}>← EMI</Link>
         </div>
