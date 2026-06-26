@@ -307,13 +307,13 @@ export default function ResearchPage() {
             {/* 3BRL 1Y chart */}
             <div style={{ margin: "32px 0 8px" }}>
               <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--dim,#9a9590)", marginBottom: 8 }}>3BRL · WisdomTree Brent Crude Oil 3x Leveraged · 1Y</div>
-              <img src="/chart-3brl.jpg" alt="3BRL 1Y chart" style={{ width: "100%", display: "block", border: "1px solid #e8e2d9" }} />
+              <img src="/chart-3brl.jpg" alt="3BRL 1Y chart" style={{ width: "60%", display: "block", border: "1px solid #e8e2d9" }} />
             </div>
 
             {/* SBRT 3M chart */}
             <div style={{ margin: "32px 0 8px" }}>
               <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--dim,#9a9590)", marginBottom: 8 }}>SBRT · WisdomTree Brent Crude Oil 1x Short · 3M</div>
-              <img src="/chart-sbrt.jpg" alt="SBRT 3M chart" style={{ width: "100%", display: "block", border: "1px solid #e8e2d9" }} />
+              <img src="/chart-sbrt.jpg" alt="SBRT 3M chart" style={{ width: "60%", display: "block", border: "1px solid #e8e2d9" }} />
             </div>
 
             <table className={s.table}>
@@ -345,7 +345,7 @@ export default function ResearchPage() {
             {/* USD/GBP 3M chart */}
             <div style={{ margin: "32px 0 8px" }}>
               <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--dim,#9a9590)", marginBottom: 8 }}>USD/GBP · 3M — FX context for GBP returns</div>
-              <img src="/chart-usdgbp.jpg" alt="USD/GBP 3M chart" style={{ width: "100%", display: "block", border: "1px solid #e8e2d9" }} />
+              <img src="/chart-usdgbp.jpg" alt="USD/GBP 3M chart" style={{ width: "60%", display: "block", border: "1px solid #e8e2d9" }} />
             </div>
 
             <div className={s.prose}>
