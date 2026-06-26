@@ -17,8 +17,8 @@ const GREEN  = "#2d6a4f";
 const RED    = "#8b2e2e";
 
 export const EM_COUNTRIES = [
-  { name:"Egypt",    iso:"EGY", spread:281,  rating:"B−",   stance:"bull", lat:26.8,  lng:30.8, active:true  },
-  { name:"UAE",      iso:"ARE", spread:35,   rating:"AA−",  stance:"neut", lat:23.4,  lng:53.8, active:true  },
+  { name:"Egypt",    iso:"EGY", spread:281,  rating:"B",    stance:"bull", lat:26.8,  lng:30.8, active:true  },
+  { name:"UAE",      iso:"ARE", spread:35,   rating:"AA",   stance:"neut", lat:23.4,  lng:53.8, active:true  },
   { name:"Pakistan", iso:"PAK", spread:379,  rating:"CCC+", stance:"neut", lat:30.4,  lng:69.3, active:true  },
 ];
 
