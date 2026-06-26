@@ -8,30 +8,12 @@ type NavItem = { id: string; label: string };
 type NavGroup = { label: string; single?: string; children?: NavItem[] };
 
 const NAV: NavGroup[] = [
-  { label: "Oil Trade",  single: "oil-trade" },
-  { label: "Egypt",    children: [
-    { id: "egypt-sovereign", label: "Sovereign" },
-    { id: "egypt-corporate", label: "Corporates" },
-  ]},
-  { label: "Pakistan", children: [
-    { id: "pakistan-sovereign", label: "Sovereign" },
-    { id: "pakistan-corporate", label: "Corporates" },
-  ]},
-  { label: "UAE",      children: [
-    { id: "uae-sovereign", label: "Sovereign" },
-    { id: "uae-corporate", label: "Corporates" },
-  ]},
-  { label: "Sources",    single: "data" },
+  { label: "Oil Trade", single: "oil-trade" },
+  { label: "Sources",   single: "data" },
 ];
 
 // flat list of all scroll targets for the observer
-const ALL_IDS = [
-  "oil-trade",
-  "egypt-sovereign","egypt-corporate",
-  "pakistan-sovereign","pakistan-corporate",
-  "uae-sovereign","uae-corporate",
-  "data",
-];
+const ALL_IDS = ["oil-trade", "data"];
 
 export default function ResearchPage() {
   const [active,      setActive]    = useState("oil-trade");
@@ -125,8 +107,8 @@ export default function ResearchPage() {
             </p>
             <div className={s.heroStats}>
               <div className={s.heroStat}>
-                <span className={s.heroStatNum}>3</span>
-                <span className={s.heroStatLabel}>Sovereigns tracked</span>
+                <span className={s.heroStatNum}>1</span>
+                <span className={s.heroStatLabel}>Trade journal</span>
               </div>
               <div className={s.heroStatDivider} />
               <div className={s.heroStat}>
@@ -135,7 +117,7 @@ export default function ResearchPage() {
               </div>
             </div>
             <div className={s.heroBadges}>
-              {["EM Sovereign Credit","Oil & Commodities","Macro","Pakistan","Egypt","UAE"].map(b => (
+              {["EM Sovereign Credit","Oil & Commodities","Macro"].map(b => (
                 <span key={b} className={s.badge}>{b}</span>
               ))}
             </div>
@@ -420,44 +402,10 @@ export default function ResearchPage() {
 
           </section>
 
-          {/* ── EGYPT ─────────────────────────────────────── */}
-          <section id="egypt-sovereign" className={s.section}>
-            <div className={s.sectionLabel}>Egypt · Sovereign</div>
-            <h2 className={s.sectionTitle}>Egypt — Sovereign Credit</h2>
-            <div className={s.comingSoon}>Research in progress — analysis coming soon.</div>
-          </section>
-
-          <section id="egypt-corporate" className={s.section}>
-            <div className={s.sectionLabel}>Egypt · Corporates</div>
-            <h2 className={s.sectionTitle}>Egypt — Corporate Credit</h2>
-            <div className={s.comingSoon}>Research in progress — analysis coming soon.</div>
-          </section>
-
-          {/* ── PAKISTAN ──────────────────────────────────── */}
-          <section id="pakistan-sovereign" className={s.section}>
-            <div className={s.sectionLabel}>Pakistan · Sovereign</div>
-            <h2 className={s.sectionTitle}>Pakistan — Sovereign Credit</h2>
-            <div className={s.comingSoon}>Research in progress — analysis coming soon.</div>
-          </section>
-
-          <section id="pakistan-corporate" className={s.section}>
-            <div className={s.sectionLabel}>Pakistan · Corporates</div>
-            <h2 className={s.sectionTitle}>Pakistan — Corporate Credit</h2>
-            <div className={s.comingSoon}>Research in progress — analysis coming soon.</div>
-          </section>
-
-          {/* ── UAE ───────────────────────────────────────── */}
-          <section id="uae-sovereign" className={s.section}>
-            <div className={s.sectionLabel}>UAE · Sovereign</div>
-            <h2 className={s.sectionTitle}>UAE — Sovereign Credit</h2>
-            <div className={s.comingSoon}>Research in progress — analysis coming soon.</div>
-          </section>
-
-          <section id="uae-corporate" className={s.section}>
-            <div className={s.sectionLabel}>UAE · Corporates</div>
-            <h2 className={s.sectionTitle}>UAE — Corporate Credit</h2>
-            <div className={s.comingSoon}>Research in progress — analysis coming soon.</div>
-          </section>
+          {/* ── MORE COMING SOON ──────────────────────────── */}
+          <div style={{ padding: "48px 0 24px", color: "var(--dim, #888)", fontSize: 13 }}>
+            More coming soon.
+          </div>
 
           {/* ── DATA ──────────────────────────────────────── */}
           <section id="data" className={s.section}>
