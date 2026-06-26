@@ -17,9 +17,9 @@ const GREEN  = "#2d6a4f";
 const RED    = "#8b2e2e";
 
 export const EM_COUNTRIES = [
-  { name:"Egypt",    iso:"EGY", spread:480,  rating:"B−",   stance:"bull", lat:26.8,  lng:30.8, active:true  },
-  { name:"UAE",      iso:"ARE", spread:65,   rating:"AA−",  stance:"neut", lat:23.4,  lng:53.8, active:true  },
-  { name:"Pakistan", iso:"PAK", spread:1100, rating:"CCC+", stance:"neut", lat:30.4,  lng:69.3, active:true  },
+  { name:"Egypt",    iso:"EGY", spread:281,  rating:"B−",   stance:"bull", lat:26.8,  lng:30.8, active:true  },
+  { name:"UAE",      iso:"ARE", spread:35,   rating:"AA−",  stance:"neut", lat:23.4,  lng:53.8, active:true  },
+  { name:"Pakistan", iso:"PAK", spread:379,  rating:"CCC+", stance:"neut", lat:30.4,  lng:69.3, active:true  },
 ];
 
 const ARTICLES = [
@@ -114,7 +114,7 @@ export default function HomePage() {
 
           {/* Stats */}
           <div style={{ display:"flex", gap:36, marginBottom:44, paddingBottom:44, borderBottom:`1px solid ${RULE}` }}>
-            {[{to:2,sfx:"",label:"Sovereigns Tracked"},{to:480,sfx:"bps",label:"Egypt EMBI Spread"},{to:0,sfx:"",label:"Corporates Tracked"}].map(s => (
+            {[{to:2,sfx:"",label:"Sovereigns Tracked"},{to:281,sfx:"bps",label:"Egypt 5Y CDS"},{to:1,sfx:"",label:"Corporates Tracked"}].map(s => (
               <div key={s.label}>
                 <div style={{ fontFamily:"'Playfair Display',serif", fontSize:32, fontWeight:700, color:ACCENT, lineHeight:1, letterSpacing:"-0.02em" }}>
                   <Counter to={s.to} suffix={s.sfx} />
