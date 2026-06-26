@@ -24,8 +24,6 @@ export const EM_COUNTRIES = [
 
 const ARTICLES = [
   { tag:"Trade Journal · June 2026", title:"My First Macro Trade: Shorting Oil Through a War", deck:"Right on direction. Survived a $117 spike. Barely made money. Here is everything I learned about process, instruments, and the gap between being right and making money.", date:"Jun 2026", readTime:"18 min", href:"/research#oil-trade", live:true },
-  { tag:"Sovereign Credit",           title:"Egypt's IMF Tightrope",                           deck:"FX liberalisation, external debt dynamics, and what spread compression tells us about reform credibility.",                                                           date:"Coming soon", readTime:"", href:"/research#sovereign", live:false },
-  { tag:"EM Macro",                   title:"Dollar Dominance and EM Debt Dynamics",           deck:"How USD strength transmits into sovereign credit quality and why carry trades create fragility at the wrong moments.",                                                 date:"Coming soon", readTime:"", href:"/research",           live:false },
 ];
 
 /* ── TILT CARD ─────────────────────────────────────────────── */
@@ -185,25 +183,24 @@ export default function HomePage() {
             <Link href="/research" style={{ fontSize:12, color:MUTED, textDecoration:"none" }}>View all →</Link>
           </div>
 
-          <div style={{ display:"grid", gridTemplateColumns:"2fr 1fr 1fr", gap:1, background:RULE }}>
-            {ARTICLES.map((art, i) => (
+          <div style={{ display:"grid", gridTemplateColumns:"1fr", gap:1, background:RULE, maxWidth:600 }}>
+            {ARTICLES.map((art) => (
               <TiltCard key={art.title} style={{ background:PAPER }}>
                 <Link href={art.href} style={{ textDecoration:"none", color:"inherit", display:"block", height:"100%" }}>
-                  <div style={{ padding:i===0?"40px 36px":"28px 24px", background:PAPER, height:"100%", opacity:art.live?1:0.55, minHeight:i===0?320:undefined }}>
+                  <div style={{ padding:"40px 36px", background:PAPER, height:"100%", minHeight:280 }}>
                     <div style={{ fontSize:10, fontWeight:700, letterSpacing:"0.16em", textTransform:"uppercase", color:ACCENT, marginBottom:14 }}>{art.tag}</div>
-                    <h3 style={{ fontFamily:"'Playfair Display',serif", fontSize:i===0?22:16, fontWeight:700, lineHeight:1.25, letterSpacing:"-0.01em", marginBottom:12, color:INK }}>{art.title}</h3>
+                    <h3 style={{ fontFamily:"'Playfair Display',serif", fontSize:22, fontWeight:700, lineHeight:1.25, letterSpacing:"-0.01em", marginBottom:12, color:INK }}>{art.title}</h3>
                     <p style={{ fontSize:13, color:MUTED, lineHeight:1.7, marginBottom:20 }}>{art.deck}</p>
                     <div style={{ display:"flex", justifyContent:"space-between", borderTop:`1px solid ${RULE}`, paddingTop:14 }}>
                       <span style={{ fontSize:11, color:MUTED }}>{art.date}</span>
-                      {art.live
-                        ? <span style={{ fontSize:11, color:ACCENT, fontWeight:500 }}>{art.readTime} read →</span>
-                        : <span style={{ fontSize:11, color:RULE }}>Coming soon</span>}
+                      <span style={{ fontSize:11, color:ACCENT, fontWeight:500 }}>{art.readTime} read →</span>
                     </div>
                   </div>
                 </Link>
               </TiltCard>
             ))}
           </div>
+          <p style={{ marginTop:20, fontSize:12, color:MUTED }}>More coming soon.</p>
         </div>
       </section>
 
