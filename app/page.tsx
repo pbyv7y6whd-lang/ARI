@@ -152,7 +152,7 @@ export default function HomePage() {
               <div style={{ fontWeight:700, marginBottom:4 }}>{tooltip.name}</div>
               <div style={{ fontSize:11, color:"rgba(255,255,255,0.5)", marginBottom:6 }}>{tooltip.rating}</div>
               <div style={{ fontSize:18, fontWeight:700, color:ACCENT, lineHeight:1 }}>{tooltip.spread} <span style={{ fontSize:11, fontWeight:400, color:"rgba(255,255,255,0.4)" }}>bps</span></div>
-              <div style={{ fontSize:10, color:"rgba(255,255,255,0.4)", marginBottom:6 }}>EMBI Spread</div>
+              <div style={{ fontSize:10, color:"rgba(255,255,255,0.4)", marginBottom:6 }}>5Y CDS</div>
               <div style={{
                 fontSize:10, fontWeight:700, letterSpacing:"0.08em", textTransform:"uppercase",
                 color: tooltip.stance==="bull" ? "#4caf7d" : tooltip.stance==="bear" ? "#cf6679" : ACCENT,
@@ -234,7 +234,7 @@ export default function HomePage() {
                     <div style={{ fontFamily:"'Playfair Display',serif", fontSize:28, fontWeight:700, color:ACCENT, lineHeight:1, marginBottom:4 }}>
                       {c.spread}<span style={{ fontSize:13, fontWeight:400, color:MUTED, marginLeft:4 }}>bps</span>
                     </div>
-                    <div style={{ fontSize:9, color:MUTED, letterSpacing:"0.1em", textTransform:"uppercase", marginBottom:14 }}>EMBI Spread</div>
+                    <div style={{ fontSize:9, color:MUTED, letterSpacing:"0.1em", textTransform:"uppercase", marginBottom:14 }}>5Y CDS</div>
                     <div style={{ height:2, background:RULE, borderRadius:1 }}>
                       <div style={{ height:"100%", borderRadius:1, background:c.stance==="bull"?GREEN:c.stance==="bear"?RED:ACCENT, width:`${Math.min((c.spread/1200)*100,100)}%` }} />
                     </div>
