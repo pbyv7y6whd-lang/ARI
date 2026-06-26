@@ -244,21 +244,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Monitoring — remaining 5 */}
           <div>
-            <div style={{ fontSize:9, fontWeight:700, letterSpacing:"0.16em", textTransform:"uppercase", color:MUTED, marginBottom:12, marginTop:28 }}>Also Monitoring</div>
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(5,1fr)", gap:1, background:RULE }}>
-              {EM_COUNTRIES.filter(c => !c.active).map(c => (
-                <div key={c.name} style={{ background:PAPER, padding:"18px 16px", opacity:0.7 }}>
-                  <div style={{ fontSize:13, fontWeight:600, marginBottom:2 }}>{c.name}</div>
-                  <div style={{ fontSize:10, color:MUTED, marginBottom:10 }}>{c.rating}</div>
-                  <div style={{ fontFamily:"'Playfair Display',serif", fontSize:20, fontWeight:700, color:MUTED, lineHeight:1, marginBottom:2 }}>
-                    {c.spread}<span style={{ fontSize:11, fontWeight:400, marginLeft:3 }}>bps</span>
-                  </div>
-                  <div style={{ fontSize:9, color:RULE, letterSpacing:"0.08em", textTransform:"uppercase" }}>No active research</div>
-                </div>
-              ))}
-            </div>
           </div>
           <div style={{ marginTop:16, textAlign:"right", fontSize:11, color:MUTED }}>Spreads indicative · For research purposes only</div>
         </div>
