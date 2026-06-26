@@ -304,18 +304,6 @@ export default function ResearchPage() {
               </p>
             </div>
 
-            {/* 3BRL 1Y chart */}
-            <div style={{ margin: "32px 0 8px" }}>
-              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--dim,#9a9590)", marginBottom: 8 }}>3BRL · WisdomTree Brent Crude Oil 3x Leveraged · 1Y</div>
-              <img src="/chart-3brl.jpg" alt="3BRL 1Y chart" style={{ width: "60%", display: "block", border: "1px solid #e8e2d9" }} />
-            </div>
-
-            {/* SBRT 3M chart */}
-            <div style={{ margin: "32px 0 8px" }}>
-              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--dim,#9a9590)", marginBottom: 8 }}>SBRT · WisdomTree Brent Crude Oil 1x Short · 3M</div>
-              <img src="/chart-sbrt.jpg" alt="SBRT 3M chart" style={{ width: "60%", display: "block", border: "1px solid #e8e2d9" }} />
-            </div>
-
             <table className={s.table}>
               <thead>
                 <tr>
@@ -341,12 +329,6 @@ export default function ResearchPage() {
                 ))}
               </tbody>
             </table>
-
-            {/* USD/GBP 3M chart */}
-            <div style={{ margin: "32px 0 8px" }}>
-              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--dim,#9a9590)", marginBottom: 8 }}>USD/GBP · 3M — FX context for GBP returns</div>
-              <img src="/chart-usdgbp.jpg" alt="USD/GBP 3M chart" style={{ width: "60%", display: "block", border: "1px solid #e8e2d9" }} />
-            </div>
 
             <div className={s.prose}>
               <h3>What I'd Do Differently</h3>
@@ -420,6 +402,25 @@ export default function ResearchPage() {
 
 
           </section>
+
+          {/* ── CHARTS ────────────────────────────────────── */}
+          <div style={{ padding: "48px 0 0" }}>
+            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--dim,#9a9590)", marginBottom: 32 }}>Position Charts</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 40 }}>
+              <div>
+                <div style={{ fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--dim,#9a9590)", marginBottom: 8 }}>3BRL · WisdomTree Brent Crude Oil 3x Leveraged · 1Y</div>
+                <img src="/chart-3brl.jpg" alt="3BRL 1Y chart" style={{ width: "55%", display: "block", border: "1px solid #e8e2d9" }} />
+              </div>
+              <div>
+                <div style={{ fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--dim,#9a9590)", marginBottom: 8 }}>SBRT · WisdomTree Brent Crude Oil 1x Short · 3M</div>
+                <img src="/chart-sbrt.jpg" alt="SBRT 3M chart" style={{ width: "55%", display: "block", border: "1px solid #e8e2d9" }} />
+              </div>
+              <div>
+                <div style={{ fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--dim,#9a9590)", marginBottom: 8 }}>USD/GBP · 3M</div>
+                <img src="/chart-usdgbp.jpg" alt="USD/GBP 3M chart" style={{ width: "55%", display: "block", border: "1px solid #e8e2d9" }} />
+              </div>
+            </div>
+          </div>
 
           {/* ── MORE COMING SOON ──────────────────────────── */}
           <div style={{ padding: "48px 0 24px", color: "var(--dim, #888)", fontSize: 13 }}>
