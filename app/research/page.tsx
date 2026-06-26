@@ -304,8 +304,74 @@ export default function ResearchPage() {
               </p>
             </div>
 
-            <div className={s.chartPlaceholder}>
-              <span className={s.chartLabel}>[ Brent Crude Price Chart Nov 2025 – Jun 2026 ]</span>
+            {/* 3BRL 1Y chart */}
+            <div style={{ margin: "32px 0 8px" }}>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--dim,#9a9590)", marginBottom: 8 }}>3BRL · WisdomTree Brent Crude Oil 3x Leveraged · 1Y</div>
+              <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", display: "block", background: "#f9f7f4", border: "1px solid #e8e2d9" }}>
+                {/* y-axis labels */}
+                {[[10,180],[20,150],[30,120],[40,90],[50,60],[70,30]].map(([v,y]) => (
+                  <text key={v} x="34" y={y+4} fontSize="9" fill="#9a9590" textAnchor="end">{v}</text>
+                ))}
+                {/* grid lines */}
+                {[30,60,90,120,150,180].map(y => (
+                  <line key={y} x1="40" y1={y} x2="690" y2={y} stroke="#e8e2d9" strokeWidth="0.5" />
+                ))}
+                {/* chart line: starts flat ~16-17 (y≈148), rises to ~70 (y≈27), dips to ~45 (y≈84), spikes ~75 (y≈18), crashes to ~30 (y≈120) */}
+                <polyline
+                  fill="none" stroke="#c8873a" strokeWidth="2" strokeLinejoin="round"
+                  points="40,148 80,152 110,155 130,150 150,148 170,145 190,140 210,135 230,125 250,115 270,95 290,70 310,27 325,43 340,18 355,30 375,55 395,84 415,75 435,65 450,72 470,80 490,85 510,100 530,110 550,115 570,118 590,118 610,120 650,120 690,120"
+                />
+                {/* area fill */}
+                <polygon
+                  fill="#c8873a" fillOpacity="0.08"
+                  points="40,148 80,152 110,155 130,150 150,148 170,145 190,140 210,135 230,125 250,115 270,95 290,70 310,27 325,43 340,18 355,30 375,55 395,84 415,75 435,65 450,72 470,80 490,85 510,100 530,110 550,115 570,118 590,118 610,120 650,120 690,120 690,190 40,190"
+                />
+                {/* current price label */}
+                <rect x="648" y="111" width="42" height="14" rx="2" fill="#c8873a" />
+                <text x="669" y="121" fontSize="9" fill="white" textAnchor="middle" fontWeight="600">$30.36</text>
+                {/* entry price dashed line at ~$16.50 → y≈149 */}
+                <line x1="40" y1="148" x2="690" y2="148" stroke="#9a9590" strokeWidth="1" strokeDasharray="4,3" />
+                <text x="690" y="145" fontSize="8" fill="#9a9590" textAnchor="end">Entry ~$16.50</text>
+                {/* x labels */}
+                {[["Jul 25",40],["Sep",140],["Nov",230],["Jan 26",320],["Mar",400],["May",490],["Jun 26",620]].map(([l,x]) => (
+                  <text key={l} x={x} y="195" fontSize="8.5" fill="#9a9590" textAnchor="middle">{l}</text>
+                ))}
+              </svg>
+              <div style={{ fontSize: 10, color: "var(--dim,#9a9590)", marginTop: 6 }}>Peak ~$75 · 5 May 2026. Current $30.36 · +2.85% 1Y. Entry ~$16.50 (dashed).</div>
+            </div>
+
+            {/* SBRT 3M chart */}
+            <div style={{ margin: "32px 0 8px" }}>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--dim,#9a9590)", marginBottom: 8 }}>SBRT · WisdomTree Brent Crude Oil 1x Short · 3M</div>
+              <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", display: "block", background: "#f9f7f4", border: "1px solid #e8e2d9" }}>
+                {/* y-axis labels */}
+                {[[7.5,175],[8.0,148],[8.5,120],[9.0,93],[9.5,65],[10.0,38],[10.5,10]].map(([v,y]) => (
+                  <text key={v} x="36" y={y+4} fontSize="9" fill="#9a9590" textAnchor="end">{v.toFixed(1)}</text>
+                ))}
+                {[10,38,65,93,120,148,175].map(y => (
+                  <line key={y} x1="40" y1={y} x2="690" y2={y} stroke="#e8e2d9" strokeWidth="0.5" />
+                ))}
+                {/* avg entry dashed line at $9.129 → y≈89 */}
+                <line x1="40" y1="89" x2="690" y2="89" stroke="#9a9590" strokeWidth="1" strokeDasharray="4,3" />
+                <text x="44" y="85" fontSize="8" fill="#9a9590">Avg entry $9.13</text>
+                {/* chart line: starts ~$9.3 (y≈80), volatile, dips to ~$7.6 (y≈175 scaled), recovers to $10.327 (y≈18) */}
+                <polyline
+                  fill="none" stroke="#2d6a4f" strokeWidth="2" strokeLinejoin="round"
+                  points="40,80 60,72 75,65 90,75 105,80 120,70 135,68 150,85 165,90 180,95 195,120 210,135 225,150 240,165 255,175 270,168 285,158 300,155 315,148 330,140 345,130 360,118 375,108 390,98 405,88 420,78 435,68 450,60 465,52 480,45 500,38 520,28 545,22 570,20 600,18 640,18 690,18"
+                />
+                <polygon
+                  fill="#2d6a4f" fillOpacity="0.07"
+                  points="40,80 60,72 75,65 90,75 105,80 120,70 135,68 150,85 165,90 180,95 195,120 210,135 225,150 240,165 255,175 270,168 285,158 300,155 315,148 330,140 345,130 360,118 375,108 390,98 405,88 420,78 435,68 450,60 465,52 480,45 500,38 520,28 545,22 570,20 600,18 640,18 690,18 690,190 40,190"
+                />
+                {/* current price label */}
+                <rect x="648" y="9" width="42" height="14" rx="2" fill="#2d6a4f" />
+                <text x="669" y="19" fontSize="9" fill="white" textAnchor="middle" fontWeight="600">$10.33</text>
+                {/* x labels */}
+                {[["Mar 26",40],["Apr",190],["May",370],["Jun 26",620]].map(([l,x]) => (
+                  <text key={l} x={x} y="195" fontSize="8.5" fill="#9a9590" textAnchor="middle">{l}</text>
+                ))}
+              </svg>
+              <div style={{ fontSize: 10, color: "var(--dim,#9a9590)", marginTop: 6 }}>Low ~$7.60 during Hormuz spike (Apr–May). Current $10.327 · +12.63% 3M. Avg entry $9.13 (dashed).</div>
             </div>
 
             <table className={s.table}>
@@ -333,6 +399,34 @@ export default function ResearchPage() {
                 ))}
               </tbody>
             </table>
+
+            {/* USD/GBP 3M chart */}
+            <div style={{ margin: "32px 0 8px" }}>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--dim,#9a9590)", marginBottom: 8 }}>USD/GBP · 3M — FX context for GBP returns</div>
+              <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", display: "block", background: "#f9f7f4", border: "1px solid #e8e2d9" }}>
+                {[[0.735,175],[0.745,140],[0.755,105],[0.760,70],[0.765,35]].map(([v,y]) => (
+                  <text key={v} x="38" y={y+4} fontSize="9" fill="#9a9590" textAnchor="end">{v.toFixed(3)}</text>
+                ))}
+                {[35,70,105,140,175].map(y => (
+                  <line key={y} x1="42" y1={y} x2="690" y2={y} stroke="#e8e2d9" strokeWidth="0.5" />
+                ))}
+                {/* line: starts ~0.755 (y≈105), dips to ~0.733 (y≈190), recovers to 0.7567 (y≈98) */}
+                <polyline
+                  fill="none" stroke="#5b6fa6" strokeWidth="2" strokeLinejoin="round"
+                  points="42,105 65,98 80,88 95,100 110,112 125,125 140,140 155,158 170,168 185,178 200,185 215,190 230,182 245,170 260,158 275,148 290,140 305,130 320,118 335,108 350,100 365,95 380,90 400,88 420,82 440,75 460,72 480,68 500,65 520,60 545,58 565,55 580,52 600,48 625,45 650,40 680,42 690,45"
+                />
+                <polygon
+                  fill="#5b6fa6" fillOpacity="0.07"
+                  points="42,105 65,98 80,88 95,100 110,112 125,125 140,140 155,158 170,168 185,178 200,185 215,190 230,182 245,170 260,158 275,148 290,140 305,130 320,118 335,108 350,100 365,95 380,90 400,88 420,82 440,75 460,72 480,68 500,65 520,60 545,58 565,55 580,52 600,48 625,45 650,40 680,42 690,45 690,190 42,190"
+                />
+                <rect x="648" y="36" width="42" height="14" rx="2" fill="#5b6fa6" />
+                <text x="669" y="46" fontSize="9" fill="white" textAnchor="middle" fontWeight="600">0.7567</text>
+                {[["Mar 26",42],["Apr",190],["May",390],["Jun 26",620]].map(([l,x]) => (
+                  <text key={l} x={x} y="196" fontSize="8.5" fill="#9a9590" textAnchor="middle">{l}</text>
+                ))}
+              </svg>
+              <div style={{ fontSize: 10, color: "var(--dim,#9a9590)", marginTop: 6 }}>USD/GBP 0.7567 · +1.00% 3M. Sterling strength since March reduces USD-denominated ETP gains in GBP terms.</div>
+            </div>
 
             <div className={s.prose}>
               <h3>What I'd Do Differently</h3>
