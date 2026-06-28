@@ -314,7 +314,7 @@ export default function ResearchPage() {
               </thead>
               <tbody>
                 {[
-                  ["26 Jun (live)",  "$10.433", "+£2,919 (+15.74%)", "profit"],
+                  ["26 Jun · close", "$10.490", "+£3,032 (+16.34%)", "profit"],
                   ["15 Jun ($80.55)", "$9.58", "+£873 (+4.7%)",   "profit"],
                   ["$75",           "~$10.10", "~+£2,000 (+11%)", "profit"],
                   ["$70 (target)",  "~$10.60", "~+£3,000 (+17%)", "profit"],
@@ -327,6 +327,11 @@ export default function ResearchPage() {
                     <td className={cls === "profit" ? s.profit : s.loss}>{pl}</td>
                   </tr>
                 ))}
+                <tr>
+                  <td colSpan={3} style={{ fontSize: 10, color: "var(--dim,#9a9590)", paddingTop: 6 }}>
+                    26 Jun breakdown: +£2,799 position gain · +£232 FX impact (unhedged USD/GBP) · 4:30pm market close
+                  </td>
+                </tr>
               </tbody>
             </table>
 
