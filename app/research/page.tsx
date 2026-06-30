@@ -420,6 +420,21 @@ export default function ResearchPage() {
               targeting spread compression from 281bps toward 220–240bps by year-end 2026.
             </p>
 
+            {/* ── PDF CTA ── */}
+            <a
+              href="/egypt-sovereign-credit-note-june-2026.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:32, padding:"20px 28px", background:"#1a0a2e", textDecoration:"none", gap:24 }}
+            >
+              <div>
+                <div style={{ fontSize:10, fontWeight:700, letterSpacing:"0.18em", textTransform:"uppercase", color:"rgba(255,255,255,0.5)", marginBottom:6 }}>Full Research Note · PDF · 9 pages</div>
+                <div style={{ fontSize:16, fontWeight:700, color:"white", letterSpacing:"-0.01em" }}>Egypt Sovereign Credit Note — June 2026</div>
+                <div style={{ fontSize:12, color:"rgba(255,255,255,0.55)", marginTop:4 }}>Macro overview · Fiscal analysis · DSA · External financing · Risks · Trade recommendation</div>
+              </div>
+              <div style={{ fontSize:22, color:"#c8873a", fontWeight:700, whiteSpace:"nowrap" }}>Download PDF →</div>
+            </a>
+
             {/* Recommendation box */}
             <div style={{ display:"grid", gridTemplateColumns:"auto 1fr", gap:0, border:"1px solid var(--border,#e8e2d9)", marginTop:32 }}>
               <div style={{ background:"var(--gold,#c8873a)", padding:"24px 28px", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", minWidth:120 }}>
@@ -484,21 +499,6 @@ export default function ResearchPage() {
                 the carry compensates for the risk and the programme anchor provides the floor.
               </p>
             </div>
-
-            {/* ── PDF CTA ── */}
-            <a
-              href="/egypt-sovereign-credit-note-june-2026.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginTop:40, padding:"20px 28px", background:"#1a0a2e", textDecoration:"none", gap:24 }}
-            >
-              <div>
-                <div style={{ fontSize:10, fontWeight:700, letterSpacing:"0.18em", textTransform:"uppercase", color:"rgba(255,255,255,0.5)", marginBottom:6 }}>Full Research Note · PDF · 9 pages</div>
-                <div style={{ fontSize:16, fontWeight:700, color:"white", letterSpacing:"-0.01em" }}>Egypt Sovereign Credit Note — June 2026</div>
-                <div style={{ fontSize:12, color:"rgba(255,255,255,0.55)", marginTop:4 }}>Macro overview · Fiscal analysis · DSA · External financing · Risks · Trade recommendation</div>
-              </div>
-              <div style={{ fontSize:22, color:"#c8873a", fontWeight:700, whiteSpace:"nowrap" }}>Download PDF →</div>
-            </a>
 
             {/* hidden from prose — skip the long sections */}
             {false && <div className={s.prose} style={{ marginTop:40 }}>
