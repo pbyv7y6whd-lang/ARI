@@ -25,6 +25,7 @@ export const EM_COUNTRIES = [
 const ARTICLES = [
   { tag:"Trade Journal · June 2026",    title:"My First Macro Trade: Shorting Oil Through a War",  deck:"Right on direction. Survived a $117 spike. Barely made money. Here is everything I learned about process, instruments, and the gap between being right and making money.", date:"Jun 2026", readTime:"18 min", href:"/research#oil-trade",                              live:true },
   { tag:"Sovereign Credit · June 2026", title:"Egypt: LONG Eurobonds at 281bps CDS",               deck:"Post-Hormuz deterioration reflects a transitory external shock, not a structural breakdown. IMF anchor holds through Dec 2026. I target spread compression to 220–240bps by year-end.",                                                                                    date:"Jun 2026", readTime:"9 min",  href:"/egypt-sovereign-credit-note-june-2026.pdf", live:true },
+  { tag:"Sovereign Credit",             title:"Egypt: The SOE Divestment Problem",                  deck:"The privatisation programme is the IMF's primary mechanism for reducing gross financing needs. It is stalling. What that means for the debt trajectory and the spread compression thesis.",                                                                              date:"Coming soon", readTime:"",   href:"#", live:false },
 ];
 
 /* ── TILT CARD ─────────────────────────────────────────────── */
@@ -184,17 +185,19 @@ export default function HomePage() {
             <Link href="/research" style={{ fontSize:12, color:MUTED, textDecoration:"none" }}>View all →</Link>
           </div>
 
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:1, background:RULE }}>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:1, background:RULE }}>
             {ARTICLES.map((art, i) => (
               <TiltCard key={art.title} style={{ background:PAPER }}>
-                <Link href={art.href} target={art.href.endsWith(".pdf") ? "_blank" : undefined} rel={art.href.endsWith(".pdf") ? "noopener noreferrer" : undefined} style={{ textDecoration:"none", color:"inherit", display:"block", height:"100%" }}>
-                  <div style={{ padding:"40px 36px", background:PAPER, height:"100%", minHeight:300 }}>
+                <Link href={art.live ? art.href : "#"} target={art.href.endsWith(".pdf") ? "_blank" : undefined} rel={art.href.endsWith(".pdf") ? "noopener noreferrer" : undefined} style={{ textDecoration:"none", color:"inherit", display:"block", height:"100%", pointerEvents:art.live?"auto":"none" }}>
+                  <div style={{ padding:"40px 36px", background:PAPER, height:"100%", minHeight:300, opacity:art.live?1:0.5 }}>
                     <div style={{ fontSize:10, fontWeight:700, letterSpacing:"0.16em", textTransform:"uppercase", color:ACCENT, marginBottom:14 }}>{art.tag}</div>
                     <h3 style={{ fontFamily:"'Playfair Display',serif", fontSize:i===0?22:20, fontWeight:700, lineHeight:1.25, letterSpacing:"-0.01em", marginBottom:12, color:INK }}>{art.title}</h3>
                     <p style={{ fontSize:13, color:MUTED, lineHeight:1.7, marginBottom:20 }}>{art.deck}</p>
                     <div style={{ display:"flex", justifyContent:"space-between", borderTop:`1px solid ${RULE}`, paddingTop:14 }}>
                       <span style={{ fontSize:11, color:MUTED }}>{art.date}</span>
-                      <span style={{ fontSize:11, color:ACCENT, fontWeight:500 }}>Read →</span>
+                      {art.live
+                        ? <span style={{ fontSize:11, color:ACCENT, fontWeight:500 }}>Read →</span>
+                        : <span style={{ fontSize:11, color:RULE }}>Coming soon</span>}
                     </div>
                   </div>
                 </Link>
