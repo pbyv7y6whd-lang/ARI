@@ -366,43 +366,37 @@ export default function ResearchPage() {
                 the commodity trade itself.
               </p>
               <p>
-                Pakistan, Egypt, and Kenya are all significant net oil importers. At $117/bbl — the
-                April average during the Hormuz blockade — each country faced acute terms-of-trade
-                deterioration: wider current account deficits, depleted FX reserves, higher imported
-                inflation forcing central banks to keep rates restrictive, and in Pakistan's and
-                Egypt's cases, direct pressure on IMF programme conditionality as fiscal targets became
-                harder to meet with a higher energy import bill.
+                The transmission is clearest in oil-importing EM sovereigns. Pakistan (~1,100bp CDS)
+                and Kenya are both structurally exposed — every $10/bbl decline in Brent materially
+                reduces their import bills and eases IMF programme pressure. But the name I've spent
+                the most time on is Egypt, and it illustrates why the oil-credit linkage is more
+                nuanced than it first appears.
               </p>
               <p>
-                As oil normalises toward $70–75/bbl, all three channels reverse simultaneously.
-                For <strong>Pakistan</strong> — where the current account deficit was already under
-                IMF-monitored stress — every $10/bbl decline in Brent saves approximately $1.5–2bn
-                annually in import costs. At current spread levels (~1,100bp), the Pakistan Eurobond
-                market is pricing meaningful refinancing risk. That spread pricing is partially an
-                oil-import story dressed up as a political risk story. The two are not independent.
+                Egypt is not a simple oil-import story. The transmission runs through three simultaneous
+                channels. First, direct energy costs: Egypt became a net oil importer approximately
+                four months before this writing, meaning Brent at $117 was widening the current account
+                at exactly the moment other inflows were under pressure. As oil normalises toward $70,
+                that reverses. Second, Suez Canal revenues — approximately $8–10bn annually pre-crisis
+                — fell sharply as shipping was re-routed during Hormuz. Tanker transit normalisation
+                is already underway; those revenues recover with a lag, not immediately. Third, and
+                most structurally important: Gulf sovereign fiscal capacity. Saudi Arabia's fiscal
+                breakeven sits at approximately $90–95/bbl. At $70 Brent, Gulf states are at or below
+                breakeven, which compresses their discretionary bilateral transfer capacity to Egypt —
+                GCC deposits at the CBE ($18.3bn) are the single most important non-IMF financing
+                line Egypt has. Lower oil is therefore a two-sided variable for Egypt in a way it
+                isn't for Pakistan or Kenya.
               </p>
               <p>
-                For <strong>Egypt</strong>, the oil normalisation is a three-channel positive: lower
-                energy import costs reduce the subsidy bill directly; reduced FX pressure eases the
-                managed depreciation constraint; and Suez Canal revenues — which fell sharply as
-                shipping was re-routed away from the Red Sea corridor during the Hormuz crisis — begin
-                recovering as tanker transits normalise. Egypt earns approximately $8–10bn annually
-                from the Canal; that revenue stream is oil-conflict correlated in a way the market
-                doesn't always price correctly.
-              </p>
-              <p>
-                For <strong>Kenya</strong> — a frontier credit with approximately 75% of its energy
-                needs met by oil imports — the transmission is more direct. Fuel costs represent a
-                significant share of the CPI basket; lower oil reduces the inflation overshoot that
-                has kept the Central Bank of Kenya's policy rate elevated, suppressing domestic
-                credit growth and economic activity.
-              </p>
-              <p>
-                The spread compression trade across these three names is not a consensus call. The
-                market has been pricing geopolitical risk into EM high-yield spreads for months. As
-                that risk premium unwinds with oil, the spread tightening in oil-importing EM credit
-                is the second life of this thesis — and it is where the commodity analysis connects
-                directly to the sovereign credit research I'm building.
+                This asymmetry is what makes the Egypt credit view interesting. The oil trade gave me
+                the analytical lens; my Egypt sovereign credit note is where I've tried to price it.
+                At 281bps CDS, I think the market is pricing too much stress over a 12-month horizon
+                and not enough over a 24-month one — a distinction that matters for how you size and
+                structure the position.{" "}
+                <a href="/egypt-sovereign-credit-note-june-2026.pdf" target="_blank" rel="noopener noreferrer"
+                  style={{ color:"var(--gold,#c8873a)", textDecoration:"none", fontWeight:600 }}>
+                  My Egypt sovereign credit note works through the trade in full — entry, target, stop, and the risks I'm watching →
+                </a>
               </p>
             </div>
 
