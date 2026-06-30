@@ -8,12 +8,13 @@ type NavItem = { id: string; label: string };
 type NavGroup = { label: string; single?: string; children?: NavItem[] };
 
 const NAV: NavGroup[] = [
-  { label: "Oil Trade", single: "oil-trade" },
-  { label: "Sources",   single: "data" },
+  { label: "Oil Trade",      single: "oil-trade" },
+  { label: "Egypt Sovereign",single: "egypt-sovereign" },
+  { label: "Sources",        single: "data" },
 ];
 
 // flat list of all scroll targets for the observer
-const ALL_IDS = ["oil-trade", "data"];
+const ALL_IDS = ["oil-trade", "egypt-sovereign", "data"];
 
 export default function ResearchPage() {
   const [active,      setActive]    = useState("oil-trade");
@@ -406,6 +407,112 @@ export default function ResearchPage() {
             </div>
 
 
+          </section>
+
+          {/* ── EGYPT SOVEREIGN ───────────────────────────── */}
+          <section id="egypt-sovereign" className={s.section}>
+            <div className={s.sectionLabel}>Sovereign Credit · June 2026</div>
+            <h2 className={s.sectionTitle}>Egypt: LONG Eurobonds at 281bps CDS</h2>
+            <p className={s.sectionSub}>
+              Post-Hormuz deterioration reflects a transitory external shock — Iran conflict spillovers,
+              Suez Canal disruption, energy price passthrough. This is not a structural breakdown in the
+              IMF programme trajectory. I initiate a modest long in USD-denominated Egyptian eurobonds,
+              targeting spread compression from 281bps toward 220–240bps by year-end 2026.
+            </p>
+
+            {/* Full note link */}
+            <a
+              href="/egypt-sovereign-credit-note-june-2026.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={s.callout}
+              style={{ display:"block", textDecoration:"none", color:"inherit", borderLeft:"3px solid var(--gold)" }}
+            >
+              <div className={s.calloutTitle} style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                <span>Full Credit Note — Egypt Sovereign, June 2026</span>
+                <span style={{ color:"var(--gold)", fontSize:13, fontWeight:600 }}>Full article →</span>
+              </div>
+              <p style={{ margin:0, fontSize:12, color:"var(--dim,#9a9590)" }}>
+                9-page sovereign credit note · Macro overview, fiscal analysis, DSA, external financing, key risks, trade recommendation · PDF
+              </p>
+            </a>
+
+            {/* Recommendation box */}
+            <div style={{ display:"grid", gridTemplateColumns:"auto 1fr", gap:0, border:"1px solid var(--border,#e8e2d9)", marginTop:32 }}>
+              <div style={{ background:"var(--gold,#c8873a)", padding:"24px 28px", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", minWidth:120 }}>
+                <div style={{ fontSize:9, fontWeight:700, letterSpacing:"0.18em", textTransform:"uppercase", color:"rgba(255,255,255,0.75)", marginBottom:6 }}>Recommendation</div>
+                <div style={{ fontSize:28, fontWeight:800, color:"white", letterSpacing:"-0.02em" }}>LONG</div>
+                <div style={{ fontSize:10, color:"rgba(255,255,255,0.75)", marginTop:4 }}>Egyptian Eurobonds</div>
+              </div>
+              <div style={{ padding:"20px 28px", background:"var(--bg2,#f4f0f8)" }}>
+                {[
+                  ["Entry",      "Current spread levels (~281bps 5yr CDS)"],
+                  ["Target",     "220–240bps spread compression by year-end 2026"],
+                  ["Stop-loss",  "Exit on sustained move wider than 350bps"],
+                  ["Conviction", "Moderate — position sized modestly given Hormuz tail risk"],
+                ].map(([k,v]) => (
+                  <div key={k} style={{ display:"flex", gap:12, marginBottom:8, fontSize:13 }}>
+                    <span style={{ fontWeight:700, minWidth:80, color:"var(--ink,#1a0a2e)" }}>{k}</span>
+                    <span style={{ color:"var(--dim,#9a9590)" }}>{v}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Key metrics */}
+            <table className={s.table} style={{ marginTop:32 }}>
+              <thead>
+                <tr><th>Indicator</th><th>Value</th></tr>
+              </thead>
+              <tbody>
+                {[
+                  ["Public Debt / GDP (FY2024/25)",  "91.8%"],
+                  ["Gross Financing Needs",           "~40% of GDP (next 3 years)"],
+                  ["Interest / Tax Revenue",          "~83%"],
+                  ["Gross International Reserves",    "$53.1bn (May 2026)"],
+                  ["5yr CDS Spread",                  "281bps (25 Jun 2026)"],
+                  ["Real GDP Growth (FY2024/25)",     "4.4%"],
+                  ["CPI Inflation",                   "14.6% YoY (May 2026)"],
+                  ["IMF Programme",                   "EFF $8bn, Dec 2026 expiry"],
+                  ["GCC Deposits at CBE",             "$18.3bn (non-withdrawal assured Dec 2026)"],
+                  ["T-bill Yield (182-day)",          "25.66% (25 Jun 2026)"],
+                ].map(([ind, val]) => (
+                  <tr key={ind}><td>{ind}</td><td style={{ fontWeight:600 }}>{val}</td></tr>
+                ))}
+              </tbody>
+            </table>
+
+            <div className={s.prose} style={{ marginTop:40 }}>
+              <h3>The Core Thesis</h3>
+              <p>
+                Egypt's post-February 2026 deterioration reflects a transitory external shock — not a structural
+                breakdown in its IMF programme trajectory. The fundamentals that drove the 2024 recovery remain
+                intact: a functioning IMF anchor, a rebuilt reserve position ($53bn gross), demonstrated fiscal
+                consolidation, and a credible CBE monetary framework. With Brent back at ~$70, acute external
+                pressure is easing.
+              </p>
+              <p>
+                The primary risk is the GCC financing gap. Gulf states are increasingly prioritising domestic
+                investment over bilateral regional support — a structural shift that creates medium-term
+                vulnerability as the EFF expires in December 2026. The IMF rates overall sovereign stress as HIGH
+                and assesses debt as "sustainable but not with high probability." I initiate a modest long,
+                targeting spread compression toward 220–240bps, with a stop at 350bps or evidence of IMF
+                programme derailment.
+              </p>
+              <h3>Why Eurobonds Over Local Currency</h3>
+              <p>
+                EGP T-bill carry at ~25.66% is superficially attractive but structurally exposed to EGP
+                depreciation risk and potential capital flight. NDF markets are structurally thin — the Iran war
+                has added uncertainty that has not yet been fully priced. Eurobonds eliminate FX translation risk
+                and are governed by international law, providing a cleaner expression of the sovereign credit view.
+              </p>
+              <h3>The View Turns Negative On</h3>
+              <p>
+                A failed IMF 7th review without a credible corrective path, or evidence that Gulf states are
+                withdrawing deposit support ahead of the December 2026 EFF expiry. Neither is the base case.
+                Until then, the carry compensates for the risk and the programme anchor provides the floor.
+              </p>
+            </div>
           </section>
 
           {/* ── CHARTS ────────────────────────────────────── */}
