@@ -483,34 +483,121 @@ export default function ResearchPage() {
             </table>
 
             <div className={s.prose} style={{ marginTop:40 }}>
-              <h3>The Core Thesis</h3>
+              <h3>1. Macro Overview</h3>
               <p>
-                Egypt's post-February 2026 deterioration reflects a transitory external shock — not a structural
-                breakdown in its IMF programme trajectory. The fundamentals that drove the 2024 recovery remain
-                intact: a functioning IMF anchor, a rebuilt reserve position ($53bn gross), demonstrated fiscal
-                consolidation, and a credible CBE monetary framework. With Brent back at ~$70, acute external
-                pressure is easing.
+                The February 2026 IMF 5th/6th EFF review is the right analytical starting point. By that date,
+                real GDP had recovered to 4.4% in FY2024/25, accelerating to 5.3% year-on-year in Q1 FY2025/26.
+                Inflation had fallen sharply from a peak above 35% to 12.3% by December 2025, driven by tight
+                monetary policy and the elimination of the parallel FX market premium following the March 2024
+                devaluation. Gross reserves had risen to ~$59.2bn by December 2025, supported by the Ras El
+                Hekma $35bn UAE deal, a $3.5bn Qatari land sale, and record nonresident T-bill inflows.
               </p>
               <p>
-                The primary risk is the GCC financing gap. Gulf states are increasingly prioritising domestic
-                investment over bilateral regional support — a structural shift that creates medium-term
-                vulnerability as the EFF expires in December 2026. The IMF rates overall sovereign stress as HIGH
-                and assesses debt as "sustainable but not with high probability." I initiate a modest long,
-                targeting spread compression toward 220–240bps, with a stop at 350bps or evidence of IMF
-                programme derailment.
+                The Iran conflict, escalating from June 2025, disrupted this trajectory through three simultaneous
+                channels. Egypt became a net energy importer approximately four months prior to the current
+                assessment period. Suez Canal revenues — running at ~$9–10bn annually pre-crisis — suffered
+                further disruption as shipping insurance repricing and cargo rerouting decisions operate on
+                contract cycles of months to years, not geopolitical headlines. Tourism receipts, having recovered
+                to 4.6% of GDP, are directly exposed to regional conflict sentiment. Remittances at 9.9% of GDP
+                are partially exposed to Gulf economic conditions through the labour market channel. All three
+                assumptions underpinning the IMF's pre-war CAD projection were violated simultaneously.
               </p>
-              <h3>Why Eurobonds Over Local Currency</h3>
+              <h3>2. The Oil Price Transmission Mechanism</h3>
               <p>
-                EGP T-bill carry at ~25.66% is superficially attractive but structurally exposed to EGP
-                depreciation risk and potential capital flight. NDF markets are structurally thin — the Iran war
-                has added uncertainty that has not yet been fully priced. Eurobonds eliminate FX translation risk
-                and are governed by international law, providing a cleaner expression of the sovereign credit view.
+                The central analytical lens for Egypt's external vulnerability is the oil price transmission
+                chain: Brent crude → Gulf sovereign fiscal surplus compression → reduced bilateral transfer
+                capacity → CBE deposit rollover risk → NFA drawdown and reserve pressure → EGP depreciation →
+                imported inflation acceleration → real rate erosion → carry trade deterioration → nonresident
+                outflow pressure. This chain makes Egypt's credit trajectory significantly more correlated with
+                global oil prices than a standard EM framework would suggest for a country that is itself only a
+                marginal hydrocarbon producer.
               </p>
-              <h3>The View Turns Negative On</h3>
               <p>
-                A failed IMF 7th review without a credible corrective path, or evidence that Gulf states are
-                withdrawing deposit support ahead of the December 2026 EFF expiry. Neither is the base case.
-                Until then, the carry compensates for the risk and the programme anchor provides the floor.
+                Gulf sovereign fiscal breakevens — Saudi Arabia at approximately $90–95/barrel — mean that at
+                Brent ~$70, Gulf states are operating at or below breakeven. This compresses discretionary
+                bilateral deployment capacity precisely when Egypt's own revenue streams are under pressure. The
+                mechanism is asymmetric: lower oil eases domestic inflation but compresses Gulf support; higher
+                oil from Hormuz re-escalation restores Gulf fiscal headroom but widens Egypt's energy import bill.
+                The investment thesis is calibrated around the middle of that distribution.
+              </p>
+              <h3>3. Fiscal Position</h3>
+              <p>
+                Egypt's fiscal position has improved materially under the IMF programme but remains structurally
+                vulnerable. The single most alarming metric is interest payments absorbing approximately 83% of
+                tax revenues. For every EGP100 collected in taxes, EGP83 is consumed by debt service before a
+                single pound is spent on public services or investment. This interest-to-revenue trap is the
+                central credit vulnerability — the mechanism through which any deterioration in borrowing costs,
+                the FX rate, or growth becomes immediately fiscally destabilising.
+              </p>
+              <p>
+                The fiscal deficit widened to 5.2% of GDP in July–March FY2025/26, reflecting reduced Suez
+                Canal revenues, higher energy import costs, and a lower growth tax base. Deutsche Bank and Morgan
+                Stanley project CPI re-accelerating toward 20% by year-end, requiring approximately 300bps of CBE
+                rate hikes. That hiking cycle directly worsens gross financing needs by raising domestic T-bill
+                rollover costs — the appropriate monetary response creates its own fiscal headwind.
+              </p>
+              <h3>4. Debt Sustainability</h3>
+              <p>
+                Gross public debt declined from 97.2% to 91.8% of GDP in FY2024/25 — the first meaningful
+                reduction in years. The IMF projects continued reduction toward 75% by 2031. The IMF's own
+                assessment, however, is that debt is "sustainable but not with high probability," with overall
+                sovereign stress rated HIGH.
+              </p>
+              <p>
+                The headline ratio conceals the actual risk profile. With 60% of domestic debt in short-term
+                instruments, Egypt faces perpetual refinancing pressure. Gross financing needs are projected to
+                remain approximately 40% of GDP over the next three years. The IMF's DSA explicitly includes
+                $18.3bn in GCC central bank deposits within the measured debt stock — with non-withdrawal
+                assurances running only through December 2026, coterminous with the EFF expiry. If those
+                assurances lapse, the measured debt stock rises mechanically before any new market borrowing
+                occurs.
+              </p>
+              <h3>5. External Financing</h3>
+              <p>
+                Gross reserves have rebuilt from ~$35bn in early 2023 to $53.1bn as of May 2026. The IMF
+                programme provides a critical anchor: combined 5th/6th reviews released SDR1,465.44mn, with
+                remaining disbursements rephased through December 2026. Programme continuation is not in question
+                over the 2026 horizon — Egypt has demonstrated capacity to meet QPCs under significant pressure,
+                and the IMF has both financial and reputational reasons to maintain support given Egypt is its
+                fifth largest GRA exposure.
+              </p>
+              <p>
+                The post-December 2026 cliff is the medium-term concern. Egypt will need to either renew GCC
+                deposit assurances bilaterally or replace $18.3bn in financing at prevailing spreads. At 281bps
+                CDS that refinancing is expensive but not prohibitive. At 400–500bps it becomes a material
+                burden. The trajectory of GCC deposit assurances post-programme is therefore the single most
+                important monitoring variable for the medium-term credit view.
+              </p>
+              <h3>6. Key Risks</h3>
+              <p><strong>Downside:</strong> Hormuz tail risk (the US-Iran MoU is not a peace settlement — mines
+              remain in the strait, a Singapore-flagged tanker was struck 25 June 2026); GCC financing gap as
+              Gulf states prioritise domestic investment; inflation overshoot requiring ~300bps CBE rate hikes;
+              hot money reversal from $32.8bn in nonresident T-bill holdings; SOE contingent liabilities with
+              EGPC guarantees alone at ~18% of GDP.</p>
+              <p><strong>Upside:</strong> Faster Suez Canal normalisation restoring the $9–10bn annual revenue
+              run rate; 4–5 SOE listings by year-end reducing GFN and attracting FDI; Gulf re-engagement on
+              higher oil; IMF 7th review completion in Q3 2026 as an independent positive catalyst for spread
+              compression.</p>
+              <h3>7. Instrument Selection: Eurobonds Over Local Currency</h3>
+              <p>
+                EGP T-bill carry at ~25.66% (182-day, 25 June 2026) is superficially attractive. I remain
+                sceptical in practice: EGP forward markets are structurally thin, the Iran war has added
+                uncertainty NDF markets have not yet fully priced, and capital control risk remains a tail
+                scenario in a stress event that would prevent repatriation regardless of hedge. The anticipated
+                300bps CBE rate hike signals the central bank is itself concerned about EGP stability. USD
+                eurobonds in the 2029–2031 maturity range eliminate FX translation risk and are governed by
+                international law — a cleaner expression of the sovereign credit view at a point of elevated EGP
+                uncertainty.
+              </p>
+              <h3>Conclusion</h3>
+              <p>
+                At 281bps CDS, the market is pricing more stress than the programme fundamentals warrant over a
+                12-month horizon. The IMF anchor holds through December 2026, GCC deposit assurances are locked
+                through the same date, and the 7th review in Q3 2026 is a credible positive catalyst. I target
+                spread compression toward 220–240bps by year-end, sized modestly to reflect the Hormuz tail risk
+                and the medium-term GCC financing gap that emerges post-programme. The view turns negative on a
+                failed IMF review or evidence of Gulf deposit withdrawal ahead of the December expiry. Until
+                then, the carry compensates for the risk and the programme anchor provides the floor.
               </p>
             </div>
           </section>
