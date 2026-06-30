@@ -194,7 +194,7 @@ export default function HomePage() {
                     <p style={{ fontSize:13, color:MUTED, lineHeight:1.7, marginBottom:20 }}>{art.deck}</p>
                     <div style={{ display:"flex", justifyContent:"space-between", borderTop:`1px solid ${RULE}`, paddingTop:14 }}>
                       <span style={{ fontSize:11, color:MUTED }}>{art.date}</span>
-                      <span style={{ fontSize:11, color:ACCENT, fontWeight:500 }}>{art.readTime} read →</span>
+                      <span style={{ fontSize:11, color:ACCENT, fontWeight:500 }}>Read →</span>
                     </div>
                   </div>
                 </Link>
