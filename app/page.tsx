@@ -245,8 +245,38 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div>
+          {/* Recent issuance watch */}
+          <div style={{ marginTop:48 }}>
+            <div style={{ fontSize:9, fontWeight:700, letterSpacing:"0.16em", textTransform:"uppercase", color:ACCENT, marginBottom:16 }}>Egypt · Recent Issuance Watch</div>
+            <div style={{ background:PAPER, border:`1px solid ${RULE}` }}>
+              <table style={{ width:"100%", borderCollapse:"collapse", fontSize:12 }}>
+                <thead>
+                  <tr style={{ borderBottom:`1px solid ${RULE}` }}>
+                    {["Instrument","Date","Size","Tenor / Detail","Why I'm Watching"].map(h => (
+                      <th key={h} style={{ padding:"10px 16px", textAlign:"left", fontSize:9, fontWeight:700, letterSpacing:"0.12em", textTransform:"uppercase", color:MUTED }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    ["Samurai Bond",       "Jun 2026", "¥67.3bn (~$430m)", "5yr · JPY-denominated",         "First yen issuance — diversifies away from USD funding, signals Japanese investor appetite for Egypt risk at current spreads"],
+                    ["ESG Eurobond",       "May 2026", "$1.5bn",           "5yr · USD",                     "Priced tighter than vanilla curve — tests whether ESG label compresses spread; monitors green premium sustainability post-Hormuz"],
+                    ["T-bill Auction",     "25 Jun 2026", "Rollover",      "182-day: 25.66% / 364-day: 24.59%", "Inverted short-end signals CBE rate cut expectations; nonresident demand at auction is key liquidity indicator"],
+                    ["Eurobond Tap",       "Apr 2026",  "~$500m",          "2032 maturity tap",             "Issued during Hormuz stress at wide levels — watching secondary performance as spread compresses toward target"],
+                  ].map(([inst, date, size, tenor, note]) => (
+                    <tr key={inst} style={{ borderBottom:`1px solid ${RULE}` }}>
+                      <td style={{ padding:"12px 16px", fontWeight:600, color:INK }}>{inst}</td>
+                      <td style={{ padding:"12px 16px", color:MUTED, whiteSpace:"nowrap" }}>{date}</td>
+                      <td style={{ padding:"12px 16px", color:MUTED, whiteSpace:"nowrap" }}>{size}</td>
+                      <td style={{ padding:"12px 16px", color:MUTED }}>{tenor}</td>
+                      <td style={{ padding:"12px 16px", color:MUTED, fontSize:11, lineHeight:1.6 }}>{note}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
+
           <div style={{ marginTop:16, textAlign:"right", fontSize:11, color:MUTED }}>Spreads indicative · For research purposes only</div>
         </div>
       </section>
