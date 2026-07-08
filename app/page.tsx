@@ -259,7 +259,7 @@ export default function HomePage() {
                 </thead>
                 <tbody>
                   {[
-                    ["Samurai Bond",       "Jun 2026", "¥67.3bn (~$430m)", "5yr · JPY-denominated",         "First yen issuance — diversifies away from USD funding, signals Japanese investor appetite for Egypt risk at current spreads"],
+                    ["Samurai Bond",       "Jun 2026", "¥67.3bn (~$430m)", "5yr & 10yr · JPY-denominated · dual tranche",  "First Samurai bond since 2002 — diversifies away from USD funding, dual tenor signals Japanese institutional appetite across the curve"],
                     ["ESG Eurobond",       "May 2026", "$1.5bn",           "5yr · USD",                     "Priced tighter than vanilla curve — tests whether ESG label compresses spread; monitors green premium sustainability post-Hormuz"],
                     ["T-bill Auction",     "25 Jun 2026", "Rollover",      "182-day: 25.66% / 364-day: 24.59%", "Inverted short-end signals CBE rate cut expectations; nonresident demand at auction is key liquidity indicator"],
                     ["Eurobond Tap",       "Apr 2026",  "~$500m",          "2032 maturity tap",             "Issued during Hormuz stress at wide levels — watching secondary performance as spread compresses toward target"],
