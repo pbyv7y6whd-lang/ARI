@@ -8,13 +8,14 @@ type NavItem = { id: string; label: string };
 type NavGroup = { label: string; single?: string; children?: NavItem[] };
 
 const NAV: NavGroup[] = [
-  { label: "Oil Trade",      single: "oil-trade" },
-  { label: "Egypt Sovereign",single: "egypt-sovereign" },
-  { label: "Sources",        single: "data" },
+  { label: "Oil Trade",          single: "oil-trade" },
+  { label: "Egypt Sovereign",    single: "egypt-sovereign" },
+  { label: "Guarantee Framework",single: "guarantee-framework" },
+  { label: "Sources",            single: "data" },
 ];
 
 // flat list of all scroll targets for the observer
-const ALL_IDS = ["oil-trade", "egypt-sovereign", "data"];
+const ALL_IDS = ["oil-trade", "egypt-sovereign", "guarantee-framework", "data"];
 
 export default function ResearchPage() {
   const [active,      setActive]    = useState("oil-trade");
@@ -613,6 +614,117 @@ export default function ResearchPage() {
                 then, the carry compensates for the risk and the programme anchor provides the floor.
               </p>
             </div>}
+          </section>
+
+          {/* ── GUARANTEE FRAMEWORK ───────────────────────── */}
+          <section id="guarantee-framework" className={s.section}>
+            <div className={s.sectionLabel}>Credit Framework · July 2026</div>
+            <h2 className={s.sectionTitle}>When Does a Guarantee Actually Transfer Sovereign Risk?</h2>
+            <p className={s.sectionSub}>
+              A framework for pricing quasi-sovereign issuance, with Egypt case studies.
+              Most sovereign credit coverage stops at the eurobond curve. But Egypt's debt strategy
+              now explicitly includes guaranteed and multilateral-backed structures — samurai bonds
+              with AfDB partial credit guarantees, sukuk, IMF-adjacent issuance — as a deliberate
+              tool for accessing cheaper funding and diversifying its investor base. Getting the
+              guarantee analysis wrong in either direction is costly.
+            </p>
+
+            {/* CTA row */}
+            <div style={{ display:"flex", flexDirection:"column", gap:12, margin:"32px 0" }}>
+              <a
+                href="/egypt-guarantee-framework.docx"
+                download
+                style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"20px 28px", background:"#1a0a2e", textDecoration:"none", gap:24 }}
+              >
+                <div>
+                  <div style={{ fontSize:10, fontWeight:700, letterSpacing:"0.18em", textTransform:"uppercase", color:"rgba(255,255,255,0.5)", marginBottom:6 }}>Full Framework · Word Doc</div>
+                  <div style={{ fontSize:16, fontWeight:700, color:"white", letterSpacing:"-0.01em" }}>When Does a Guarantee Actually Transfer Sovereign Risk?</div>
+                  <div style={{ fontSize:12, color:"rgba(255,255,255,0.55)", marginTop:4 }}>Direction · Governing law · Immunity waiver · Guarantee scope · Payment mechanism · Case studies</div>
+                </div>
+                <div style={{ fontSize:18, color:"#c8873a", fontWeight:700, whiteSpace:"nowrap" }}>Download →</div>
+              </a>
+              <a
+                href="/egypt-guarantee-checklist.docx"
+                download
+                style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"16px 28px", background:"#f4f0f8", border:"1px solid #e0d8ee", textDecoration:"none", gap:24 }}
+              >
+                <div>
+                  <div style={{ fontSize:10, fontWeight:700, letterSpacing:"0.18em", textTransform:"uppercase", color:"#9a7cc0", marginBottom:4 }}>Companion Reference · Word Doc</div>
+                  <div style={{ fontSize:14, fontWeight:700, color:"#1a0a2e" }}>Guarantee Quality Checklist — Poor to Strong Scale</div>
+                </div>
+                <div style={{ fontSize:14, color:"#5b21b6", fontWeight:700, whiteSpace:"nowrap" }}>Download →</div>
+              </a>
+              <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"16px 28px", background:"#f9f7f4", border:"1px solid #e8e2d9", opacity:0.6 }}>
+                <div>
+                  <div style={{ fontSize:10, fontWeight:700, letterSpacing:"0.18em", textTransform:"uppercase", color:"#9a9590", marginBottom:4 }}>Coming Soon · Trade Note</div>
+                  <div style={{ fontSize:14, fontWeight:700, color:"#1a0a2e" }}>Egypt Samurai Bond RV Trade — Pricing the AfDB Guarantee</div>
+                  <div style={{ fontSize:12, color:"#9a9590", marginTop:2 }}>Applying the framework to the live 2026 issuance · Spread vs JGBs · Fair value vs Egypt dollar curve</div>
+                </div>
+                <div style={{ fontSize:13, color:"#9a9590", fontWeight:600, whiteSpace:"nowrap" }}>Coming soon</div>
+              </div>
+            </div>
+
+            <div className={s.prose}>
+              <h3>The Core Question</h3>
+              <p>
+                A guarantee does not reduce credit risk in the abstract — it reallocates it. Whether
+                that reallocation helps or hurts the bondholder depends entirely on which side of the
+                guarantee (issuer or guarantor) is actually the stronger credit. Direction matters
+                more than guarantee quality alone.
+              </p>
+              <p>
+                The default assumption is that a government guarantee reduces relative credit risk
+                because the sovereign is presumed stronger than the underlying SOE. Where that holds,
+                guarantee quality determines how much of that sovereign strength the bondholder
+                actually receives. But the base case does not always hold. In export-oriented or
+                hard-currency-revenue SOEs with strong FX deposit bases, standalone debt service
+                capacity can be stronger than a fiscally stressed sovereign. In a genuine restructuring,
+                an unguaranteed bond from a strong-cashflow SOE can be safer than a guaranteed one,
+                because the SOE's assets are not necessarily swept into the sovereign restructuring
+                perimeter — whereas an explicit guarantee ties that credit directly to the sovereign's
+                fate.
+              </p>
+              <h3>The Sovereign Ceiling and Where It Creates Mispricing</h3>
+              <p>
+                Rating agencies complicate this through the sovereign ceiling: a quasi-sovereign
+                fundamentally stronger than its sovereign typically still has its rating capped at
+                the sovereign level, because transfer and convertibility risk applies uniformly to
+                anyone operating in that jurisdiction. The ceiling does not mean the credits are
+                equally strong; it means the market's ability to price that difference is compressed.
+                Where an SOE is meaningfully stronger than its sovereign but the ceiling holds the
+                spread artificially tight, that gap is a value signal — not equivalent risk.
+              </p>
+              <h3>Case Study: CIB (Ceiling Compression)</h3>
+              <p>
+                CIB's standalone credit benefits from a strong deposit franchise, conservative
+                underwriting, and real foreign-currency earnings — characteristics that plausibly
+                place it above the Egyptian sovereign. Under the ceiling framework, any
+                sovereign-linked CIB paper would be compressed toward the sovereign curve regardless.
+                The trade: long the quasi-sovereign, flat or underweight the sovereign, on the view
+                that as transfer and convertibility risk eases (reserves building, capital controls
+                loosening, IMF reviews on track), the ceiling loosens and the quasi-sovereign
+                re-rates faster than the curve.
+              </p>
+              <h3>Case Study: Egypt's AfDB-Guaranteed Samurai Bond (Ceiling Lift)</h3>
+              <p>
+                The reverse case. Here the guarantor (AfDB, rated AAA) is far stronger than the
+                issuer (Egypt, deep single-B). The resulting tranches are rated AA+ and AA. The
+                relative value question shifts: not whether a ceiling is compressing a spread too
+                tightly, but whether the market has actually converged pricing toward the credit
+                enhancement the guarantee provides. Because the guarantee is <em>partial</em>, the
+                correct benchmark is not a clean AA spread — probability of default remains anchored
+                to Egypt's own credit profile. What the guarantee compresses is loss given default
+                and near-term payment risk, not underlying solvency. The mispricing worth acting
+                on is the gap between the actual market spread and a properly modelled fair value,
+                not a naive comparison to clean AA.
+              </p>
+              <p>
+                The full checklist — eight dimensions from explicit vs implicit, governing law,
+                immunity waiver, guarantee scope, payment mechanism, guarantor identity, rating
+                treatment, and documentation transparency — and the poor-to-strong scale are in the
+                companion download above.
+              </p>
+            </div>
           </section>
 
           {/* ── CHARTS ────────────────────────────────────── */}
