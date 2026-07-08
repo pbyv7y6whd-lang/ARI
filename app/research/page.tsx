@@ -633,7 +633,8 @@ export default function ResearchPage() {
             <div style={{ display:"flex", flexDirection:"column", gap:12, margin:"32px 0" }}>
               <a
                 href="/egypt-guarantee-framework.docx"
-                download
+                target="_blank"
+                rel="noopener noreferrer"
                 style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"20px 28px", background:"#1a0a2e", textDecoration:"none", gap:24 }}
               >
                 <div>
@@ -641,18 +642,19 @@ export default function ResearchPage() {
                   <div style={{ fontSize:16, fontWeight:700, color:"white", letterSpacing:"-0.01em" }}>When Does a Guarantee Actually Transfer Sovereign Risk?</div>
                   <div style={{ fontSize:12, color:"rgba(255,255,255,0.55)", marginTop:4 }}>Direction · Governing law · Immunity waiver · Guarantee scope · Payment mechanism · Case studies</div>
                 </div>
-                <div style={{ fontSize:18, color:"#c8873a", fontWeight:700, whiteSpace:"nowrap" }}>Download →</div>
+                <div style={{ fontSize:18, color:"#c8873a", fontWeight:700, whiteSpace:"nowrap" }}>Open →</div>
               </a>
               <a
                 href="/egypt-guarantee-checklist.docx"
-                download
+                target="_blank"
+                rel="noopener noreferrer"
                 style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"16px 28px", background:"#f4f0f8", border:"1px solid #e0d8ee", textDecoration:"none", gap:24 }}
               >
                 <div>
                   <div style={{ fontSize:10, fontWeight:700, letterSpacing:"0.18em", textTransform:"uppercase", color:"#9a7cc0", marginBottom:4 }}>Companion Reference · Word Doc</div>
                   <div style={{ fontSize:14, fontWeight:700, color:"#1a0a2e" }}>Guarantee Quality Checklist — Poor to Strong Scale</div>
                 </div>
-                <div style={{ fontSize:14, color:"#5b21b6", fontWeight:700, whiteSpace:"nowrap" }}>Download →</div>
+                <div style={{ fontSize:14, color:"#5b21b6", fontWeight:700, whiteSpace:"nowrap" }}>Open →</div>
               </a>
               <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"16px 28px", background:"#f9f7f4", border:"1px solid #e8e2d9", opacity:0.6 }}>
                 <div>
