@@ -427,7 +427,7 @@ export default function ResearchPage() {
                 <div style={{ fontSize:16, fontWeight:700, color:"white", letterSpacing:"-0.01em" }}>Egypt Sovereign Credit Note — June 2026</div>
                 <div style={{ fontSize:12, color:"rgba(255,255,255,0.55)", marginTop:4 }}>Macro overview · Fiscal analysis · DSA · External financing · Risks · Trade recommendation</div>
               </div>
-              <div style={{ fontSize:22, color:"#c8873a", fontWeight:700, whiteSpace:"nowrap" }}>Download PDF →</div>
+              <div style={{ fontSize:22, color:"#c8873a", fontWeight:700, whiteSpace:"nowrap" }}>Open PDF →</div>
             </a>
 
             {/* Recommendation box */}
