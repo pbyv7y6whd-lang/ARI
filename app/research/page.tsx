@@ -656,14 +656,6 @@ export default function ResearchPage() {
                 </div>
                 <div style={{ fontSize:14, color:"#5b21b6", fontWeight:700, whiteSpace:"nowrap" }}>Open →</div>
               </a>
-              <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"16px 28px", background:"#f9f7f4", border:"1px solid #e8e2d9", opacity:0.6 }}>
-                <div>
-                  <div style={{ fontSize:10, fontWeight:700, letterSpacing:"0.18em", textTransform:"uppercase", color:"#9a9590", marginBottom:4 }}>Coming Soon · Trade Note</div>
-                  <div style={{ fontSize:14, fontWeight:700, color:"#1a0a2e" }}>Egypt Samurai Bond RV Trade — Pricing the AfDB Guarantee</div>
-                  <div style={{ fontSize:12, color:"#9a9590", marginTop:2 }}>Applying the framework to the live 2026 issuance · Spread vs JGBs · Fair value vs Egypt dollar curve</div>
-                </div>
-                <div style={{ fontSize:13, color:"#9a9590", fontWeight:600, whiteSpace:"nowrap" }}>Coming soon</div>
-              </div>
             </div>
 
             <div className={s.prose}>
