@@ -667,88 +667,74 @@ export default function ResearchPage() {
             </div>
 
             <div className={s.prose}>
-              <h3>Direction before quality</h3>
+              <h3>Direction matters more than guarantee quality alone</h3>
               <p>
                 A guarantee does not reduce credit risk in the abstract — it reallocates it. Whether
                 that reallocation helps or hurts the bondholder depends entirely on which side of the
-                guarantee is actually the stronger credit. The intuitive assumption — that a
-                government guarantee makes a bond safer — rests on a premise that often goes
-                unexamined: that the sovereign is stronger than the underlying SOE in the first place.
+                guarantee is actually the stronger credit. The intuitive assumption — once a bond is
+                government-guaranteed, it should trade close to the sovereign curve — is usually
+                right, but rests on a premise that often goes unexamined: that the sovereign is the
+                stronger credit in the first place.
               </p>
               <p>
-                That base case does not always hold. In export-oriented or hard-currency-revenue
-                SOEs with strong FX deposit bases, standalone debt service capacity can exceed that
-                of a fiscally stressed sovereign. In a genuine restructuring, an unguaranteed bond
-                from a strong-cashflow SOE can be <em>safer</em> than a guaranteed one, because the
-                SOE's assets are not necessarily swept into a sovereign restructuring perimeter —
-                whereas an explicit guarantee ties the credit directly to the sovereign's fate.
-                Guarantee quality always matters, but its sign flips depending on the direction of
-                the credit gap. Establishing which credit is actually stronger is step one, not an
-                afterthought.
+                That base case does not always hold. In export-oriented or hard-currency-revenue SOEs
+                with strong FX deposit bases, standalone debt service capacity can exceed that of a
+                fiscally stressed sovereign. In a genuine restructuring, an unguaranteed bond from a
+                strong-cashflow SOE can be <em>safer</em> than a guaranteed one, because the SOE's
+                assets are not necessarily swept into a sovereign restructuring perimeter — whereas
+                an explicit guarantee ties that credit directly to the sovereign's fate. Guarantee
+                quality always matters, but its sign flips depending on the direction of the credit
+                gap. Establishing which credit is actually stronger is step one, not an afterthought.
               </p>
               <h3>The sovereign ceiling and where it creates mispricing</h3>
               <p>
                 Rating agencies complicate this through the sovereign ceiling: a quasi-sovereign
-                fundamentally stronger than its sovereign typically still has its rating capped at the
-                sovereign level, because transfer and convertibility risk applies uniformly to anyone
-                operating in that jurisdiction. The ceiling does not mean the credits are equally
-                strong; it means the market's ability to price that difference is compressed. The
-                strength of the ceiling depends on whose balance sheet stands behind the guarantee.
-                Same-jurisdiction guarantees are close to mechanically capped. Cross-jurisdiction
-                guarantees — a multilateral guaranteeing a sovereign — should not be capped in the
-                same way, and when they trade as if they are, that gap is itself the signal.
+                fundamentally stronger than its sovereign typically still has its rating capped at
+                the sovereign level, because transfer and convertibility risk applies uniformly to
+                anyone operating in that jurisdiction. The ceiling does not mean the credits are
+                equally strong; it means the market's ability to price that difference is compressed.
+                The strength of the ceiling depends on whose balance sheet ultimately stands behind
+                the guarantee. Same-jurisdiction guarantees are close to mechanically capped.
+                Cross-jurisdiction guarantees — a multilateral guaranteeing a sovereign — should not
+                be capped in the same way, and when they trade as if they are, that gap is itself
+                the signal.
               </p>
-              <h3>Case study 1: ceiling mispricing at a strong quasi-sovereign (illustrative)</h3>
+              <h3>Case study: Egypt's AfDB-guaranteed samurai bond</h3>
               <p>
-                A hypothetical Egyptian quasi-sovereign with a strong deposit franchise, conservative
-                underwriting, and real foreign-currency earnings power — one plausibly carrying
-                standalone credit above the sovereign's — would, under the ceiling framework, see
-                any guaranteed paper compressed toward the sovereign curve regardless. The trade this
-                implies: long the quasi-sovereign, flat or underweight the sovereign, on the view
-                that as transfer and convertibility risk eases (reserves building, capital controls
-                loosening, IMF reviews on track), the ceiling itself loosens and the quasi-sovereign
-                re-rates independently. Two conditions must hold: the T&amp;C constraint is genuinely
-                easing, and the legal structure is not so tightly bound to the sovereign that there
-                is nothing separate to trade on.
-              </p>
-              <h3>Case study 2: Egypt's AfDB-guaranteed samurai bond (reverse case)</h3>
-              <p>
-                The reverse direction. The guarantor (AfDB, AAA) is far stronger than the issuer
-                (Egypt, deep single-B). Rather than a strong entity capped down by a weak sovereign,
-                this is a weak sovereign lifted by a strong guarantor: the resulting tranches are
-                rated AA+ and AA. The relative value question shifts — not whether a ceiling compresses
-                a spread too tightly, but whether the market has actually converged pricing toward
-                the credit enhancement the guarantee provides.
+                Egypt's AfDB-guaranteed sustainability samurai bond, issued in 2026, illustrates the
+                framework in the direction that actually shows up in Egypt's market today. The
+                guarantor (AfDB, AAA) is far stronger than the issuer (Egypt, deep single-B). Rather
+                than a strong entity capped down by a weak sovereign, this is a weak sovereign lifted
+                by a strong guarantor: the resulting tranches are rated AA+ and AA.
               </p>
               <p>
-                The checklist applies directly here. Enforceability passes cleanly: explicit,
-                standalone guarantee; foreign, multilateral-governed structure. Guarantor identity
-                and rating treatment are both strong. But the guarantee is <em>partial</em>, not
-                full — and that changes the correct benchmark entirely. Probability of default remains
-                anchored to Egypt's own credit profile. What the guarantee compresses is loss given
-                default and near-term payment risk, not the sovereign's underlying solvency. A
-                defensible fair-value spread reflects Egypt's own default probability combined with
-                a materially improved recovery assumption — landing meaningfully closer to Egypt's
-                own curve than to a clean AA. The mispricing worth acting on is the gap between the
-                actual market spread and that properly modelled fair value, not a naive comparison
-                to AA that overstates the opportunity.
+                The relative value question is whether the market has actually converged pricing
+                toward the credit enhancement the guarantee provides. Comparing the guaranteed
+                samurai bond's spread (to JGBs, or to AfDB's own funding curve) against the
+                unguaranteed Egypt dollar eurobond curve, normalised for currency and tenor, shows
+                how much of the theoretical AA+/AA uplift has actually been priced in. Where the
+                guaranteed paper does not trade near AA levels despite its rating — whether due to
+                JPY market technicals, illiquidity, or unfamiliarity with the guarantee mechanic
+                among typical EM buyers — that gap represents unrealised value, provided the
+                checklist confirms the rating uplift is genuinely credible rather than a
+                rating-agency artefact.
               </p>
-              <h3>The poor end: EGPC arrears as a reference case</h3>
               <p>
-                Egypt's General Petroleum Corporation accumulated arrears to international oil
-                companies peaking near $6.1–6.2bn in mid-2024. There was no bond structure or
-                formal guarantee instrument giving creditors direct recourse to the sovereign —
-                only implicit state ownership assumed to imply support. Resolution came through
-                a coordinated government repayment effort (arrears fully cleared by the Ministry
-                of Petroleum as of June 2026), not through any enforceable guarantee. It remains
-                the clearest real-world illustration of implicit backing failing to translate into
-                enforceable protection under stress.
+                Because this is a <em>partial</em> credit guarantee, not a full one, the correct
+                benchmark is not a clean AA spread. Probability of default remains anchored to
+                Egypt's own credit profile; what the guarantee compresses is loss given default and
+                near-term payment risk, not the sovereign's underlying solvency. A defensible
+                fair-value spread reflects Egypt's own default probability combined with a materially
+                improved recovery assumption — landing meaningfully closer to Egypt's own curve than
+                to a clean AA. The mispricing worth acting on is the gap between the actual market
+                spread and that properly modelled fair value, not a naive AA comparison that would
+                overstate the opportunity. A dedicated RV note quantifying that spread is forthcoming.
               </p>
               <p>
                 The full 9-factor checklist — explicit vs implicit, governing law &amp; payment standard,
                 immunity waiver, guarantee scope, payment mechanism, guarantor identity, rating agency
-                treatment, ranking &amp; documentation, and restructuring treatment — with the poor-to-strong
-                scale and Egypt examples at each tier, is in the companion download above.
+                treatment, ranking &amp; documentation, and restructuring treatment — with the
+                poor-to-strong scale and Egypt examples at each tier, is in the companion download above.
               </p>
             </div>
           </section>
