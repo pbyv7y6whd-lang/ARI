@@ -300,14 +300,6 @@ export default function HomePage() {
               <a href="mailto:suleimanashraf@outlook.com" style={{ fontSize:11, fontWeight:600, letterSpacing:"0.06em", textTransform:"uppercase", border:`1px solid ${RULE}`, padding:"9px 18px", color:INK, textDecoration:"none" }}>Email</a>
             </div>
           </div>
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:1, background:RULE }}>
-            {[["MSc Finance","London School of Economics · 2026"],["BSc Finance","Bayes Business School · First Class · 2025"],["Focus","EM Sovereign Credit · Macro / FX / Credit"],["Based","London"]].map(([label,val]) => (
-              <div key={label} style={{ background:PAPER2, padding:"20px 18px" }}>
-                <div style={{ fontSize:9, fontWeight:700, letterSpacing:"0.16em", textTransform:"uppercase", color:MUTED, marginBottom:8 }}>{label}</div>
-                <div style={{ fontSize:12, color:INK, lineHeight:1.6 }}>{val}</div>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 
