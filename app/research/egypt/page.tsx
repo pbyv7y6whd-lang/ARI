@@ -5,25 +5,25 @@ import Link from "next/link";
 import s from "../research.module.css";
 import {
   META, RATINGS, SUMMARY_STATS,
-  GROWTH_BARS, IMF_FORECASTS, GDP_COMPOSITION, INVESTMENT_SHIFT, MACRO_TEXT,
+  GROWTH_BARS, IMF_FORECASTS, GDP_COMPOSITION, INVESTMENT_SHIFT, MACRO_DETAIL, MACRO_TEXT,
   INFLATION_PATH, PRICES_STATS, PRICES_TEXT,
-  EXTERNAL_STATS, EXTERNAL_TEXT,
+  EXTERNAL_STATS, TRADE_STATS, CAPITAL_SOURCES, EXTERNAL_WATCH, EXTERNAL_TEXT,
   FISCAL_STATS, FISCAL_TEXT,
   BANKING_STATS, BANKING_TEXT,
   WGI_SCORES, GOVERNANCE_STATS, GOVERNANCE_TEXT,
-  GEO_EVENTS, GEO_TEXT,
-  STRUCTURAL_STATS, STRUCTURAL_TEXT,
+  GEO_EVENTS, BILATERAL, GEO_TEXT,
+  STRUCTURAL_STATS, INFRA_ITEMS, SOCIAL_ITEMS, STRUCTURAL_TEXT,
 } from "./data";
 
 const SECTIONS = [
-  { id: "macro",       label: "Macro Momentum"        },
-  { id: "prices",      label: "Price Stability"        },
-  { id: "external",    label: "External Position"      },
-  { id: "fiscal",      label: "Fiscal & Debt"          },
-  { id: "banking",     label: "Banking System"         },
-  { id: "governance",  label: "Governance"             },
-  { id: "geopolitical",label: "Geopolitical Risk"      },
-  { id: "structural",  label: "Structural Risk"        },
+  { id: "macro",        label: "Macro Momentum"        },
+  { id: "prices",       label: "Price Stability"        },
+  { id: "external",     label: "External Position"      },
+  { id: "fiscal",       label: "Fiscal & Debt"          },
+  { id: "banking",      label: "Banking System"         },
+  { id: "governance",   label: "Governance"             },
+  { id: "geopolitical", label: "Geopolitical Risk"      },
+  { id: "structural",   label: "Structural Risk"        },
 ];
 
 /* ── CHART PRIMITIVES ─────────────────────────────────────────── */
@@ -137,9 +137,9 @@ function DonutChart({ data }: { data: { label: string; value: number; color: str
       <text x={cx} y={cx + 8} textAnchor="middle" fontSize={11} fill="#6b6b6b" fontFamily="Inter,sans-serif">mix</text>
       {data.map((d, i) => (
         <g key={i}>
-          <rect x={196} y={18 + i * 36} width={10} height={10} fill={d.color} opacity={0.85} />
-          <text x={210} y={27 + i * 36} fontSize={11} fill="#1a1a1a" fontFamily="Inter,sans-serif">{d.label}</text>
-          <text x={210} y={39 + i * 36} fontSize={10} fill="#9a9590" fontFamily="Inter,sans-serif">{d.value}%</text>
+          <rect x={196} y={18 + i * 30} width={10} height={10} fill={d.color} opacity={0.85} />
+          <text x={210} y={27 + i * 30} fontSize={10} fill="#1a1a1a" fontFamily="Inter,sans-serif">{d.label}</text>
+          <text x={210} y={38 + i * 30} fontSize={9} fill="#9a9590" fontFamily="Inter,sans-serif">{d.value}%</text>
         </g>
       ))}
     </svg>
@@ -180,12 +180,43 @@ function HBarChart({ data }: { data: { label: string; egypt: number; worldAvg: n
 function StatStrip({ stats }: { stats: { label: string; value: string; sub: string; color: string }[] }) {
   const colorMap: Record<string, string> = { green: "#2d6a4f", red: "#8b2e2e", gold: "#c8873a" };
   return (
-    <div style={{ display: "grid", gridTemplateColumns: `repeat(${stats.length}, 1fr)`, gap: 1, background: "#d8d4cc", border: "1px solid #d8d4cc", margin: "24px 0" }}>
+    <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(stats.length, 4)}, 1fr)`, gap: 1, background: "#d8d4cc", border: "1px solid #d8d4cc", margin: "24px 0", flexWrap: "wrap" }}>
       {stats.map((st, i) => (
         <div key={i} style={{ background: "#fafaf8", padding: "18px 16px", textAlign: "center" }}>
           <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#9a9590", marginBottom: 6 }}>{st.label}</div>
-          <div style={{ fontFamily: "'Playfair Display',serif", fontSize: 22, fontWeight: 700, color: colorMap[st.color] ?? "#0f0f0f", lineHeight: 1 }}>{st.value}</div>
+          <div style={{ fontFamily: "'Playfair Display',serif", fontSize: 20, fontWeight: 700, color: colorMap[st.color] ?? "#0f0f0f", lineHeight: 1 }}>{st.value}</div>
           <div style={{ fontSize: 10, color: "#9a9590", marginTop: 5 }}>{st.sub}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function MiniStatGrid({ items }: { items: { label: string; value: string; sub?: string; color?: string }[] }) {
+  const colorMap: Record<string, string> = { green: "#2d6a4f", red: "#8b2e2e", gold: "#c8873a" };
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 1, background: "#d8d4cc", border: "1px solid #d8d4cc", margin: "20px 0" }}>
+      {items.map((d, i) => (
+        <div key={i} style={{ background: "#fafaf8", padding: "14px 16px" }}>
+          <div style={{ fontSize: 10, color: "#9a9590", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>{d.label}</div>
+          <div style={{ fontFamily: "'Playfair Display',serif", fontSize: 18, fontWeight: 700, color: colorMap[d.color ?? ""] ?? "#0f0f0f", marginBottom: d.sub ? 2 : 0 }}>{d.value}</div>
+          {d.sub && <div style={{ fontSize: 10, color: "#9a9590" }}>{d.sub}</div>}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function WatchGrid({ items }: { items: { label: string; status: string; detail: string; color: string }[] }) {
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1, background: "#d8d4cc", border: "1px solid #d8d4cc", margin: "16px 0" }}>
+      {items.map((item, i) => (
+        <div key={i} style={{ background: "#fafaf8", padding: "14px 16px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: "#0f0f0f" }}>{item.label}</div>
+            <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.1em", color: item.color }}>{item.status}</div>
+          </div>
+          <div style={{ fontSize: 11, color: "#6b6b6b", lineHeight: 1.5 }}>{item.detail}</div>
         </div>
       ))}
     </div>
@@ -209,6 +240,25 @@ function GeoTimeline({ events }: { events: typeof GEO_EVENTS }) {
         <span><span style={{ color: "#8b2e2e", fontWeight: 700 }}>●</span> High risk</span>
         <span><span style={{ color: "#2d6a4f", fontWeight: 700 }}>●</span> Positive</span>
       </div>
+    </div>
+  );
+}
+
+function BilateralTable({ rows }: { rows: typeof BILATERAL }) {
+  const typeColor: Record<string, string> = {
+    Strategic: "#1a0a2e", Capital: "#c8873a", Programme: "#2d6a4f",
+    Trade: "#6b6b6b", "Energy/Infra": "#5b21b6", Fraught: "#8b2e2e",
+    Dispute: "#8b2e2e", Investment: "#6b6b6b",
+  };
+  return (
+    <div style={{ margin: "20px 0", border: "1px solid #d8d4cc" }}>
+      {rows.map((r, i) => (
+        <div key={i} style={{ display: "grid", gridTemplateColumns: "90px 90px 1fr", gap: 0, borderBottom: i < rows.length - 1 ? "1px solid #e8e4dc" : "none", background: i % 2 === 0 ? "#fafaf8" : "#f5f3ef" }}>
+          <div style={{ padding: "10px 14px", fontSize: 12, fontWeight: 700, color: "#0f0f0f", borderRight: "1px solid #e8e4dc" }}>{r.partner}</div>
+          <div style={{ padding: "10px 14px", fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: typeColor[r.type] ?? "#6b6b6b", borderRight: "1px solid #e8e4dc", alignSelf: "center" }}>{r.type}</div>
+          <div style={{ padding: "10px 14px", fontSize: 11, color: "#6b6b6b", lineHeight: 1.5 }}>{r.detail}</div>
+        </div>
+      ))}
     </div>
   );
 }
@@ -283,7 +333,7 @@ export default function EgyptPage() {
             </div>
 
             {/* Risk flag */}
-            <div style={{ background: "#1a0a2e", padding: "14px 20px", maxWidth: 560, marginTop: 4 }}>
+            <div style={{ background: "#1a0a2e", padding: "14px 20px", maxWidth: 580, marginTop: 4 }}>
               <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "#c8873a", marginBottom: 6 }}>Live risk flag</div>
               <div style={{ fontSize: 13, color: "rgba(255,255,255,0.85)", lineHeight: 1.6 }}>{META.riskFlag}</div>
             </div>
@@ -315,10 +365,10 @@ export default function EgyptPage() {
             <p className={s.sectionSub}>Recovery underway; private-sector inflection is the structural signal.</p>
 
             <StatStrip stats={[
-              { label: "FY24/25 Growth", value: "4.4%",  sub: "Real GDP",          color: "green" },
-              { label: "H1 FY25/26",     value: "5.3%",  sub: "Accelerating",      color: "green" },
-              { label: "Private Cons.",  value: "78–89%", sub: "of GDP",            color: "gold"  },
-              { label: "Private Inv.",   value: "47.5%", sub: "of total (FY24/25)", color: "gold"  },
+              { label: "FY24/25 Growth",  value: "4.4%",   sub: "Real GDP",          color: "green" },
+              { label: "H1 FY25/26",      value: "5.3%",   sub: "Accelerating",      color: "green" },
+              { label: "10yr CAGR",       value: "~5.5%",  sub: "Current below trend", color: "gold" },
+              { label: "Investment rate", value: "~13%",   sub: "Down from 18.2% FY18/19", color: "red" },
             ]} />
 
             <div style={{ marginBottom: 8, fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#9a9590" }}>Real GDP Growth (%)</div>
@@ -327,29 +377,56 @@ export default function EgyptPage() {
             <div style={{ marginTop: 32, marginBottom: 8, fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#9a9590" }}>Investment Composition — Private vs Public (%)</div>
             <StackedBar data={INVESTMENT_SHIFT} />
 
-            <div className={s.prose} style={{ marginTop: 28 }}>
-              <p>{MACRO_TEXT}</p>
-            </div>
-
-            <div style={{ marginTop: 24, marginBottom: 8, fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#9a9590" }}>GDP Composition</div>
+            <div style={{ marginTop: 32, marginBottom: 8, fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#9a9590" }}>GDP Composition FY2024/25</div>
             <DonutChart data={GDP_COMPOSITION} />
 
             <div style={{ marginTop: 24, marginBottom: 8, fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#9a9590" }}>IMF Growth Forecasts (%)</div>
             <BarChart data={IMF_FORECASTS} />
+
+            <div style={{ marginTop: 24, marginBottom: 8, fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#9a9590" }}>Key Macro Indicators</div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 1, background: "#d8d4cc", border: "1px solid #d8d4cc", marginBottom: 20 }}>
+              {MACRO_DETAIL.map((d, i) => (
+                <div key={i} style={{ background: "#fafaf8", padding: "14px 16px" }}>
+                  <div style={{ fontSize: 10, color: "#9a9590", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>{d.label}</div>
+                  <div style={{ fontFamily: "'Playfair Display',serif", fontSize: 17, fontWeight: 700, color: "#0f0f0f", marginBottom: 2 }}>{d.value}</div>
+                  <div style={{ fontSize: 10, color: "#9a9590" }}>{d.sub}</div>
+                </div>
+              ))}
+            </div>
+
+            <div className={s.prose}>
+              <p>{MACRO_TEXT}</p>
+            </div>
           </section>
 
           {/* ── 2. PRICE STABILITY ─── */}
           <section id="prices" className={s.section}>
             <div className={s.sectionLabel}>Risk Theme 2</div>
             <h2 className={s.sectionTitle}>Price Stability & Monetary Policy</h2>
-            <p className={s.sectionSub}>Disinflation on track, but last-mile gap to CBE target remains wide.</p>
+            <p className={s.sectionSub}>Disinflation on track but last-mile gap to CBE target is wide — actual tracking 16–17% vs 7% goal.</p>
 
             <StatStrip stats={PRICES_STATS} />
 
-            <div style={{ marginBottom: 8, fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#9a9590" }}>Inflation Trajectory — Urban CPI (%)</div>
+            <div style={{ marginBottom: 8, fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#9a9590" }}>Inflation Trajectory — Urban CPI (%) with CBE Target</div>
             <LineChart data={INFLATION_PATH} />
 
-            <div className={s.prose} style={{ marginTop: 28 }}>
+            <div style={{ marginTop: 24 }}>
+              <div style={{ background: "#fff8f0", border: "1px solid #e8d4b0", padding: "14px 18px", marginBottom: 16 }}>
+                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#c8873a", marginBottom: 6 }}>CBE Inflation Targets</div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                  <div>
+                    <div style={{ fontSize: 20, fontWeight: 700, fontFamily: "'Playfair Display',serif", color: "#8b2e2e" }}>7% ± 2</div>
+                    <div style={{ fontSize: 11, color: "#6b6b6b" }}>End-2026 target — actual ~16–17%</div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 20, fontWeight: 700, fontFamily: "'Playfair Display',serif", color: "#c8873a" }}>5% ± 2</div>
+                    <div style={{ fontSize: 11, color: "#6b6b6b" }}>End-2028 medium-term anchor</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className={s.prose} style={{ marginTop: 8 }}>
               <p>{PRICES_TEXT}</p>
             </div>
           </section>
@@ -358,31 +435,36 @@ export default function EgyptPage() {
           <section id="external" className={s.section}>
             <div className={s.sectionLabel}>Risk Theme 3</div>
             <h2 className={s.sectionTitle}>External Position & FX Resilience</h2>
-            <p className={s.sectionSub}>Reserves rebuilt; structural import dependence and Hormuz exposure are the live risks.</p>
+            <p className={s.sectionSub}>Reserves rebuilt and remittances at record; Suez and Gulf exposure are the live risks.</p>
 
             <StatStrip stats={EXTERNAL_STATS} />
 
-            <div style={{ marginBottom: 8, fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#9a9590" }}>Key FX Earner & Vulnerability Watch</div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1, background: "#d8d4cc", border: "1px solid #d8d4cc", margin: "16px 0" }}>
-              {[
-                { label: "Suez Canal",       status: "AT RISK",  detail: "Red Sea attacks + Hormuz disruption (2026 Iran conflict)",   color: "#8b2e2e" },
-                { label: "Gulf Remittances", status: "AT RISK",  detail: "Primary remittance source exposed to Gulf fiscal tightening", color: "#8b2e2e" },
-                { label: "Tourism",          status: "WATCH",    detail: "Regional conflict dampens inflows",                           color: "#c8873a" },
-                { label: "Gold Exports",     status: "POSITIVE", detail: "$6.76bn (10M-2025) — windfall offset to structural deficits", color: "#2d6a4f" },
-                { label: "Gas Balance",      status: "NEGATIVE", detail: "Zohr decline: Egypt flipped from exporter to importer",       color: "#8b2e2e" },
-                { label: "IMF Programme",    status: "ANCHOR",   detail: "$8bn EFF backstop; phased disbursements intact",             color: "#2d6a4f" },
-              ].map((item, i) => (
+            <div style={{ marginTop: 8, marginBottom: 8, fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#9a9590" }}>Trade & Capital Structure</div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 1, background: "#d8d4cc", border: "1px solid #d8d4cc", marginBottom: 20 }}>
+              {TRADE_STATS.map((d, i) => (
                 <div key={i} style={{ background: "#fafaf8", padding: "14px 16px" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: "#0f0f0f" }}>{item.label}</div>
-                    <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.1em", color: item.color }}>{item.status}</div>
-                  </div>
-                  <div style={{ fontSize: 11, color: "#6b6b6b", lineHeight: 1.5 }}>{item.detail}</div>
+                  <div style={{ fontSize: 10, color: "#9a9590", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>{d.label}</div>
+                  <div style={{ fontFamily: "'Playfair Display',serif", fontSize: 17, fontWeight: 700, color: "#0f0f0f", marginBottom: 2 }}>{d.value}</div>
+                  <div style={{ fontSize: 10, color: "#9a9590" }}>{d.sub}</div>
                 </div>
               ))}
             </div>
 
-            <div className={s.prose} style={{ marginTop: 28 }}>
+            <div style={{ marginBottom: 8, fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#9a9590" }}>Capital Inflow Sources</div>
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 20 }}>
+              {CAPITAL_SOURCES.map((d, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 14px", border: "1px solid #d8d4cc", background: "#fafaf8" }}>
+                  <div style={{ width: 10, height: 10, borderRadius: "50%", background: d.color }} />
+                  <span style={{ fontSize: 12, fontWeight: 600, color: "#0f0f0f" }}>{d.value}%</span>
+                  <span style={{ fontSize: 11, color: "#6b6b6b" }}>{d.label}</span>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ marginBottom: 8, fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#9a9590" }}>FX Earner & Vulnerability Watch</div>
+            <WatchGrid items={EXTERNAL_WATCH} />
+
+            <div className={s.prose} style={{ marginTop: 8 }}>
               <p>{EXTERNAL_TEXT}</p>
             </div>
           </section>
@@ -408,9 +490,9 @@ export default function EgyptPage() {
             <div style={{ marginTop: 32, marginBottom: 8, fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#9a9590" }}>SOE Footprint</div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 1, background: "#d8d4cc", border: "1px solid #d8d4cc" }}>
               {[
-                { label: "Share of Output", value: "~16%"  },
-                { label: "Share of Invest.", value: "~25%"  },
-                { label: "Share of Employ.", value: "~6%"   },
+                { label: "Share of Output",  value: "~16%" },
+                { label: "Share of Invest.", value: "~25%" },
+                { label: "Share of Employ.", value: "~6%"  },
               ].map((d, i) => (
                 <div key={i} style={{ background: "#fafaf8", padding: "16px", textAlign: "center" }}>
                   <div style={{ fontSize: 10, color: "#9a9590", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>{d.label}</div>
@@ -419,7 +501,24 @@ export default function EgyptPage() {
               ))}
             </div>
 
-            <div className={s.prose} style={{ marginTop: 28 }}>
+            <div style={{ marginTop: 20, background: "#fff8f0", border: "1px solid #e8d4b0", padding: "14px 18px" }}>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#c8873a", marginBottom: 6 }}>FY2025/26 Budget Risks</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {[
+                  { label: "+186%", detail: "Jump in planned external borrowing vs prior year" },
+                  { label: "1 day",  detail: "Parliamentary budget debate — thin oversight" },
+                  { label: "Dec 2025", detail: "Fiscal Risks Management Unit established (IMF conditionality)" },
+                  { label: "94.3%", detail: "New statutory debt ceiling (% of GDP); any breach requires parliamentary approval" },
+                ].map((d, i) => (
+                  <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                    <div style={{ fontFamily: "'Playfair Display',serif", fontSize: 16, fontWeight: 700, color: "#8b2e2e", minWidth: 70 }}>{d.label}</div>
+                    <div style={{ fontSize: 12, color: "#6b6b6b", lineHeight: 1.5, paddingTop: 2 }}>{d.detail}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className={s.prose} style={{ marginTop: 20 }}>
               <p>{FISCAL_TEXT}</p>
             </div>
           </section>
@@ -428,12 +527,14 @@ export default function EgyptPage() {
           <section id="banking" className={s.section}>
             <div className={s.sectionLabel}>Risk Theme 5</div>
             <h2 className={s.sectionTitle}>Banking System & Financial Sector</h2>
-            <p className={s.sectionSub}>NFA recovered; bank-sovereign nexus is the key transmission risk.</p>
+            <p className={s.sectionSub}>NFA recovered; asset quality improved; bank-sovereign nexus is the key transmission risk.</p>
+
+            <StatStrip stats={BANKING_STATS} />
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1, background: "#d8d4cc", border: "1px solid #d8d4cc", margin: "24px 0" }}>
               {[
-                { period: "2022–23 (crisis)",    nfa: "Deeply negative", note: "Banks absorbed FX gap quasi-fiscally", color: "#8b2e2e" },
-                { period: "Nov 2025 (recovered)", nfa: "+$23.7bn+",       note: "NFA positive; managed float restored", color: "#2d6a4f" },
+                { period: "2022–23 (crisis)",     nfa: "Deeply negative", note: "Banks absorbed FX gap quasi-fiscally",   color: "#8b2e2e" },
+                { period: "Nov 2025 (recovered)", nfa: "+$23.7bn+",       note: "$20.3bn improvement over 2025 alone",   color: "#2d6a4f" },
               ].map((d, i) => (
                 <div key={i} style={{ background: "#fafaf8", padding: "20px 18px" }}>
                   <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#9a9590", marginBottom: 6 }}>{d.period}</div>
@@ -459,7 +560,25 @@ export default function EgyptPage() {
             <div style={{ marginBottom: 8, fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#9a9590" }}>World Governance Indicators — Egypt vs World Average</div>
             <HBarChart data={WGI_SCORES} />
 
-            <div className={s.prose} style={{ marginTop: 28 }}>
+            <div style={{ marginTop: 20, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1, background: "#d8d4cc", border: "1px solid #d8d4cc" }}>
+              {[
+                { label: "Rule of Law trend", value: "-0.27 → -0.18", sub: "2022 to 2023 — only improving WGI score", color: "#2d6a4f" },
+                { label: "WJP ranking",        value: "~135th / 142",  sub: "Rule of Law Index 2024",                  color: "#8b2e2e" },
+                { label: "Freedom House",      value: "Not Free",      sub: "Press, assembly, dissent restricted",      color: "#8b2e2e" },
+                { label: "IMF anchor",         value: "Active",        sub: "Programme conditionality as proxy oversight", color: "#c8873a" },
+              ].map((d, i) => {
+                const colorMap: Record<string, string> = { green: "#2d6a4f", red: "#8b2e2e", gold: "#c8873a" };
+                return (
+                  <div key={i} style={{ background: "#fafaf8", padding: "14px 16px" }}>
+                    <div style={{ fontSize: 10, color: "#9a9590", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>{d.label}</div>
+                    <div style={{ fontFamily: "'Playfair Display',serif", fontSize: 16, fontWeight: 700, color: colorMap[d.color] ?? "#0f0f0f", marginBottom: 2 }}>{d.value}</div>
+                    <div style={{ fontSize: 10, color: "#9a9590" }}>{d.sub}</div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className={s.prose} style={{ marginTop: 24 }}>
               <p>{GOVERNANCE_TEXT}</p>
             </div>
           </section>
@@ -472,10 +591,10 @@ export default function EgyptPage() {
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1, background: "#d8d4cc", border: "1px solid #d8d4cc", margin: "24px 0" }}>
               {[
-                { label: "Sisi third term",    value: "To 2030",  detail: "2023 election: 90% margin, 67% turnout",  color: "gold" },
-                { label: "Hormuz disruption",  value: "Live",     detail: "US/Israeli strikes on Iran from Feb 2026", color: "red"  },
-                { label: "Gaza war",           value: "Ongoing",  detail: "Border conflict; Egypt as intermediary",   color: "red"  },
-                { label: "Red Sea attacks",    value: "Ongoing",  detail: "Houthi shipping attacks since Jan 2024",   color: "red"  },
+                { label: "Sisi third term",    value: "To 2030",  detail: "2023 election: 90% margin, 67% turnout",           color: "gold" },
+                { label: "Hormuz disruption",  value: "Live",     detail: "US/Israeli strikes on Iran from 28 Feb 2026",       color: "red"  },
+                { label: "Gaza war",           value: "Ongoing",  detail: "Border conflict; Egypt as primary intermediary",    color: "red"  },
+                { label: "Red Sea attacks",    value: "Ongoing",  detail: "Houthi shipping attacks since Jan 2024",            color: "red"  },
               ].map((d, i) => {
                 const colMap: Record<string, string> = { gold: "#c8873a", red: "#8b2e2e" };
                 return (
@@ -491,6 +610,9 @@ export default function EgyptPage() {
             <div style={{ marginBottom: 8, fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#9a9590" }}>Event Sequence</div>
             <GeoTimeline events={GEO_EVENTS} />
 
+            <div style={{ marginTop: 24, marginBottom: 8, fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#9a9590" }}>Bilateral Relationships</div>
+            <BilateralTable rows={BILATERAL} />
+
             <div className={s.prose} style={{ marginTop: 8 }}>
               <p>{GEO_TEXT}</p>
             </div>
@@ -504,12 +626,40 @@ export default function EgyptPage() {
 
             <StatStrip stats={STRUCTURAL_STATS} />
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1, background: "#d8d4cc", border: "1px solid #d8d4cc", margin: "24px 0" }}>
+            <div style={{ marginTop: 4, marginBottom: 8, fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#9a9590" }}>Infrastructure Indicators</div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 1, background: "#d8d4cc", border: "1px solid #d8d4cc", marginBottom: 20 }}>
+              {INFRA_ITEMS.map((d, i) => {
+                const colorMap: Record<string, string> = { green: "#2d6a4f", red: "#8b2e2e" };
+                return (
+                  <div key={i} style={{ background: "#fafaf8", padding: "14px 16px" }}>
+                    <div style={{ fontSize: 10, color: "#9a9590", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>{d.label}</div>
+                    <div style={{ fontFamily: "'Playfair Display',serif", fontSize: 18, fontWeight: 700, color: colorMap[d.color] ?? "#0f0f0f", marginBottom: 2 }}>{d.value}</div>
+                    <div style={{ fontSize: 10, color: "#9a9590" }}>{d.sub}</div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div style={{ marginBottom: 8, fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#9a9590" }}>Social & Demographic Indicators</div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 1, background: "#d8d4cc", border: "1px solid #d8d4cc", marginBottom: 20 }}>
+              {SOCIAL_ITEMS.map((d, i) => {
+                const colorMap: Record<string, string> = { green: "#2d6a4f", red: "#8b2e2e", gold: "#c8873a" };
+                return (
+                  <div key={i} style={{ background: "#fafaf8", padding: "14px 16px" }}>
+                    <div style={{ fontSize: 10, color: "#9a9590", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>{d.label}</div>
+                    <div style={{ fontFamily: "'Playfair Display',serif", fontSize: 18, fontWeight: 700, color: colorMap[d.color ?? ""] ?? "#0f0f0f", marginBottom: 2 }}>{d.value}</div>
+                    <div style={{ fontSize: 10, color: "#9a9590" }}>{d.sub}</div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1, background: "#d8d4cc", border: "1px solid #d8d4cc", margin: "8px 0 20px" }}>
               {[
                 { label: "GERD Dispute",   status: "UNRESOLVED", detail: "Ethiopia filling without binding agreement on minimum downstream Nile flows", color: "#8b2e2e" },
-                { label: "Suez Canal",     status: "CHOKEPOINT", detail: "Critical FX earner; ~12% of global trade; exposed to Red Sea conflict", color: "#c8873a" },
-                { label: "Food Security",  status: "VULNERABLE",  detail: "World's largest wheat importer; gas now net importer (Zohr decline)", color: "#8b2e2e" },
-                { label: "Demographics",   status: "DUAL-EDGED",  detail: "120m population, median age 24.7 — growth asset long-run, pressure near-term", color: "#c8873a" },
+                { label: "Suez Canal",     status: "CHOKEPOINT", detail: "Critical FX earner; ~12% of global trade; exposed to Red Sea conflict",       color: "#c8873a" },
+                { label: "Food Security",  status: "VULNERABLE",  detail: "World's largest wheat importer; gas now net importer (Zohr decline)",         color: "#8b2e2e" },
+                { label: "Demographics",   status: "DUAL-EDGED",  detail: "120m population, median 24.7 — growth asset long-run, job pressure near-term", color: "#c8873a" },
               ].map((d, i) => (
                 <div key={i} style={{ background: "#fafaf8", padding: "16px 18px" }}>
                   <div style={{ fontSize: 10, color: "#9a9590", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>{d.label}</div>
@@ -519,7 +669,22 @@ export default function EgyptPage() {
               ))}
             </div>
 
-            <div className={s.prose} style={{ marginTop: 8 }}>
+            <div style={{ background: "#f0faf4", border: "1px solid #b8dcc8", padding: "14px 18px", marginBottom: 20 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#2d6a4f", marginBottom: 8 }}>Positive Structural Developments</div>
+              {[
+                "Temsah gas field discovery (~2 trillion cubic feet) announced April 2026 — potential partial offset to Zohr decline",
+                "500kV transmission grid expanded from 2,364km (2014) to 8,250km (2024) — significant infrastructure build-out",
+                "Renewable capacity reached 8.6GW; government target of 42% of energy mix by 2030",
+                "Extreme poverty ($2.15/day) estimated at ~2.4% (2025) — low absolute floor despite high inflation",
+              ].map((item, i) => (
+                <div key={i} style={{ display: "flex", gap: 10, marginBottom: 8, alignItems: "flex-start" }}>
+                  <div style={{ color: "#2d6a4f", fontWeight: 700, marginTop: 1, flexShrink: 0 }}>+</div>
+                  <div style={{ fontSize: 12, color: "#1a1a1a", lineHeight: 1.5 }}>{item}</div>
+                </div>
+              ))}
+            </div>
+
+            <div className={s.prose}>
               <p>{STRUCTURAL_TEXT}</p>
             </div>
           </section>
