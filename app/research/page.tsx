@@ -86,9 +86,8 @@ export default function ResearchPage() {
           ))}
         </nav>
 
-        <div style={{ padding: "12px 16px", fontSize: 11, color: "var(--dim, #aaa)", fontStyle: "italic" }}>
-          More coming soon.
-        </div>
+        <div style={{ padding: "10px 20px 4px", fontSize: 9, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#0f0f0f", marginTop: 8 }}>Country Monitors</div>
+        <Link href="/research/egypt" className={s.navLink} style={{ paddingLeft: 32 }}>Egypt · Sovereign Risk</Link>
 
         <div className={s.sidebarBottom}>
           <Link href="/" className={s.sidebarBackLink}>← EMI</Link>
