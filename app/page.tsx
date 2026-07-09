@@ -86,7 +86,6 @@ export default function HomePage() {
             <span style={{ fontSize:12, color:MUTED }}>EM Credit &amp; Macro</span>
           </div>
           <div style={{ display:"flex", alignItems:"center", gap:28 }}>
-            <Link href="/research/egypt" style={{ fontSize:12, color:MUTED, textDecoration:"none" }}>Egypt</Link>
             {[["#research","Research"],["#coverage","Coverage"]].map(([h,l]) => (
               <a key={l} href={h} style={{ fontSize:12, color:MUTED, textDecoration:"none" }}>{l}</a>
             ))}
