@@ -84,10 +84,10 @@ export default function ResearchPage() {
               )}
             </div>
           ))}
-        </nav>
 
-        <div style={{ padding: "10px 20px 4px", fontSize: 9, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#0f0f0f", marginTop: 8 }}>Country Monitors</div>
-        <Link href="/research/egypt" className={s.navLink} style={{ paddingLeft: 32 }}>Egypt · Sovereign Risk</Link>
+          <div className={s.navGroupHeader} style={{ marginTop: 16 }}>Country Monitors</div>
+          <Link href="/research/egypt" className={s.navSubLink}>Egypt · Sovereign Risk ↗</Link>
+        </nav>
 
         <div className={s.sidebarBottom}>
           <Link href="/" className={s.sidebarBackLink}>← EMI</Link>
