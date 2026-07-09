@@ -307,7 +307,7 @@ export default function EgyptPage() {
         </div>
 
         <div className={s.sidebarBottom}>
-          <Link href="/research" className={s.sidebarBackLink}>← Research</Link>
+          <Link href="/" className={s.sidebarBackLink}>← EMI</Link>
         </div>
       </nav>
 
