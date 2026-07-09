@@ -26,7 +26,6 @@ const ARTICLES = [
   { tag:"Trade Journal · June 2026",    title:"My First Macro Trade: Shorting Oil Through a War",  deck:"Right on direction. Survived a $117 spike. Barely made money. Here is everything I learned about process, instruments, and the gap between being right and making money.", date:"Jun 2026", readTime:"18 min", href:"/research#oil-trade",                              live:true },
   { tag:"Sovereign Credit · June 2026", title:"Egypt: LONG Eurobonds at 281bps CDS",               deck:"Post-Hormuz deterioration reflects a transitory external shock, not a structural breakdown. IMF anchor holds through Dec 2026. I target spread compression to 220–240bps by year-end.",                                                                                    date:"Jun 2026", readTime:"9 min",  href:"/egypt-sovereign-credit-note-june-2026.pdf", live:true },
   { tag:"Credit Framework · July 2026", title:"When Does a Guarantee Actually Transfer Sovereign Risk?", deck:"A framework for pricing quasi-sovereign issuance. Direction, sovereign ceiling, governing law, immunity waiver — with Egypt case studies: CIB ceiling compression and the AfDB-guaranteed samurai bond.", date:"Jul 2026", readTime:"", href:"/research#guarantee-framework", live:true },
-  { tag:"Country Monitor · July 2026",  title:"Egypt Sovereign Risk Dashboard",                        deck:"Eight bondholder-focused risk themes: macro momentum, external position, fiscal space, banking system, governance, geopolitical exposure, and structural risk. Charts, stats, and live risk flag.", date:"Jul 2026", readTime:"", href:"/research/egypt", live:true },
 ];
 
 /* ── TILT CARD ─────────────────────────────────────────────── */
@@ -90,6 +89,7 @@ export default function HomePage() {
             {[["#research","Research"],["#coverage","Coverage"]].map(([h,l]) => (
               <a key={l} href={h} style={{ fontSize:12, color:MUTED, textDecoration:"none" }}>{l}</a>
             ))}
+            <Link href="/research/egypt" style={{ fontSize:12, color:MUTED, textDecoration:"none" }}>Egypt</Link>
             <Link href="/about"    style={{ fontSize:12, color:MUTED, textDecoration:"none" }}>About</Link>
             <Link href="/dashboard" style={{ fontSize:11, fontWeight:600, letterSpacing:"0.06em", textTransform:"uppercase", color:ACCENT, border:`1px solid ${ACCENT}`, padding:"6px 14px", textDecoration:"none" }}>
               EMI Platform ↗
@@ -186,7 +186,7 @@ export default function HomePage() {
             <Link href="/research" style={{ fontSize:12, color:MUTED, textDecoration:"none" }}>View all →</Link>
           </div>
 
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:1, background:RULE }}>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:1, background:RULE }}>
             {ARTICLES.map((art, i) => (
               <TiltCard key={art.title} style={{ background:PAPER }}>
                 <Link href={art.live ? art.href : "#"} target={art.href.endsWith(".pdf") ? "_blank" : undefined} rel={art.href.endsWith(".pdf") ? "noopener noreferrer" : undefined} style={{ textDecoration:"none", color:"inherit", display:"block", height:"100%", pointerEvents:art.live?"auto":"none" }}>
