@@ -301,7 +301,7 @@ export default function HomePage() {
             </div>
           </div>
           <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:1, background:RULE }}>
-            {[["MSc Finance","London School of Economics · 2026"],["BSc Finance","Bayes Business School · First Class · 2025"],["Focus","EM Sovereign Credit · Macro / FX / Credit"],["Based","London · Available July 2026"]].map(([label,val]) => (
+            {[["MSc Finance","London School of Economics · 2026"],["BSc Finance","Bayes Business School · First Class · 2025"],["Focus","EM Sovereign Credit · Macro / FX / Credit"],["Based","London"]].map(([label,val]) => (
               <div key={label} style={{ background:PAPER2, padding:"20px 18px" }}>
                 <div style={{ fontSize:9, fontWeight:700, letterSpacing:"0.16em", textTransform:"uppercase", color:MUTED, marginBottom:8 }}>{label}</div>
                 <div style={{ fontSize:12, color:INK, lineHeight:1.6 }}>{val}</div>
