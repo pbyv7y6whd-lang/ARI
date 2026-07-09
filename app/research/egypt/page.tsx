@@ -236,29 +236,15 @@ export default function EgyptPage() {
   return (
     <div className={s.root}>
 
-      {/* ── SITE TOP BAR ─── */}
-      <div style={{ position:"fixed", top:0, left:0, right:0, height:48, background:"#fafaf8", borderBottom:"1px solid #d8d4cc", display:"flex", alignItems:"center", justifyContent:"space-between", padding:"0 32px 0 240px", zIndex:200, fontSize:12 }}>
-        <div style={{ display:"flex", alignItems:"center", gap:16 }}>
-          <Link href="/" style={{ fontWeight:700, color:"#0f0f0f", textDecoration:"none", letterSpacing:"-0.01em" }}>Suleiman Ashraf</Link>
-          <span style={{ color:"#d8d4cc" }}>|</span>
-          <span style={{ color:"#6b6b6b" }}>EM Credit &amp; Macro</span>
-        </div>
-        <div style={{ display:"flex", gap:24, alignItems:"center" }}>
-          <Link href="/research" style={{ color:"#6b6b6b", textDecoration:"none", fontWeight:500 }}>Research</Link>
-          <Link href="/#coverage" style={{ color:"#6b6b6b", textDecoration:"none", fontWeight:500 }}>Coverage</Link>
-          <Link href="/#about" style={{ color:"#6b6b6b", textDecoration:"none", fontWeight:500 }}>About</Link>
-        </div>
-      </div>
-
       {/* ── SIDEBAR ─── */}
-      <button className={s.hamburger} style={{ top:60 }} onClick={() => setMenuOpen(o => !o)} aria-label="Menu">
+      <button className={s.hamburger} onClick={() => setMenuOpen(o => !o)} aria-label="Menu">
         <span /><span /><span />
       </button>
 
-      <nav className={`${s.sidebar} ${menuOpen ? s.open : ""}`} style={{ top:48, height:"calc(100vh - 48px)" }}>
+      <nav className={`${s.sidebar} ${menuOpen ? s.open : ""}`}>
         <div className={s.sidebarTop}>
-          <div className={s.sidebarName}>Egypt Sovereign Risk</div>
-          <div className={s.sidebarTitle}>Country Monitor · July 2026</div>
+          <div className={s.sidebarName}>Suleiman Ashraf</div>
+          <div className={s.sidebarTitle}>EM Credit Research<br />MSc Finance · LSE</div>
         </div>
 
         <div className={s.sidebarNav}>
@@ -276,7 +262,7 @@ export default function EgyptPage() {
       </nav>
 
       {/* ── MAIN ─── */}
-      <main className={s.main} style={{ paddingTop:48 }}>
+      <main className={s.main}>
         <div className={s.contentWrap}>
 
           {/* ── HERO ─── */}
