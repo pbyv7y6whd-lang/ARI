@@ -86,7 +86,7 @@ export default function HomePage() {
             <span style={{ fontSize:12, color:MUTED }}>EM Credit &amp; Macro</span>
           </div>
           <div style={{ display:"flex", alignItems:"center", gap:28 }}>
-            {[["#research","Research"],["#coverage","Coverage"]].map(([h,l]) => (
+            {[["#research","Research"]].map(([h,l]) => (
               <a key={l} href={h} style={{ fontSize:12, color:MUTED, textDecoration:"none" }}>{l}</a>
             ))}
             <Link href="/about"    style={{ fontSize:12, color:MUTED, textDecoration:"none" }}>About</Link>
@@ -209,77 +209,6 @@ export default function HomePage() {
       </section>
 
       {/* ── SOVEREIGN COVERAGE ───────────────────────────── */}
-      <section id="coverage" style={{ padding:"96px 48px", borderBottom:`1px solid ${RULE}`, background:PAPER2 }}>
-        <div style={{ maxWidth:1200, margin:"0 auto" }}>
-          <div style={{ marginBottom:52 }}>
-            <div style={{ fontSize:10, fontWeight:700, letterSpacing:"0.2em", textTransform:"uppercase", color:ACCENT, marginBottom:12 }}>Sovereign Coverage</div>
-            <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:32, fontWeight:700, letterSpacing:"-0.02em" }}>EM Country Monitor</h2>
-          </div>
-
-          {/* Active research — 3 countries */}
-          <div style={{ marginBottom:1 }}>
-            <div style={{ fontSize:9, fontWeight:700, letterSpacing:"0.16em", textTransform:"uppercase", color:ACCENT, marginBottom:12 }}>Active Research</div>
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:1, background:RULE }}>
-              {EM_COUNTRIES.filter(c => c.active).map(c => (
-                <TiltCard key={c.name} style={{ background:PAPER }}>
-                  <div style={{ padding:"24px 22px", background:"inherit" }}>
-                    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:14 }}>
-                      <div>
-                        <div style={{ fontSize:15, fontWeight:700, letterSpacing:"-0.01em", marginBottom:2 }}>{c.name}</div>
-                        <div style={{ fontSize:10, color:MUTED, letterSpacing:"0.06em" }}>{c.rating}</div>
-                      </div>
-                      <div style={{ fontSize:9, fontWeight:700, letterSpacing:"0.1em", textTransform:"uppercase", padding:"3px 7px", border:"1px solid", color:c.stance==="bull"?GREEN:c.stance==="bear"?RED:ACCENT, borderColor:c.stance==="bull"?GREEN:c.stance==="bear"?RED:ACCENT }}>
-                        {c.stance==="bull"?"Bullish":c.stance==="bear"?"Cautious":"Neutral"}
-                      </div>
-                    </div>
-                    <div style={{ fontFamily:"'Playfair Display',serif", fontSize:28, fontWeight:700, color:ACCENT, lineHeight:1, marginBottom:4 }}>
-                      {c.spread}<span style={{ fontSize:13, fontWeight:400, color:MUTED, marginLeft:4 }}>bps</span>
-                    </div>
-                    <div style={{ fontSize:9, color:MUTED, letterSpacing:"0.1em", textTransform:"uppercase", marginBottom:14 }}>5Y CDS</div>
-                    <div style={{ height:2, background:RULE, borderRadius:1 }}>
-                      <div style={{ height:"100%", borderRadius:1, background:c.stance==="bull"?GREEN:c.stance==="bear"?RED:ACCENT, width:`${Math.min((c.spread/1200)*100,100)}%` }} />
-                    </div>
-                  </div>
-                </TiltCard>
-              ))}
-            </div>
-          </div>
-
-          {/* Recent issuance watch */}
-          <div style={{ marginTop:48 }}>
-            <div style={{ fontSize:9, fontWeight:700, letterSpacing:"0.16em", textTransform:"uppercase", color:ACCENT, marginBottom:16 }}>Egypt · Recent Issuance Watch</div>
-            <div style={{ background:PAPER, border:`1px solid ${RULE}` }}>
-              <table style={{ width:"100%", borderCollapse:"collapse", fontSize:12 }}>
-                <thead>
-                  <tr style={{ borderBottom:`1px solid ${RULE}` }}>
-                    {["Instrument","Date","Size","Tenor / Detail","Why I'm Watching"].map(h => (
-                      <th key={h} style={{ padding:"10px 16px", textAlign:"left", fontSize:9, fontWeight:700, letterSpacing:"0.12em", textTransform:"uppercase", color:MUTED }}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {[
-                    ["Samurai Bond",       "Jun 2026", "¥67.3bn (~$430m)", "5yr & 10yr · JPY-denominated · dual tranche",  "Diversifies away from USD funding — dual tenor signals Japanese institutional appetite across the curve"],
-                    ["ESG Eurobond",       "May 2026", "$1.5bn",           "5yr · USD",                     "Priced tighter than vanilla curve — tests whether ESG label compresses spread; monitors green premium sustainability post-Hormuz"],
-                    ["T-bill Auction",     "25 Jun 2026", "Rollover",      "182-day: 25.66% / 364-day: 24.59%", "Inverted short-end signals CBE rate cut expectations; nonresident demand at auction is key liquidity indicator"],
-                    ["Eurobond Tap",       "Apr 2026",  "~$500m",          "2032 maturity tap",             "Issued during Hormuz stress at wide levels — watching secondary performance as spread compresses toward target"],
-                  ].map(([inst, date, size, tenor, note]) => (
-                    <tr key={inst} style={{ borderBottom:`1px solid ${RULE}` }}>
-                      <td style={{ padding:"12px 16px", fontWeight:600, color:INK }}>{inst}</td>
-                      <td style={{ padding:"12px 16px", color:MUTED, whiteSpace:"nowrap" }}>{date}</td>
-                      <td style={{ padding:"12px 16px", color:MUTED, whiteSpace:"nowrap" }}>{size}</td>
-                      <td style={{ padding:"12px 16px", color:MUTED }}>{tenor}</td>
-                      <td style={{ padding:"12px 16px", color:MUTED, fontSize:11, lineHeight:1.6 }}>{note}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div style={{ marginTop:16, textAlign:"right", fontSize:11, color:MUTED }}>Spreads indicative · For research purposes only</div>
-        </div>
-      </section>
 
       {/* ── ABOUT ────────────────────────────────────────── */}
       <section style={{ padding:"96px 48px", borderBottom:`1px solid ${RULE}`, background:PAPER2 }}>
