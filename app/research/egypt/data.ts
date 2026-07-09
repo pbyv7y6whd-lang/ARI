@@ -4,7 +4,7 @@
 export const META = {
   country:     "Egypt",
   iso:         "EGY",
-  lastUpdated: "July 2026",
+  lastUpdated: "9 July 2026",
   riskFlag:    "2026 Iran conflict (US/Israel strikes from 28 Feb, Hormuz disruption) is the dominant near-term external shock. IMF programme anchor intact; inflation tracking 16–17% vs CBE 7% target.",
   position:    "LONG Eurobonds · Target 220–240bps (from 281bps CDS)",
   sources:     "IMF WEO July 2026 Update & Article IV; CAPMAS; CBE; ECES; World Bank WGI 2023; S&P/Moody's/Fitch April 2026; WJP Rule of Law Index 2024; Freedom House 2025; GAFI; UNCTAD",
