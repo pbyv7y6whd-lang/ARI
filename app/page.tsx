@@ -89,6 +89,7 @@ export default function HomePage() {
             {[["#research","Research"]].map(([h,l]) => (
               <a key={l} href={h} style={{ fontSize:12, color:MUTED, textDecoration:"none" }}>{l}</a>
             ))}
+            <Link href="/research/egypt" style={{ fontSize:12, color:MUTED, textDecoration:"none" }}>Egypt</Link>
             <Link href="/about"    style={{ fontSize:12, color:MUTED, textDecoration:"none" }}>About</Link>
             <Link href="/dashboard" style={{ fontSize:11, fontWeight:600, letterSpacing:"0.06em", textTransform:"uppercase", color:ACCENT, border:`1px solid ${ACCENT}`, padding:"6px 14px", textDecoration:"none" }}>
               EMI Platform ↗
@@ -208,7 +209,136 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── SOVEREIGN COVERAGE ───────────────────────────── */}
+      {/* ── EGYPT SNAPSHOT ───────────────────────────────── */}
+      <section id="egypt" style={{ padding:"96px 48px", borderBottom:`1px solid ${RULE}`, background:PAPER }}>
+        <div style={{ maxWidth:1200, margin:"0 auto" }}>
+
+          {/* Header */}
+          <div style={{ display:"flex", alignItems:"flex-end", justifyContent:"space-between", marginBottom:48 }}>
+            <div>
+              <div style={{ fontSize:10, fontWeight:700, letterSpacing:"0.2em", textTransform:"uppercase", color:ACCENT, marginBottom:12 }}>Sovereign Risk · Active Position</div>
+              <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:32, fontWeight:700, letterSpacing:"-0.02em", lineHeight:1.1 }}>Egypt</h2>
+              <p style={{ fontSize:13, color:MUTED, marginTop:8, maxWidth:560, lineHeight:1.7 }}>
+                LONG Eurobonds at 281bps CDS. Post-Hormuz deterioration reflects a transitory external shock — IMF anchor intact, target spread compression to 220–240bps by year-end.
+              </p>
+            </div>
+            <Link href="/research/egypt" style={{ fontSize:12, fontWeight:600, letterSpacing:"0.06em", textTransform:"uppercase", color:ACCENT, border:`1px solid ${ACCENT}`, padding:"9px 20px", textDecoration:"none", whiteSpace:"nowrap" }}>
+              Full Dashboard →
+            </Link>
+          </div>
+
+          {/* Ratings strip */}
+          <div style={{ display:"flex", gap:1, background:RULE, border:`1px solid ${RULE}`, marginBottom:32, width:"fit-content" }}>
+            {[["S&P","B","Stable"],["Moody's","Caa1","Positive"],["Fitch","B","Stable"]].map(([ag,r,o]) => (
+              <div key={ag} style={{ background:PAPER, padding:"12px 24px", textAlign:"center" }}>
+                <div style={{ fontSize:9, fontWeight:700, letterSpacing:"0.12em", textTransform:"uppercase", color:MUTED, marginBottom:4 }}>{ag}</div>
+                <div style={{ fontFamily:"'Playfair Display',serif", fontSize:22, fontWeight:700, color:INK, lineHeight:1 }}>{r}</div>
+                <div style={{ fontSize:10, color:o==="Positive"?GREEN:MUTED, marginTop:3 }}>{o} · Apr 2026</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Key stats grid */}
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:1, background:RULE, border:`1px solid ${RULE}`, marginBottom:32 }}>
+            {[
+              { label:"GDP Growth FY24/25", value:"4.4%",    sub:"Real; H1 FY25/26: 5.3%",    color:GREEN  },
+              { label:"Inflation mid-2026", value:"~16%",    sub:"vs CBE target 7%±2",         color:RED    },
+              { label:"FX Reserves",        value:"$52.8bn", sub:"March 2026",                  color:GREEN  },
+              { label:"5Y CDS",             value:"281bps",  sub:"Target 220–240bps",           color:ACCENT },
+              { label:"Interest / Revenue", value:"87%",     sub:"Tax revenue to debt service", color:RED    },
+              { label:"Remittances",        value:"$41.5bn", sub:"2025 all-time high",          color:GREEN  },
+              { label:"IMF Programme",      value:"$8bn",    sub:"EFF · March 2024 · Active",   color:GREEN  },
+              { label:"External Borrowing", value:"+186%",   sub:"FY25/26 budget vs prior",     color:RED    },
+            ].map((s,i) => (
+              <div key={i} style={{ background:PAPER, padding:"18px 20px" }}>
+                <div style={{ fontSize:9, fontWeight:700, letterSpacing:"0.12em", textTransform:"uppercase", color:MUTED, marginBottom:6 }}>{s.label}</div>
+                <div style={{ fontFamily:"'Playfair Display',serif", fontSize:22, fontWeight:700, color:s.color, lineHeight:1 }}>{s.value}</div>
+                <div style={{ fontSize:10, color:MUTED, marginTop:5 }}>{s.sub}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* GDP growth bars + risk watch side by side */}
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:1, background:RULE, border:`1px solid ${RULE}`, marginBottom:32 }}>
+
+            {/* GDP bars */}
+            <div style={{ background:PAPER, padding:"24px 24px 20px" }}>
+              <div style={{ fontSize:9, fontWeight:700, letterSpacing:"0.14em", textTransform:"uppercase", color:MUTED, marginBottom:16 }}>Real GDP Growth (%)</div>
+              <svg viewBox="0 0 320 100" style={{ width:"100%", overflow:"visible" }}>
+                {[{l:"FY22/23",v:3.8,c:"#c8873a"},{l:"FY23/24",v:2.4,c:"#8b2e2e"},{l:"FY24/25",v:4.4,c:"#c8873a"},{l:"H1 FY25/26",v:5.3,c:"#2d6a4f"}].map((d,i) => {
+                  const max=6; const H=80; const barW=44; const gap=24;
+                  const h=Math.max(2,(d.v/max)*H); const x=i*(barW+gap);
+                  return (
+                    <g key={i}>
+                      <rect x={x} y={H-h} width={barW} height={h} fill={d.c} opacity={0.82}/>
+                      <text x={x+barW/2} y={H-h-5} textAnchor="middle" fontSize={10} fill="#6b6b6b" fontFamily="Inter,sans-serif">{d.v}%</text>
+                      <text x={x+barW/2} y={H+14} textAnchor="middle" fontSize={9} fill="#9a9590" fontFamily="Inter,sans-serif">{d.l}</text>
+                    </g>
+                  );
+                })}
+              </svg>
+            </div>
+
+            {/* Risk watch */}
+            <div style={{ background:PAPER, padding:"24px 24px 20px" }}>
+              <div style={{ fontSize:9, fontWeight:700, letterSpacing:"0.14em", textTransform:"uppercase", color:MUTED, marginBottom:16 }}>Live Risk Watch · July 2026</div>
+              <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+                {[
+                  { label:"Suez / Hormuz",     status:"AT RISK",  detail:"Iran conflict disrupting canal revenues + shipping costs",    color:RED    },
+                  { label:"CBE Inflation",      status:"MISS",     detail:"16–17% actual vs 7%±2 target — disinflation path disrupted", color:RED    },
+                  { label:"IMF Programme",      status:"INTACT",   detail:"$8bn EFF anchor; conditionality holding through Dec 2026",   color:GREEN  },
+                  { label:"FX Reserves",        status:"REBUILT",  detail:"$52.8bn (Mar 2026); NFA +$23.7bn (Nov 2025)",               color:GREEN  },
+                  { label:"SOE Divestment",     status:"LAGGING",  detail:"Primary programme revenue signal behind schedule",           color:ACCENT },
+                ].map((r,i) => (
+                  <div key={i} style={{ display:"flex", gap:10, alignItems:"flex-start" }}>
+                    <div style={{ fontSize:9, fontWeight:700, letterSpacing:"0.08em", color:r.color, minWidth:72, paddingTop:1 }}>{r.status}</div>
+                    <div>
+                      <div style={{ fontSize:11, fontWeight:600, color:INK, marginBottom:1 }}>{r.label}</div>
+                      <div style={{ fontSize:11, color:MUTED, lineHeight:1.4 }}>{r.detail}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Issuance watch table */}
+          <div style={{ border:`1px solid ${RULE}`, background:PAPER, marginBottom:20 }}>
+            <div style={{ padding:"14px 20px", borderBottom:`1px solid ${RULE}`, fontSize:9, fontWeight:700, letterSpacing:"0.14em", textTransform:"uppercase", color:MUTED }}>Recent Issuance Watch</div>
+            <table style={{ width:"100%", borderCollapse:"collapse", fontSize:12 }}>
+              <thead>
+                <tr style={{ borderBottom:`1px solid ${RULE}` }}>
+                  {["Instrument","Date","Size","Tenor","Note"].map(h => (
+                    <th key={h} style={{ padding:"9px 16px", textAlign:"left", fontSize:9, fontWeight:700, letterSpacing:"0.1em", textTransform:"uppercase", color:MUTED }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  ["Samurai Bond",   "Jun 2026", "¥67.3bn (~$430m)", "5yr & 10yr JPY", "Diversifies away from USD; dual tenor signals Japanese institutional appetite"],
+                  ["ESG Eurobond",   "May 2026", "$1.5bn",           "5yr USD",         "Priced tighter than vanilla — monitoring ESG premium sustainability post-Hormuz"],
+                  ["T-bill Auction", "25 Jun 2026","Rollover",        "182d: 25.66% / 364d: 24.59%","Inverted short-end signals CBE cut expectations; non-resident demand is key"],
+                  ["Eurobond Tap",   "Apr 2026",  "~$500m",           "2032 tap",        "Issued at wide levels during Hormuz stress — watching spread compression"],
+                ].map(([inst,date,size,tenor,note]) => (
+                  <tr key={inst} style={{ borderBottom:`1px solid ${RULE}` }}>
+                    <td style={{ padding:"11px 16px", fontWeight:600, color:INK }}>{inst}</td>
+                    <td style={{ padding:"11px 16px", color:MUTED, whiteSpace:"nowrap" }}>{date}</td>
+                    <td style={{ padding:"11px 16px", color:MUTED, whiteSpace:"nowrap" }}>{size}</td>
+                    <td style={{ padding:"11px 16px", color:MUTED }}>{tenor}</td>
+                    <td style={{ padding:"11px 16px", color:MUTED, fontSize:11, lineHeight:1.5 }}>{note}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+            <span style={{ fontSize:11, color:MUTED }}>Spreads indicative · For research purposes only · Updated 9 July 2026</span>
+            <Link href="/research/egypt" style={{ fontSize:12, color:ACCENT, fontWeight:600, textDecoration:"none" }}>Full 8-section sovereign risk dashboard →</Link>
+          </div>
+
+        </div>
+      </section>
 
       {/* ── ABOUT ────────────────────────────────────────── */}
       <section style={{ padding:"96px 48px", borderBottom:`1px solid ${RULE}`, background:PAPER2 }}>
