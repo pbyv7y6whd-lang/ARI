@@ -325,7 +325,7 @@ export default function EgyptPage() {
             <div style={{ marginBottom: 20, marginTop: 4 }}>
               <div style={{ padding: "14px 20px", background: "#f4f0e8", border: "1px solid #d8d4cc", opacity: 0.8 }}>
                 <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "#9a9590", marginBottom: 4 }}>Egypt Sovereign Risk — Full Analysis</div>
-                <div style={{ fontSize: 11, color: "#9a9590", fontStyle: "italic" }}>Full document contains third-party licensed data and is not for public distribution.</div>
+                <div style={{ fontSize: 11, color: "#9a9590", fontStyle: "italic" }}>Full documents contain third-party licensed data and are not for public distribution.</div>
               </div>
               <div style={{ padding: "10px 20px", borderLeft: "1px solid #d8d4cc", borderRight: "1px solid #d8d4cc", borderBottom: "1px solid #d8d4cc", background: "#fafaf8" }}>
                 <span style={{ fontSize: 12, color: "#6b6b6b" }}>Please reach out: </span>
@@ -706,7 +706,7 @@ export default function EgyptPage() {
                 <div style={{ fontSize:10, fontWeight:700, letterSpacing:"0.16em", textTransform:"uppercase", color:"#9a9590", marginBottom:6 }}>Extended Analysis</div>
                 <div style={{ fontSize:14, fontWeight:600, color:"#6b6b6b", marginBottom:4 }}>Egypt: Structural Features</div>
                 <div style={{ fontSize:11, color:"#9a9590", lineHeight:1.6 }}>Infrastructure · Demographics · Water · Energy · Social indicators · Long-run sovereign risk</div>
-                <div style={{ fontSize:11, color:"#9a9590", marginTop:8, fontStyle:"italic" }}>Full document contains third-party licensed data and is not for public distribution.</div>
+                <div style={{ fontSize:11, color:"#9a9590", marginTop:8, fontStyle:"italic" }}>Full documents contain third-party licensed data and are not for public distribution.</div>
               </div>
               <div style={{ padding:"12px 24px", borderLeft:"1px solid #d8d4cc", borderRight:"1px solid #d8d4cc", borderBottom:"1px solid #d8d4cc", background:"#fafaf8" }}>
                 <span style={{ fontSize:12, color:"#6b6b6b" }}>Please reach out: </span>
