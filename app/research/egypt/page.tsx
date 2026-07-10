@@ -688,17 +688,18 @@ export default function EgyptPage() {
               <p>{STRUCTURAL_TEXT}</p>
             </div>
 
-            {/* Locked doc banner */}
-            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginTop:32, padding:"18px 28px", background:"#f4f0e8", border:"1px solid #d8d4cc", gap:24, opacity:0.75 }}>
-              <div style={{ display:"flex", alignItems:"center", gap:16 }}>
-                <div style={{ fontSize:20, color:"#9a9590" }}>🔒</div>
-                <div>
-                  <div style={{ fontSize:10, fontWeight:700, letterSpacing:"0.18em", textTransform:"uppercase", color:"#9a9590", marginBottom:4 }}>Full Analysis · Private</div>
-                  <div style={{ fontSize:15, fontWeight:600, color:"#6b6b6b", letterSpacing:"-0.01em" }}>Egypt: Structural Features</div>
-                  <div style={{ fontSize:11, color:"#9a9590", marginTop:3 }}>Infrastructure · Demographics · Water · Energy · Social indicators · Long-run sovereign risk</div>
-                </div>
+            {/* Restricted doc banner */}
+            <div style={{ marginTop:32 }}>
+              <div style={{ padding:"16px 24px", background:"#f4f0e8", border:"1px solid #d8d4cc", opacity:0.8 }}>
+                <div style={{ fontSize:10, fontWeight:700, letterSpacing:"0.16em", textTransform:"uppercase", color:"#9a9590", marginBottom:6 }}>Extended Analysis</div>
+                <div style={{ fontSize:14, fontWeight:600, color:"#6b6b6b", marginBottom:4 }}>Egypt: Structural Features</div>
+                <div style={{ fontSize:11, color:"#9a9590", lineHeight:1.6 }}>Infrastructure · Demographics · Water · Energy · Social indicators · Long-run sovereign risk</div>
+                <div style={{ fontSize:11, color:"#9a9590", marginTop:8, fontStyle:"italic" }}>Full document contains third-party licensed data and is not for public distribution.</div>
               </div>
-              <a href="mailto:suleimanashraf@outlook.com" style={{ fontSize:11, fontWeight:700, letterSpacing:"0.1em", textTransform:"uppercase", color:"#9a9590", whiteSpace:"nowrap", border:"1px solid #d8d4cc", padding:"7px 14px", textDecoration:"none" }}>Request → suleimanashraf@outlook.com</a>
+              <div style={{ padding:"12px 24px", borderLeft:"1px solid #d8d4cc", borderRight:"1px solid #d8d4cc", borderBottom:"1px solid #d8d4cc", background:"#fafaf8" }}>
+                <span style={{ fontSize:12, color:"#6b6b6b" }}>To discuss this analysis or Egypt more broadly — </span>
+                <a href="mailto:suleimanashraf@outlook.com" style={{ fontSize:12, color:"#c8873a", fontWeight:600, textDecoration:"none" }}>suleimanashraf@outlook.com</a>
+              </div>
             </div>
           </section>
 

@@ -410,17 +410,18 @@ export default function ResearchPage() {
               targeting spread compression from 281bps toward 220–240bps by year-end 2026.
             </p>
 
-            {/* Locked note banner */}
-            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:32, padding:"18px 28px", background:"#f4f0e8", border:"1px solid #d8d4cc", gap:24, opacity:0.75 }}>
-              <div style={{ display:"flex", alignItems:"center", gap:16 }}>
-                <div style={{ fontSize:20, color:"#9a9590" }}>🔒</div>
-                <div>
-                  <div style={{ fontSize:10, fontWeight:700, letterSpacing:"0.18em", textTransform:"uppercase", color:"#9a9590", marginBottom:4 }}>Full Research Note · 9 pages · Private</div>
-                  <div style={{ fontSize:15, fontWeight:600, color:"#6b6b6b", letterSpacing:"-0.01em" }}>Egypt Sovereign Credit Note — June 2026</div>
-                  <div style={{ fontSize:11, color:"#9a9590", marginTop:3 }}>Macro overview · Fiscal analysis · DSA · External financing · Risks · Trade recommendation</div>
-                </div>
+            {/* Restricted note banner */}
+            <div style={{ marginBottom:32 }}>
+              <div style={{ padding:"16px 24px", background:"#f4f0e8", border:"1px solid #d8d4cc", opacity:0.8 }}>
+                <div style={{ fontSize:10, fontWeight:700, letterSpacing:"0.16em", textTransform:"uppercase", color:"#9a9590", marginBottom:6 }}>Full Research Note · 9 pages</div>
+                <div style={{ fontSize:14, fontWeight:600, color:"#6b6b6b", marginBottom:4 }}>Egypt Sovereign Credit Note — June 2026</div>
+                <div style={{ fontSize:11, color:"#9a9590", lineHeight:1.6 }}>Macro overview · Fiscal analysis · DSA · External financing · Risks · Trade recommendation</div>
+                <div style={{ fontSize:11, color:"#9a9590", marginTop:8, fontStyle:"italic" }}>Full note contains third-party licensed data and is not for public distribution.</div>
               </div>
-              <a href="mailto:suleimanashraf@outlook.com" style={{ fontSize:11, fontWeight:700, letterSpacing:"0.1em", textTransform:"uppercase", color:"#9a9590", whiteSpace:"nowrap", border:"1px solid #d8d4cc", padding:"7px 14px", textDecoration:"none" }}>Request → suleimanashraf@outlook.com</a>
+              <div style={{ padding:"12px 24px", borderLeft:"1px solid #d8d4cc", borderRight:"1px solid #d8d4cc", borderBottom:"1px solid #d8d4cc", background:"#fafaf8" }}>
+                <span style={{ fontSize:12, color:"#6b6b6b" }}>To discuss this trade or the underlying analysis — </span>
+                <a href="mailto:suleimanashraf@outlook.com" style={{ fontSize:12, color:"#c8873a", fontWeight:600, textDecoration:"none" }}>suleimanashraf@outlook.com</a>
+              </div>
             </div>
 
             {/* Recommendation box */}
