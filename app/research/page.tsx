@@ -410,6 +410,19 @@ export default function ResearchPage() {
               targeting spread compression from 281bps toward 220–240bps by year-end 2026.
             </p>
 
+            {/* Locked note banner */}
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:32, padding:"18px 28px", background:"#f4f0e8", border:"1px solid #d8d4cc", gap:24, opacity:0.75 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:16 }}>
+                <div style={{ fontSize:20, color:"#9a9590" }}>🔒</div>
+                <div>
+                  <div style={{ fontSize:10, fontWeight:700, letterSpacing:"0.18em", textTransform:"uppercase", color:"#9a9590", marginBottom:4 }}>Full Research Note · 9 pages · Private</div>
+                  <div style={{ fontSize:15, fontWeight:600, color:"#6b6b6b", letterSpacing:"-0.01em" }}>Egypt Sovereign Credit Note — June 2026</div>
+                  <div style={{ fontSize:11, color:"#9a9590", marginTop:3 }}>Macro overview · Fiscal analysis · DSA · External financing · Risks · Trade recommendation</div>
+                </div>
+              </div>
+              <div style={{ fontSize:11, fontWeight:700, letterSpacing:"0.1em", textTransform:"uppercase", color:"#9a9590", whiteSpace:"nowrap", border:"1px solid #d8d4cc", padding:"7px 14px" }}>Available on request</div>
+            </div>
+
             {/* Recommendation box */}
             <div style={{ display:"grid", gridTemplateColumns:"auto 1fr", gap:0, border:"1px solid var(--border,#e8e2d9)", marginTop:32 }}>
               <div style={{ background:"var(--gold,#c8873a)", padding:"24px 28px", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", minWidth:120 }}>
