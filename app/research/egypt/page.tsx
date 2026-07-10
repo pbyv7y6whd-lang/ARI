@@ -317,7 +317,7 @@ export default function EgyptPage() {
 
           {/* ── HERO ─── */}
           <div className={s.hero}>
-            <div className={s.heroEyebrow}>EM Sovereign · Country Monitor</div>
+
             <h1 className={s.heroName}>Egypt</h1>
             <p className={s.heroRole}>Arab Republic of Egypt · B/Caa1/B · Last updated {META.lastUpdated}</p>
 
@@ -686,6 +686,19 @@ export default function EgyptPage() {
 
             <div className={s.prose}>
               <p>{STRUCTURAL_TEXT}</p>
+            </div>
+
+            {/* Locked doc banner */}
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginTop:32, padding:"18px 28px", background:"#f4f0e8", border:"1px solid #d8d4cc", gap:24, opacity:0.75 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:16 }}>
+                <div style={{ fontSize:20, color:"#9a9590" }}>🔒</div>
+                <div>
+                  <div style={{ fontSize:10, fontWeight:700, letterSpacing:"0.18em", textTransform:"uppercase", color:"#9a9590", marginBottom:4 }}>Full Analysis · Private</div>
+                  <div style={{ fontSize:15, fontWeight:600, color:"#6b6b6b", letterSpacing:"-0.01em" }}>Egypt: Structural Features</div>
+                  <div style={{ fontSize:11, color:"#9a9590", marginTop:3 }}>Infrastructure · Demographics · Water · Energy · Social indicators · Long-run sovereign risk</div>
+                </div>
+              </div>
+              <a href="mailto:suleimanashraf@outlook.com" style={{ fontSize:11, fontWeight:700, letterSpacing:"0.1em", textTransform:"uppercase", color:"#9a9590", whiteSpace:"nowrap", border:"1px solid #d8d4cc", padding:"7px 14px", textDecoration:"none" }}>Request → suleimanashraf@outlook.com</a>
             </div>
           </section>
 
