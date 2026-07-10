@@ -420,7 +420,7 @@ export default function ResearchPage() {
                   <div style={{ fontSize:11, color:"#9a9590", marginTop:3 }}>Macro overview · Fiscal analysis · DSA · External financing · Risks · Trade recommendation</div>
                 </div>
               </div>
-              <div style={{ fontSize:11, fontWeight:700, letterSpacing:"0.1em", textTransform:"uppercase", color:"#9a9590", whiteSpace:"nowrap", border:"1px solid #d8d4cc", padding:"7px 14px" }}>Available on request</div>
+              <a href="mailto:suleimanashraf@outlook.com" style={{ fontSize:11, fontWeight:700, letterSpacing:"0.1em", textTransform:"uppercase", color:"#9a9590", whiteSpace:"nowrap", border:"1px solid #d8d4cc", padding:"7px 14px", textDecoration:"none" }}>Request → suleimanashraf@outlook.com</a>
             </div>
 
             {/* Recommendation box */}
