@@ -321,6 +321,18 @@ export default function EgyptPage() {
             <h1 className={s.heroName}>Egypt</h1>
             <p className={s.heroRole}>Arab Republic of Egypt · B/Caa1/B · Last updated {META.lastUpdated}</p>
 
+            {/* Restricted banner */}
+            <div style={{ marginBottom: 20, marginTop: 4 }}>
+              <div style={{ padding: "14px 20px", background: "#f4f0e8", border: "1px solid #d8d4cc", opacity: 0.8 }}>
+                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "#9a9590", marginBottom: 4 }}>Egypt Sovereign Risk — Full Analysis</div>
+                <div style={{ fontSize: 11, color: "#9a9590", fontStyle: "italic" }}>Full document contains third-party licensed data and is not for public distribution.</div>
+              </div>
+              <div style={{ padding: "10px 20px", borderLeft: "1px solid #d8d4cc", borderRight: "1px solid #d8d4cc", borderBottom: "1px solid #d8d4cc", background: "#fafaf8" }}>
+                <span style={{ fontSize: 12, color: "#6b6b6b" }}>Please reach out: </span>
+                <a href="mailto:suleimanashraf@outlook.com" style={{ fontSize: 12, color: "#c8873a", fontWeight: 600, textDecoration: "none" }}>suleimanashraf@outlook.com</a>
+              </div>
+            </div>
+
             {/* Ratings strip */}
             <div style={{ display: "flex", gap: 0, margin: "20px 0", border: "1px solid #d8d4cc", width: "fit-content" }}>
               {RATINGS.map((r, i) => (
