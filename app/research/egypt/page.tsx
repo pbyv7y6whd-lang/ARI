@@ -697,7 +697,7 @@ export default function EgyptPage() {
                 <div style={{ fontSize:11, color:"#9a9590", marginTop:8, fontStyle:"italic" }}>Full document contains third-party licensed data and is not for public distribution.</div>
               </div>
               <div style={{ padding:"12px 24px", borderLeft:"1px solid #d8d4cc", borderRight:"1px solid #d8d4cc", borderBottom:"1px solid #d8d4cc", background:"#fafaf8" }}>
-                <span style={{ fontSize:12, color:"#6b6b6b" }}>To discuss this analysis or Egypt more broadly — </span>
+                <span style={{ fontSize:12, color:"#6b6b6b" }}>For a copy or to discuss Egypt, please reach out: </span>
                 <a href="mailto:suleimanashraf@outlook.com" style={{ fontSize:12, color:"#c8873a", fontWeight:600, textDecoration:"none" }}>suleimanashraf@outlook.com</a>
               </div>
             </div>
